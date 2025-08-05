@@ -28,19 +28,18 @@ return [
                 'active' => 'admin.dashboard',
             ],
             [
-                'text' => 'Cấu hình',
-                'icon' => 'bi bi-gear',
-                'active' => 'admin/config-ai*',
+                'text' => 'Quản lý đất đai',
+                'icon' => 'bi bi-house',
+                'active' => 'admin/land-rental-contracts*',
                 'submenu' => [
                     [
-                        'text' => 'Storage AI',
-                        'icon' => 'bi bi-hdd-network',
-                        'route' => 'admin.config-ai.storage-ai.index',
-                        'active' => 'admin/config-ai/storage-ai*',
+                        'text' => 'Hợp đồng thuê đất',
+                        'icon' => 'bi bi-file-earmark-text',
+                        'route' => 'admin.land-rental-contracts.index',
+                        'active' => 'admin/land-rental-contracts*',
                     ],
                 ],
             ],
-
         ],
     ],
 ];

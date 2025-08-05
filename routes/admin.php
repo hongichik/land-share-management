@@ -19,17 +19,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('logout', [AuthController::class, 'logout'])->name('logout');
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        
-        // StorageAI routes
-        Route::prefix('config-ai/storage-ai')->name('config-ai.storage-ai.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'index'])->name('index');
-            Route::get('/create', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'create'])->name('create');
-            Route::get('/upload-file', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'uploadFile'])->name('upload-file');
-            Route::post('/', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'store'])->name('store');
-            Route::get('/{storageAI}/edit', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'edit'])->name('edit');
-            Route::put('/{storageAI}', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'update'])->name('update');
-            Route::delete('/{storageAI}', [\App\Http\Controllers\Admin\ConfigAI\StorageAIController::class, 'destroy'])->name('destroy');
-        });
+
+        // Land Rental Contracts routes
+        Route::resource('land-rental-contracts', \App\Http\Controllers\Admin\LandRentalContractController::class)->names([
+            'index' => 'land-rental-contracts.index',
+            'create' => 'land-rental-contracts.create',
+            'store' => 'land-rental-contracts.store',
+            'show' => 'land-rental-contracts.show',
+            'edit' => 'land-rental-contracts.edit',
+            'update' => 'land-rental-contracts.update',
+            'destroy' => 'land-rental-contracts.destroy',
+        ]);
     });
 });
 

@@ -1,30 +1,31 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý StorageAI')
-@section('page_title', 'Quản lý StorageAI')
+@section('title', 'Quản lý Hợp đồng thuê đất')
+@section('page_title', 'Quản lý Hợp đồng thuê đất')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách StorageAI</h3>
+                <h3 class="card-title">Danh sách Hợp đồng thuê đất</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.config-ai.storage-ai.create') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> Thêm StorageAI
+                    <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus"></i> Thêm Hợp đồng
                     </a>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="storageai-table">
+                    <table class="table table-bordered table-striped" id="contracts-table">
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
-                                <th>Tên AI</th>
-                                <th>Mô tả</th>
-                                <th>URL dữ liệu</th>
-                                <th>ID Storage</th>
+                                <th>Số hợp đồng</th>
+                                <th>Khu vực thuê</th>
+                                <th>Vị trí thuê</th>
+                                <th>Thuế xuất</th>
+                                <th>File hợp đồng</th>
                                 <th>Ngày tạo</th>
                                 <th width="15%">Thao tác</th>
                             </tr>
@@ -49,17 +50,18 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#storageai-table').DataTable({
+    $('#contracts-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
-        ajax: "{{ route('admin.config-ai.storage-ai.index') }}",
+        ajax: "{{ route('admin.land-rental-contracts.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'name_ai', name: 'name_ai'},
-            {data: 'des', name: 'des'},
-            {data: 'data', name: 'data'},
-            {data: 'id_storage', name: 'id_storage'},
+            {data: 'contract_number', name: 'contract_number'},
+            {data: 'rental_zone', name: 'rental_zone'},
+            {data: 'rental_location', name: 'rental_location'},
+            {data: 'export_tax', name: 'export_tax'},
+            {data: 'contract_file_path', name: 'contract_file_path'},
             {data: 'created_at', name: 'created_at'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
