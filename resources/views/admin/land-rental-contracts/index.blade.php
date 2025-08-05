@@ -22,12 +22,14 @@
                             <tr>
                                 <th width="5%">#</th>
                                 <th>Số hợp đồng</th>
+                                <th>Quyết định cho thuê đất</th>
                                 <th>Khu vực thuê</th>
                                 <th>Vị trí thuê</th>
+                                <th>Diện tích</th>
+                                <th>Thời hạn thuê</th>
                                 <th>Thuế xuất</th>
-                                <th>File hợp đồng</th>
                                 <th>Ngày tạo</th>
-                                <th width="15%">Thao tác</th>
+                                <th width="15%" class="nowrap">Thao tác</th>
                             </tr>
                         </thead>
                     </table>
@@ -54,14 +56,19 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         responsive: true,
+        columnDefs: [
+            { responsivePriority: 1, targets: -1 },  // Cột cuối luôn ưu tiên hiển thị
+        ],
         ajax: "{{ route('admin.land-rental-contracts.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'contract_number', name: 'contract_number'},
+            {data: 'rental_decision', name: 'rental_decision'},
             {data: 'rental_zone', name: 'rental_zone'},
             {data: 'rental_location', name: 'rental_location'},
+            {data: 'area', name: 'area'},
+            {data: 'rental_period', name: 'rental_period'},
             {data: 'export_tax', name: 'export_tax'},
-            {data: 'contract_file_path', name: 'contract_file_path'},
             {data: 'created_at', name: 'created_at'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],

@@ -279,7 +279,7 @@
                     const end = new Date(endDate);
                     const diffTime = Math.abs(end - start);
                     const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
-                    $('#rental_years').val(diffYears.toFixed(1));
+                    $('#rental_years').val(Math.ceil(diffYears));
                 }
             }
 
@@ -300,7 +300,7 @@
             });
 
             // Validate ngày kết thúc phải sau ngày bắt đầu
-            $('#rental_end_date').on('change', function() {
+            $('#rental_end_date').on('blur', function() {
                 const startDate = $('#rental_start_date').val();
                 const endDate = $('#rental_end_date').val();
 

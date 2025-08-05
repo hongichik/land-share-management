@@ -17,35 +17,74 @@ class LandRentalContractController extends Controller
     {
         if ($request->ajax()) {
             $contracts = LandRentalContract::select([
-                'id', 'contract_number', 'rental_zone', 'rental_location', 'rental_decision',
-                'contract_file_path', 'rental_decision_file_path', 'export_tax', 'created_at'
+                'id',
+                'contract_number',
+                'rental_zone',
+                'rental_location',
+                'rental_decision',
+                'contract_file_path',
+                'rental_decision_file_path',
+                'export_tax',
+                'area',
+                'rental_period',
+                'created_at'
             ]);
-            
+
             return DataTables::of($contracts)
                 ->addIndexColumn()
-                ->editColumn('contract_number', function($item) {
-                    return '<strong>' . $item->contract_number . '</strong>';
-                })
-                ->editColumn('rental_zone', function($item) {
-                    return $item->rental_zone ?: 'Chưa có thông tin';
-                })
-                ->editColumn('rental_location', function($item) {
-                    return $item->rental_location ?: 'Chưa có thông tin';
-                })
-                ->editColumn('export_tax', function($item) {
-                    return number_format($item->export_tax * 100, 2) . '%';
-                })
-                ->editColumn('contract_file_path', function($item) {
+                ->editColumn('contract_number', function ($item) {
                     if ($item->contract_file_path) {
                         $url = asset('storage/' . str_replace('public/', '', $item->contract_file_path));
-                        return '<a href="' . $url . '" target="_blank" class="btn btn-sm btn-info">Xem file</a>';
+                        return '<strong>' . $item->contract_number . '</strong> <br/><a href="' . $url . '" target="_blank" class="btn btn-sm btn-info">Xem file</a>';
+                    } else {
+                        return '<strong>' . $item->contract_number . '</strong>';
                     }
-                    return 'Chưa có file';
                 })
-                ->editColumn('created_at', function($item) {
+                ->editColumn('rental_decision', function ($item) {
+                    if ($item->contract_file_path) {
+                        $url = asset('storage/' . str_replace('public/', '', $item->rental_decision_file_path));
+                        return '<strong>' . $item->rental_decision . '</strong> <br/><a href="' . $url . '" target="_blank" class="btn btn-sm btn-info">Xem file</a>';
+                    } else {
+                        return '<strong>' . $item->rental_decision . '</strong>';
+                    }
+                })
+                ->editColumn('area', function ($item) {
+                    if ($item->area && isset($item->area['value'])) {
+                        return number_format($item->area['value'], 2) . ' ' . ($item->area['unit'] ?? 'm2');
+                    }
+                    return 'Chưa có thông tin';
+                })
+                ->editColumn('rental_period', function ($item) {
+                    if ($item->rental_period) {
+                        $period = $item->rental_period;
+                        $display = [];
+                        
+                        if (isset($period['start_date']) && isset($period['end_date'])) {
+                            $display[] = 'Từ ' . date('d/m/Y', strtotime($period['start_date'])) . ' đến ' . date('d/m/Y', strtotime($period['end_date']));
+                        }
+                        
+                        if (isset($period['years'])) {
+                            $display[] = $period['years'] . ' năm';
+                        }
+                        
+                        return implode('<br/>', $display);
+                    }
+                    return 'Chưa có thông tin';
+                })
+                ->editColumn('rental_zone', function ($item) {
+                    return $item->rental_zone ?: 'Chưa có thông tin';
+                })
+                ->editColumn('rental_location', function ($item) {
+                    return $item->rental_location ?: 'Chưa có thông tin';
+                })
+                ->editColumn('export_tax', function ($item) {
+                    return number_format($item->export_tax * 100, 2) . '%';
+                })
+                ->editColumn('contract_file_path', function ($item) {})
+                ->editColumn('created_at', function ($item) {
                     return $item->created_at->format('d/m/Y H:i');
                 })
-                ->addColumn('action', function($item) {
+                ->addColumn('action', function ($item) {
                     $showBtn = '<a href="' . route('admin.land-rental-contracts.show', $item) . '" class="btn btn-info btn-sm" title="Xem chi tiết">
                         <i class="fas fa-eye"></i>
                     </a>';
@@ -60,10 +99,10 @@ class LandRentalContractController extends Controller
                     </form>';
                     return '<div class="btn-group" role="group">' . $showBtn . ' ' . $editBtn . ' ' . $deleteBtn . '</div>';
                 })
-                ->rawColumns(['contract_number', 'contract_file_path', 'action'])
+                ->rawColumns(['contract_number','rental_decision', 'rental_period', 'contract_file_path', 'action'])
                 ->make(true);
         }
-        
+
         return view('admin.land-rental-contracts.index');
     }
 
@@ -120,7 +159,7 @@ class LandRentalContractController extends Controller
                 'unit' => $request->area_unit ?? 'm2'
             ];
         }
-        
+
         $rental_period = null;
         if ($request->rental_start_date) {
             $rental_period = [
@@ -216,7 +255,7 @@ class LandRentalContractController extends Controller
                 'unit' => $request->area_unit ?? 'm2'
             ];
         }
-        
+
         $rental_period = null;
         if ($request->rental_start_date) {
             $rental_period = [
@@ -255,9 +294,9 @@ class LandRentalContractController extends Controller
         if ($landRentalContract->rental_decision_file_path && Storage::exists($landRentalContract->rental_decision_file_path)) {
             Storage::delete($landRentalContract->rental_decision_file_path);
         }
-        
+
         $landRentalContract->delete();
-        
+
         return redirect()->route('admin.land-rental-contracts.index')->with('success', 'Xóa hợp đồng thuê đất thành công!');
     }
 }
