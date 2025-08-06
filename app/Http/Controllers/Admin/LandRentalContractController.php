@@ -95,7 +95,7 @@ class LandRentalContractController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $contracts = LandRentalContract::with('landRentalPrices')->select([
+            $contracts = LandRentalContract::with(['landRentalPrices', 'paymentHistories'])->select([
                 'id',
                 'contract_number',
                 'rental_zone',
@@ -112,21 +112,45 @@ class LandRentalContractController extends Controller
 
             return DataTables::of($contracts)
                 ->addIndexColumn()
-                ->editColumn('contract_number', function ($item) {
+                ->editColumn('contract_and_decision', function ($item) {
+                    $result = '<div class="contract-decision-info">';
+                    $result .= '<strong>📄 ' . $item->contract_number . '</strong><br/>';
+                    
                     if ($item->contract_file_path) {
-                        $url = asset('storage/' . str_replace('public/', '', $item->contract_file_path));
-                        return '<strong>' . $item->contract_number . '</strong> <br/><a href="' . $url . '" target="_blank" class="btn btn-sm btn-info">Xem file</a>';
-                    } else {
-                        return '<strong>' . $item->contract_number . '</strong>';
+                        $contractUrl = asset('storage/' . str_replace('public/', '', $item->contract_file_path));
+                        $result .= '<a href="' . $contractUrl . '" target="_blank" class="btn btn-outline-primary btn-sm mb-1" title="Xem file hợp đồng">
+                            <i class="fas fa-file-pdf"></i> File HĐ
+                        </a><br/>';
                     }
+                    
+                    $result .= '<small><strong>🏛️ ' . ($item->rental_decision ?: 'Chưa có QĐ') . '</strong></small>';
+                    
+                    if ($item->rental_decision_file_path) {
+                        $decisionUrl = asset('storage/' . str_replace('public/', '', $item->rental_decision_file_path));
+                        $result .= '<br/><a href="' . $decisionUrl . '" target="_blank" class="btn btn-outline-info btn-sm" title="Xem file quyết định">
+                            <i class="fas fa-file-alt"></i> File QĐ
+                        </a>';
+                    }
+                    
+                    $result .= '</div>';
+                    return $result;
                 })
-                ->editColumn('rental_decision', function ($item) {
-                    if ($item->contract_file_path) {
-                        $url = asset('storage/' . str_replace('public/', '', $item->rental_decision_file_path));
-                        return '<strong>' . $item->rental_decision . '</strong> <br/><a href="' . $url . '" target="_blank" class="btn btn-sm btn-info">Xem file</a>';
+                ->editColumn('rental_zone', function ($item) {
+                    $result = '<div class="location-info">';
+                    if ($item->rental_zone) {
+                        $result .= '<strong>🗺️ Khu vực:</strong> ' . $item->rental_zone . '<br/>';
                     } else {
-                        return '<strong>' . $item->rental_decision . '</strong>';
+                        $result .= '<strong>🗺️ Khu vực:</strong> <em class="text-muted">Chưa có thông tin</em><br/>';
                     }
+                    
+                    if ($item->rental_location) {
+                        $result .= '<strong>📍 Vị trí:</strong> ' . $item->rental_location;
+                    } else {
+                        $result .= '<strong>📍 Vị trí:</strong> <em class="text-muted">Chưa có thông tin</em>';
+                    }
+                    
+                    $result .= '</div>';
+                    return $result;
                 })
                 ->editColumn('area', function ($item) {
                     $areaInfo = '';
@@ -147,8 +171,16 @@ class LandRentalContractController extends Controller
 
                     // Calculate rental fee information
                     $yearlyRentalFee = 0;
-                    $latestPrice = $item->landRentalPrices()
-                        ->orderBy('created_at', 'desc')
+                    $today = now()->toDateString(); // lấy ngày hiện tại yyyy-mm-dd
+
+                    $latestPrice = $item->landRentalPrices
+                        ->filter(function ($price) use ($today) {
+                            $start = $price->price_period['start'];
+                            $end = $price->price_period['end'];
+
+                            return $start <= $today && $end >= $today;
+                        })
+                        ->sortByDesc('created_at')
                         ->first();
 
                     if ($latestPrice && $latestPrice->rental_price) {
@@ -187,12 +219,6 @@ class LandRentalContractController extends Controller
                     }
                     return 'Chưa có thông tin';
                 })
-                ->editColumn('rental_zone', function ($item) {
-                    return $item->rental_zone ?: 'Chưa có thông tin';
-                })
-                ->editColumn('rental_location', function ($item) {
-                    return $item->rental_location ?: 'Chưa có thông tin';
-                })
                 ->editColumn('land_tax_price', function ($item) {
                     $result = 'Thuế: ' . number_format($item->export_tax * 100, 2) . '%<br/>';
                     $result .= 'Đơn giá thuế: ' . ($item->land_tax_price ? number_format($item->land_tax_price, 0, ',', '.') . ' VND/m²' : 'Chưa có') . '<br/>';
@@ -200,7 +226,7 @@ class LandRentalContractController extends Controller
                     // Calculate land tax amounts if all required data is available
                     if ($item->area && isset($item->area['value']) && $item->land_tax_price && $item->export_tax) {
                         $area = $item->area['value'];
-                        
+
                         // Get periods using helper function
                         $currentYear = date('Y');
                         $periods = $this->calculatePeriodMonths($item, $currentYear);
@@ -219,7 +245,166 @@ class LandRentalContractController extends Controller
 
                     return $result;
                 })
-                ->editColumn('contract_file_path', function ($item) {})
+                ->editColumn('payment', function ($item) {
+                    $currentYear = date('Y');
+                    $result = '<div class="payment-info">';
+                    
+                    // Lấy tất cả thanh toán của hợp đồng này trong năm hiện tại
+                    $payments = $item->paymentHistories()
+                        ->whereYear('payment_date', $currentYear)
+                        ->get();
+                    
+                    // Tính toán số tiền cần thanh toán cho mỗi kỳ
+                    $periods = $this->calculatePeriodMonths($item, $currentYear);
+                    $period1Months = $periods['period1_months'];
+                    $period2Months = $periods['period2_months'];
+                    
+                    // Lấy giá thuê hiện tại
+                    $today = now()->toDateString();
+                    $latestPrice = $item->landRentalPrices
+                        ->filter(function ($price) use ($today) {
+                            $start = $price->price_period['start'];
+                            $end = $price->price_period['end'];
+                            return $start <= $today && $end >= $today;
+                        })
+                        ->sortByDesc('created_at')
+                        ->first();
+                    
+                    $yearlyRentalFee = 0;
+                    if ($latestPrice && $latestPrice->rental_price && $item->area && isset($item->area['value'])) {
+                        $yearlyRentalFee = $latestPrice->rental_price * $item->area['value'];
+                    }
+                    
+                    // Ngày hiện tại để kiểm tra deadline
+                    $currentDate = now();
+                    $currentMonth = $currentDate->month;
+                    $currentDay = $currentDate->day;
+                    
+                    // Tính toán cho từng kỳ
+                    for ($period = 1; $period <= 2; $period++) {
+                        $periodMonths = $period == 1 ? $period1Months : $period2Months;
+                        $periodName = $period == 1 ? 'Kỳ 1' : 'Kỳ 2';
+                        
+                        // Deadline cho mỗi kỳ
+                        $deadline = $period == 1 ? '31/5' : '31/10';
+                        $deadlineMonth = $period == 1 ? 5 : 10;
+                        $deadlineDay = 31;
+                        
+                        // Tính số tiền cần thanh toán cho kỳ này
+                        $requiredAmount = $yearlyRentalFee > 0 ? ($yearlyRentalFee / 12) * $periodMonths : 0;
+                        
+                        // Tính tổng số tiền đã thanh toán cho kỳ này
+                        $paidAmount = $payments->where('period', $period)->sum('amount');
+                        
+                        // Tính số tiền còn lại
+                        $remainingAmount = $requiredAmount - $paidAmount;
+                        
+                        $result .= '<strong>' . $periodName . ' (' . $periodMonths . ' tháng):</strong><br/>';
+                        
+                        if ($requiredAmount > 0) {
+                            $result .= '<small class="text-info">Cần: ' . number_format($requiredAmount, 0, ',', '.') . ' VND</small><br/>';
+                            $result .= '<small class="text-success">Đã trả: ' . number_format($paidAmount, 0, ',', '.') . ' VND</small><br/>';
+                            
+                            if ($remainingAmount > 0) {
+                                $result .= '<span class="payment-status partial">Còn lại: ' . number_format($remainingAmount, 0, ',', '.') . ' VND</span><br/>';
+                                
+                                // Kiểm tra cảnh báo deadline với các mức độ khác nhau
+                                $showWarning = false;
+                                $warningClass = '';
+                                $warningText = '';
+                                $warningIcon = '';
+                                
+                                if ($period == 1) {
+                                    // Kỳ 1: deadline 31/5
+                                    if ($currentMonth <= 5) {
+                                        if ($currentMonth == 5 && $currentDay >= 25) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning critical';
+                                            $warningIcon = '🚨';
+                                            $warningText = 'KHẨN CẤP! Phải nộp trước 31/5/' . $currentYear;
+                                        } else if ($currentMonth == 5) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning danger';
+                                            $warningIcon = '⚠️';
+                                            $warningText = 'SẮP HẾT HẠN! Phải nộp trước 31/5/' . $currentYear;
+                                        } else if ($currentMonth >= 4) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning warning';
+                                            $warningIcon = '⏰';
+                                            $warningText = 'Cảnh báo: Phải nộp trước 31/5/' . $currentYear;
+                                        }
+                                    } else if ($currentMonth > 5) {
+                                        $showWarning = true;
+                                        $warningClass = 'deadline-warning danger';
+                                        $warningIcon = '🚨';
+                                        $warningText = 'QUÁ HẠN! Đã quá 31/5/' . $currentYear;
+                                    }
+                                } else {
+                                    // Kỳ 2: deadline 31/10
+                                    if ($currentMonth <= 10) {
+                                        if ($currentMonth == 10 && $currentDay >= 25) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning critical';
+                                            $warningIcon = '🚨';
+                                            $warningText = 'KHẨN CẤP! Phải nộp trước 31/10/' . $currentYear;
+                                        } else if ($currentMonth == 10) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning danger';
+                                            $warningIcon = '⚠️';
+                                            $warningText = 'SẮP HẾT HẠN! Phải nộp trước 31/10/' . $currentYear;
+                                        } else if ($currentMonth >= 9) {
+                                            $showWarning = true;
+                                            $warningClass = 'deadline-warning warning';
+                                            $warningIcon = '⏰';
+                                            $warningText = 'Cảnh báo: Phải nộp trước 31/10/' . $currentYear;
+                                        }
+                                    } else if ($currentMonth > 10) {
+                                        $showWarning = true;
+                                        $warningClass = 'deadline-warning danger';
+                                        $warningIcon = '🚨';
+                                        $warningText = 'QUÁ HẠN! Đã quá 31/10/' . $currentYear;
+                                    }
+                                }
+                                
+                                if ($showWarning) {
+                                    $result .= '<span class="' . $warningClass . '">' . $warningIcon . ' ' . $warningText . '</span>';
+                                }
+                                
+                            } else if ($remainingAmount < 0) {
+                                $result .= '<span class="payment-status surplus">Thừa: ' . number_format(abs($remainingAmount), 0, ',', '.') . ' VND</span>';
+                            } else {
+                                $result .= '<span class="payment-status paid">✓ Đã thanh toán đủ</span>';
+                            }
+                        } else {
+                            $result .= '<small class="text-muted">Chưa có thông tin giá thuê</small>';
+                        }
+                        
+                        // Thêm ghi chú deadline chi tiết cho mỗi kỳ
+                        $deadlineNote = '<div style="margin-top: 5px; padding: 3px 6px; background-color: #f8f9fa; border-left: 3px solid ';
+                        if ($period == 1) {
+                            $deadlineNote .= '#17a2b8;';
+                        } else {
+                            $deadlineNote .= '#ffc107;';
+                        }
+                        $deadlineNote .= ' font-size: 0.75em;">';
+                        $deadlineNote .= '<strong>📅 Deadline ' . $periodName . ':</strong> Phải nộp tiền thuê đất trước <strong>' . $deadline . '/' . $currentYear . '</strong><br/>';
+                        $deadlineNote .= '<em>Hệ thống sẽ cảnh báo từ tháng ';
+                        if ($period == 1) {
+                            $deadlineNote .= '4 và khẩn cấp từ ngày 25/5';
+                        } else {
+                            $deadlineNote .= '9 và khẩn cấp từ ngày 25/10';
+                        }
+                        $deadlineNote .= '</em></div>';
+                        $result .= $deadlineNote;
+                        
+                        if ($period == 1) {
+                            $result .= '<hr/>';
+                        }
+                    }
+                    
+                    $result .= '</div>';
+                    return $result;
+                })
                 ->addColumn('action', function ($item) {
                     $showBtn = '<a href="' . route('admin.land-rental-contracts.show', $item) . '" class="btn btn-info btn-sm" title="Xem chi tiết">
                         <i class="fas fa-eye"></i>
@@ -241,7 +426,7 @@ class LandRentalContractController extends Controller
                     </form>';
                     return '<div class="btn-group" role="group">' . $showBtn . ' ' . $priceBtn . ' ' . $paymentBtn . ' ' . $editBtn . ' ' . $deleteBtn . '</div>';
                 })
-                ->rawColumns(['contract_number', 'rental_decision', 'area', 'land_tax_price', 'rental_period', 'contract_file_path', 'action'])
+                ->rawColumns(['contract_and_decision', 'rental_zone', 'area', 'land_tax_price','payment', 'rental_period', 'action'])
                 ->make(true);
         }
 

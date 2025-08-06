@@ -71,3 +71,17 @@
     color: #fff;
     background-color: #6c757d;
 }
+
+/* Custom styles for payment column */
+.payment-info {
+    line-height: 1.3;
+}
+
+.payment-info hr {
+    margin: 3px 0;
+    border-color: #dee2e6;
+}
+
+.payment-info strong {
+    color: #495057;
+}
