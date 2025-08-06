@@ -30,6 +30,27 @@ Route::prefix('admin')->name('admin.')->group(function () {
             'update' => 'land-rental-contracts.update',
             'destroy' => 'land-rental-contracts.destroy',
         ]);
+
+        // Land Rental Prices routes
+        Route::prefix('land-rental-contracts/{landRentalContract}/prices')->name('land-rental-prices.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'index'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'store'])->name('store');
+            Route::get('{landRentalPrice}/edit', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'edit'])->name('edit');
+            Route::put('{landRentalPrice}', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'update'])->name('update');
+            Route::delete('{landRentalPrice}', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'destroy'])->name('destroy');
+        });
+
+        // Land Rental Payment Histories routes
+        Route::prefix('land-rental-contracts/{landRentalContract}/payment-histories')->name('land-rental-payment-histories.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'index'])->name('index');
+            Route::get('create', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'store'])->name('store');
+            Route::get('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'show'])->name('show');
+            Route::get('{landRentalPaymentHistory}/edit', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'edit'])->name('edit');
+            Route::put('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'update'])->name('update');
+            Route::delete('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'destroy'])->name('destroy');
+        });
     });
 });
 

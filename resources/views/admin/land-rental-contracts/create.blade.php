@@ -90,15 +90,13 @@
                                 @enderror
                             </div>
                         </div>
-                    </div>
-
-                    <div class="row">
+                    </div>                    <div class="row">
                         <!-- Thuế xuất -->
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="export_tax">Thuế xuất (%)</label>
                                 <input type="number" class="form-control @error('export_tax') is-invalid @enderror" 
-                                       id="export_tax" name="export_tax" value="{{ old('export_tax', 0.03) }}" 
+                                       id="export_tax" name="export_tax" value="{{ old('export_tax', 0.03) }}"
                                        step="0.0001" min="0" max="1">
                                 @error('export_tax')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -106,6 +104,21 @@
                             </div>
                         </div>
 
+                        <!-- Giá thuế đất -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="land_tax_price">Giá thuế đất (VND)</label>
+                                <input type="number" class="form-control @error('land_tax_price') is-invalid @enderror" 
+                                       id="land_tax_price" name="land_tax_price" value="{{ old('land_tax_price') }}"
+                                       min="0" placeholder="Nhập giá thuế đất">
+                                @error('land_tax_price')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <!-- Diện tích -->
                         <div class="col-md-12">
                             <div class="form-group">

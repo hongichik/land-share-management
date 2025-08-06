@@ -1,0 +1,173 @@
+@extends('layouts.layout-master')
+
+@section('title', 'Sửa Giá thuê đất')
+@section('page_title', 'Sửa Giá thuê đất')
+
+@section('content')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Sửa Giá thuê đất</h3>
+                    <div class="card-tools">
+                        <a href="{{ route('admin.land-rental-prices.index', $landRentalContract) }}"
+                            class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </div>
+                <form action="{{ route('admin.land-rental-prices.update', [$landRentalContract, $landRentalPrice]) }}"
+                    method="POST" enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="price_decision">Quyết định giá thuê</label>
+                            <input type="text" class="form-control @error('price_decision') is-invalid @enderror"
+                                id="price_decision" name="price_decision"
+                                value="{{ old('price_decision', $landRentalPrice->price_decision) }}">
+                            @error('price_decision')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price_decision_file">File Quyết định giá thuê</label>
+                            @if ($landRentalPrice->price_decision_file_path)
+                                <div class="mb-2">
+                                    <small class="text-muted">File hiện tại: </small>
+                                    <a href="{{ asset('storage/' . str_replace('public/', '', $landRentalPrice->price_decision_file_path)) }}"
+                                        target="_blank" class="btn btn-sm btn-info">Xem file</a>
+                                </div>
+                            @endif
+                            <input type="file" class="form-control @error('price_decision_file') is-invalid @enderror"
+                                id="price_decision_file" name="price_decision_file">
+                            @error('price_decision_file')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="price_period">Thời gian áp dụng</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label for="price_period_start">Ngày bắt đầu</label>
+                                    <input type="date" class="form-control" id="price_period_start"
+                                        name="price_period[start]"
+                                        value="{{ old('price_period.start', $landRentalPrice->price_period['start'] ?? '') }}"
+                                        readonly>
+                                    <small class="text-muted">Thời gian bắt đầu không thể thay đổi</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="price_period_end">Ngày kết thúc <span class="text-danger">*</span></label>
+                                    <input type="date"
+                                        class="form-control @error('price_period.end') is-invalid @enderror"
+                                        id="price_period_end" name="price_period[end]"
+                                        value="{{ old('price_period.end', $landRentalPrice->price_period['end'] ?? '') }}"
+                                        required>
+                                    @error('price_period.end')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="price_period_years">Số năm</label>
+                                    <input type="number" step="0.1"
+                                        class="form-control @error('price_period.years') is-invalid @enderror"
+                                        id="price_period_years" name="price_period[years]"
+                                        value="{{ old('price_period.years', $landRentalPrice->price_period['years'] ?? '') }}"
+                                        placeholder="Số năm">
+                                    @error('price_period.years')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i> Nhập ngày kết thúc hoặc số năm để tự động tính toán.
+                            </small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="rental_price">Giá thuê</label>
+                            <input type="number" step="0.01"
+                                class="form-control @error('rental_price') is-invalid @enderror" id="rental_price"
+                                name="rental_price" value="{{ old('rental_price', $landRentalPrice->rental_price) }}">
+                            @error('rental_price')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Cập nhật Giá thuê đất
+                        </button>
+                        <a href="{{ route('admin.land-rental-prices.index', $landRentalContract) }}"
+                            class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Hủy
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            function calculatePeriod() {
+                const startDate = $('#price_period_start').val();
+                const endDate = $('#price_period_end').val();
+                const years = $('#price_period_years').val();
+
+                if (startDate && years && years > 0) {
+                    const start = new Date(startDate);
+                    const end = new Date(start);
+                    end.setFullYear(start.getFullYear() + parseFloat(years));
+                    $('#price_period_end').val(end.toISOString().split('T')[0]);
+                } else if (startDate && endDate) {
+                    const start = new Date(startDate);
+                    const end = new Date(endDate);
+                    if (end > start) {
+                        const diffTime = Math.abs(end - start);
+                        const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+                        $('#price_period_end').val(Math.ceil(diffYears));
+                    }
+                }
+            }
+
+            // Khi thay đổi số năm
+            $('#price_period_years').on('input change', function() {
+                const startDate = $('#price_period_start').val();
+                const years = parseFloat($(this).val());
+                
+                if (startDate && years && years > 0) {
+                    calculatePeriod();
+                }
+            });
+
+            // Khi thay đổi ngày kết thúc
+            $('#price_period_end').on('change', function() {
+                const startDate = $('#price_period_start').val();
+                const endDate = $(this).val();
+                
+                if (startDate && endDate && new Date(endDate) > new Date(startDate)) {
+                    $('#price_period_years').val(''); // Clear years trước khi tính
+                    calculatePeriod();
+                }
+            });
+
+            // Validate ngày kết thúc
+            $('#price_period_end').on('blur', function() {
+                const startDate = $('#price_period_start').val();
+                const endDate = $(this).val();
+
+                if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+                    alert('Ngày kết thúc phải sau ngày bắt đầu!');
+                    $(this).val('');
+                    $('#price_period_years').val('');
+                }
+            });
+        });
+    </script>
+@endpush

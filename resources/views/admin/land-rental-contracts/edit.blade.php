@@ -145,8 +145,24 @@
                                 </div>
                             </div>
 
-                            <!-- Diện tích -->
+                            <!-- Giá thuế đất -->
                             <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="land_tax_price">Giá thuế đất (VND)</label>
+                                    <input type="number" class="form-control @error('land_tax_price') is-invalid @enderror"
+                                        id="land_tax_price" name="land_tax_price"
+                                        value="{{ old('land_tax_price', $landRentalContract->land_tax_price) }}"
+                                        min="0" placeholder="Nhập giá thuế đất">
+                                    @error('land_tax_price')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <!-- Diện tích -->
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label>Thông tin diện tích</label>
                                     <div class="row">

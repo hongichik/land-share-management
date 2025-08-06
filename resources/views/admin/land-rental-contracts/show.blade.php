@@ -10,6 +10,10 @@
                 <div class="card-header">
                     <h3 class="card-title">Chi tiết Hợp đồng thuê đất: {{ $landRentalContract->contract_number }}</h3>
                     <div class="card-tools">
+                        <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}"
+                            class="btn btn-info btn-sm">
+                            <i class="fas fa-money-bill-wave"></i> Lịch sử thanh toán
+                        </a>
                         <a href="{{ route('admin.land-rental-contracts.edit', $landRentalContract) }}"
                             class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Sửa
@@ -32,6 +36,13 @@
                             <p><strong>Vị trí thuê đất:</strong>
                                 {{ $landRentalContract->rental_location ?: 'Chưa có thông tin' }}</p>
                             <p><strong>Thuế xuất:</strong> {{ $landRentalContract->export_tax }}%
+                            </p>
+                            <p><strong>Giá thuế đất:</strong> 
+                                @if($landRentalContract->land_tax_price)
+                                    {{ number_format($landRentalContract->land_tax_price, 0, ',', '.') }} VND
+                                @else
+                                    Chưa có thông tin
+                                @endif
                             </p>
                         </div>
 
@@ -111,6 +122,66 @@
                                             @else
                                                 <p class="text-muted">Chưa có file</p>
                                             @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Payment Summary -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h5><i class="fas fa-money-bill-wave"></i> Tóm tắt thanh toán</h5>
+                            @php
+                                $paymentHistories = $landRentalContract->paymentHistories()->get();
+                                $totalPaid = $paymentHistories->sum('amount');
+                                $period1Payments = $paymentHistories->where('period', 1);
+                                $period2Payments = $paymentHistories->where('period', 2);
+                            @endphp
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-info"><i class="fas fa-money-bill-wave"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Tổng đã thanh toán</span>
+                                            <span class="info-box-number">{{ number_format($totalPaid, 0, ',', '.') }} VND</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success"><i class="fas fa-calendar-alt"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Kỳ 1 (Tháng 1-6)</span>
+                                            <span class="info-box-number">{{ number_format($period1Payments->sum('amount'), 0, ',', '.') }} VND</span>
+                                            <span class="progress-description">{{ $period1Payments->count() }} lần thanh toán</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-warning"><i class="fas fa-calendar-alt"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Kỳ 2 (Tháng 7-12)</span>
+                                            <span class="info-box-number">{{ number_format($period2Payments->sum('amount'), 0, ',', '.') }} VND</span>
+                                            <span class="progress-description">{{ $period2Payments->count() }} lần thanh toán</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-primary"><i class="fas fa-list"></i></span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Tổng số lần</span>
+                                            <span class="info-box-number">{{ $paymentHistories->count() }}</span>
+                                            <span class="progress-description">
+                                                <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}" class="text-primary">
+                                                    Xem chi tiết
+                                                </a>
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

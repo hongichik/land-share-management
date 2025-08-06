@@ -1,33 +1,33 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý Hợp đồng thuê đất')
-@section('page_title', 'Quản lý Hợp đồng thuê đất')
+@section('title', 'Quản lý Giá thuê đất')
+@section('page_title', 'Quản lý Giá thuê đất')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách Hợp đồng thuê đất</h3>
+                <h3 class="card-title">Danh sách Giá thuê đất - Hợp đồng: {{ $landRentalContract->contract_number }}</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm">
-                        <i class="bi bi-plus"></i> Thêm Hợp đồng
+                    <a href="{{ route('admin.land-rental-contracts.index') }}" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                    <a href="{{ route('admin.land-rental-prices.create', $landRentalContract) }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-plus"></i> Thêm Giá thuê đất
                     </a>
                 </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped" id="contracts-table">
+                    <table class="table table-bordered table-striped" id="prices-table">
                         <thead>
                             <tr>
                                 <th width="5%">#</th>
-                                <th>Số hợp đồng</th>
-                                <th>Quyết định cho thuê đất</th>
-                                <th>Khu vực thuê</th>
-                                <th>Vị trí thuê</th>
-                                <th>Diện tích & Tiền thuê</th>
-                                <th>Thời hạn thuê</th>
-                                <th>Thuế & Tiền thuế</th>
+                                <th>Quyết định giá thuê</th>
+                                <th>Thời gian áp dụng</th>
+                                <th>Giá thuê (đ/m2/năm)</th>
+                                <th>Ngày tạo</th>
                                 <th width="15%" class="nowrap">Thao tác</th>
                             </tr>
                         </thead>
@@ -51,23 +51,20 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#contracts-table').DataTable({
+    $('#prices-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
         columnDefs: [
-            { responsivePriority: 1, targets: -1 },  // Cột cuối luôn ưu tiên hiển thị
+            { responsivePriority: 1, targets: -1 },
         ],
-        ajax: "{{ route('admin.land-rental-contracts.index') }}",
+        ajax: "{{ route('admin.land-rental-prices.index', $landRentalContract) }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'contract_number', name: 'contract_number'},
-            {data: 'rental_decision', name: 'rental_decision'},
-            {data: 'rental_zone', name: 'rental_zone'},
-            {data: 'rental_location', name: 'rental_location'},
-            {data: 'area', name: 'area'},
-            {data: 'rental_period', name: 'rental_period'},
-            {data: 'land_tax_price', name: 'land_tax_price'},
+            {data: 'price_decision', name: 'price_decision'},
+            {data: 'price_period', name: 'price_period'},
+            {data: 'rental_price', name: 'rental_price'},
+            {data: 'created_at', name: 'created_at'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
         language: {

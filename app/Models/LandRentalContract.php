@@ -30,6 +30,7 @@ class LandRentalContract extends Model
         'rental_zone',
         'rental_location',
         'export_tax',
+        'land_tax_price',
         'area',
         'rental_period',
         'notes',
@@ -63,5 +64,21 @@ class LandRentalContract extends Model
             'area' => 'array',
             'rental_period' => 'array',
         ];
+    }
+
+    /**
+     * Get the land rental prices for the contract.
+     */
+    public function landRentalPrices()
+    {
+        return $this->hasMany(LandRentalPrice::class);
+    }
+
+    /**
+     * Get the payment histories for the contract.
+     */
+    public function paymentHistories()
+    {
+        return $this->hasMany(LandRentalPaymentHistory::class);
     }
 }
