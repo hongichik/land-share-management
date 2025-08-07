@@ -43,13 +43,25 @@ return [
             [
                 'text' => 'Quản lý chứng khoán',
                 'icon' => 'bi bi-graph-up',
-                'active' => 'admin/securities-management*',
+                'active' => 'admin/securities-management*|admin/dividend-*',
                 'submenu' => [
                     [
                         'text' => 'Thông tin quản lý chứng khoán',
                         'icon' => 'bi bi-file-earmark-text',
                         'route' => 'admin.securities-management.index',
                         'active' => 'admin/securities-management*',
+                    ],
+                    [
+                        'text' => 'Lịch sử thanh toán cổ tức',
+                        'icon' => 'bi bi-cash-coin',
+                        'route' => 'admin.dividend-history.index',
+                        'active' => 'admin/dividend-history*',
+                    ],
+                    [
+                        'text' => 'Tạo thanh toán cổ tức',
+                        'icon' => 'bi bi-plus-circle',
+                        'route' => 'admin.dividend-payment.create',
+                        'active' => 'admin/dividend-payment/create',
                     ],
                 ],
             ],

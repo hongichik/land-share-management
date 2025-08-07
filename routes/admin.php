@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SecuritiesManagementController;
+use App\Http\Controllers\Admin\DividendHistoryController;
+use App\Http\Controllers\Admin\DividendPaymentController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
@@ -26,9 +28,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Securities Management routes
         Route::prefix('securities-management')->name('securities-management.')->group(function () {
             Route::get('summary-stats', [SecuritiesManagementController::class, 'getSummaryStats'])->name('summary-stats');
+            // Add route to view dividend histories for a specific investor
+            Route::get('{securitiesManagement}/dividend-histories', [DividendHistoryController::class, 'getInvestorDividendHistories'])
+                ->name('dividend-histories');
         });
         
         Route::resource('securities-management', SecuritiesManagementController::class);
+
+        // Dividend Payment routes
+        Route::prefix('dividend-payment')->name('dividend-payment.')->group(function () {
+            Route::get('create', [DividendPaymentController::class, 'create'])->name('create');
+            Route::post('/', [DividendPaymentController::class, 'store'])->name('store'); // Change route from 'store' to '/'
+            Route::get('investor-details', [DividendPaymentController::class, 'getInvestorDetails'])->name('investor-details');
+        });
+
+        // Dividend History routes
+        Route::prefix('dividend-history')->name('dividend-history.')->group(function () {
+            Route::get('investor-details', [DividendHistoryController::class, 'getInvestorDetails'])->name('investor-details');
+        });
+        Route::resource('dividend-history', DividendHistoryController::class);
 
         // Land Rental Contracts routes
         Route::resource('land-rental-contracts', \App\Http\Controllers\Admin\LandRentalContractController::class);

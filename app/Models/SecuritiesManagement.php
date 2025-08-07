@@ -53,13 +53,6 @@ class SecuritiesManagement extends Model
         'status' => 'integer',
     ];
 
-    /**
-     * Get the dividend histories for the securities management.
-     */
-    public function dividendHistories(): HasMany
-    {
-        return $this->hasMany(DividendHistory::class);
-    }
 
     /**
      * Scope lọc những nhà đầu tư đang hoạt động.
@@ -105,5 +98,13 @@ class SecuritiesManagement extends Model
         } else {
             return 'Chưa có dữ liệu';
         }
+    }
+
+    /**
+     * Get the dividend records for this securities management.
+     */
+    public function dividendRecords(): HasMany
+    {
+        return $this->hasMany(DividendRecord::class, 'securities_management_id');
     }
 }

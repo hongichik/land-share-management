@@ -75,6 +75,8 @@ class SecuritiesManagementController extends Controller
                     $btn .= '<i class="fas fa-eye"></i></a>';
                     $btn .= '<a href="' . route('admin.securities-management.edit', $row->id) . '" class="btn btn-warning btn-sm" title="Sửa">';
                     $btn .= '<i class="fas fa-edit"></i></a>';
+                    $btn .= '<a href="' . route('admin.securities-management.dividend-histories', $row->id) . '" class="btn btn-success btn-sm" title="Lịch sử cổ tức">';
+                    $btn .= '<i class="fas fa-money-bill"></i></a>';
                     $btn .= '<button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(' . $row->id . ')" title="Xóa">';
                     $btn .= '<i class="fas fa-trash"></i></button>';
                     $btn .= '</div>';

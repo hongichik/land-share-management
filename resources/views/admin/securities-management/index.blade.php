@@ -134,6 +134,9 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách quản lý chứng khoán</h3>
                 <div class="card-tools">
+                    <a href="{{ route('admin.dividend-payment.create') }}" class="btn btn-success btn-sm mr-2">
+                        <i class="fas fa-money-bill-wave"></i> Thanh toán cổ tức
+                    </a>
                     <a href="{{ route('admin.securities-management.create') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus"></i> Thêm nhà đầu tư
                     </a>
