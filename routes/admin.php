@@ -63,6 +63,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         // Land Rental Contracts routes
+        Route::get('land-rental-contracts/export', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'export'])->name('land-rental-contracts.export');
         Route::resource('land-rental-contracts', \App\Http\Controllers\Admin\LandRentalContractController::class);
 
 

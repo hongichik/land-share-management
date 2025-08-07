@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('price_decision_file_path')->nullable()->comment('Đường dẫn file scan quyết định giá thuê đất');
             $table->json('price_period')->nullable()->comment('Thời gian áp dụng giá thuê (JSON)');
             $table->decimal('rental_price', 15, 2)->comment('Giá thuê đất');
+
             $table->timestamps();
         });
     }

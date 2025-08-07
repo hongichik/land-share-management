@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
+use App\Exports\LandRentalContractsExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LandRentalContractController extends Controller
 {
@@ -633,5 +635,14 @@ class LandRentalContractController extends Controller
         $landRentalContract->delete();
 
         return redirect()->route('admin.land-rental-contracts.index')->with('success', 'Xóa hợp đồng thuê đất thành công!');
+    }
+
+    /**
+     * Export land rental contracts to Excel
+     */
+    public function export()
+    {
+        $filename = 'danh-sach-hop-dong-thue-dat-' . Carbon::now()->format('dmY') . '.xlsx';
+        return Excel::download(new LandRentalContractsExport(), $filename);
     }
 }

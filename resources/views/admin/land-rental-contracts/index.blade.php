@@ -134,6 +134,9 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách Hợp đồng thuê đất</h3>
                 <div class="card-tools">
+                    <a href="{{ route('admin.land-rental-contracts.export') }}" class="btn btn-success btn-sm mr-1">
+                        <i class="fas fa-file-excel"></i> Xuất Excel
+                    </a>
                     <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus"></i> Thêm Hợp đồng
                     </a>
