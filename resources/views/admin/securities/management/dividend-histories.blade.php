@@ -10,7 +10,7 @@
             <div class="card-header">
                 <h3 class="card-title">Thông tin nhà đầu tư</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities-management.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại danh sách
                     </a>
                 </div>
@@ -73,7 +73,7 @@
             <div class="card-header">
                 <h3 class="card-title">Lịch sử thanh toán cổ tức</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.dividend-payment.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.securities.history.create') }}" class="btn btn-primary btn-sm">
                         <i class="fas fa-plus"></i> Tạo thanh toán mới
                     </a>
                 </div>

@@ -134,10 +134,10 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách quản lý chứng khoán</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.dividend-payment.create') }}" class="btn btn-success btn-sm mr-2">
+                    <a href="{{ route('admin.securities.history.create') }}" class="btn btn-success btn-sm mr-2">
                         <i class="fas fa-money-bill-wave"></i> Thanh toán cổ tức
                     </a>
-                    <a href="{{ route('admin.securities-management.create') }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.securities.management.create') }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus"></i> Thêm nhà đầu tư
                     </a>
                 </div>
@@ -208,14 +208,29 @@ $(document).ready(function() {
         columnDefs: [
             { responsivePriority: 1, targets: -1 },  
         ],
-        ajax: "{{ route('admin.securities-management.index') }}",
+        ajax: "{{ route('admin.securities.management.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'full_name', name: 'full_name'},
             {data: 'sid', name: 'sid'},
             {data: 'investor_code', name: 'investor_code'},
             {data: 'registration_number', name: 'registration_number'},
-            {data: 'issue_date', name: 'issue_date'},
+            {
+                data: 'issue_date', 
+                name: 'issue_date',
+                render: function(data, type, row) {
+                    if (type === 'display' || type === 'filter') {
+                        if (!data) return '';
+                        // Convert to DD/MM/YYYY format
+                        var date = new Date(data);
+                        var day = date.getDate().toString().padStart(2, '0');
+                        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+                        var year = date.getFullYear();
+                        return day + '/' + month + '/' + year;
+                    }
+                    return data;
+                }
+            },
             {data: 'quantities', name: 'quantities', orderable: false, searchable: false},
             {data: 'deposit_badge', name: 'deposit_badge', orderable: false, searchable: false},
             {data: 'status_badge', name: 'status_badge', orderable: false, searchable: false},
@@ -250,7 +265,7 @@ function deleteRecord(id) {
 $('#confirmDelete').click(function() {
     if (deleteId) {
         $.ajax({
-            url: "{{ route('admin.securities-management.destroy', ':id') }}".replace(':id', deleteId),
+            url: "{{ route('admin.securities.management.destroy', ':id') }}".replace(':id', deleteId),
             type: 'DELETE',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content')
@@ -271,7 +286,7 @@ $('#confirmDelete').click(function() {
     }
 });
 $.ajax({
-    url: "{{ route('admin.securities-management.summary-stats') }}",
+    url: "{{ route('admin.securities.management.summary-stats') }}",
     type: 'GET',
     success: function(data) {
         $('#total-investors').text(data.total_investors);

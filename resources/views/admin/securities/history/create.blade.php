@@ -10,7 +10,7 @@
             <div class="card-header">
                 <h3 class="card-title">Thông tin thanh toán cổ tức</h3>
             </div>
-            <form action="{{ route('admin.dividend-payment.store') }}" method="POST" id="dividend-payment-form">
+            <form action="{{ route('admin.securities.history.store') }}" method="POST" id="dividend-payment-form">
                 @csrf
                 <div class="card-body">
                     <!-- Common Settings Section -->
@@ -65,6 +65,12 @@
                                 <textarea class="form-control" id="notes" name="notes" rows="2" placeholder="Nhập ghi chú thanh toán nếu cần"></textarea>
                             </div>
                         </div>
+                    </div>
+
+                    {{-- Add this near the top of your form --}}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Danh sách chỉ hiển thị những nhà đầu tư chưa nhận cổ tức trong năm {{ $currentYear }}.
                     </div>
 
                     <!-- Investor Selection Section -->
@@ -161,12 +167,21 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Payment Warning Section -->
+                    <div class="row mt-4" id="payment-warning" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="alert alert-warning">
+                                <strong>Cảnh báo:</strong> Một số nhà đầu tư đã nhận cổ tức trong năm này.
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-footer">
                     <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
                         <i class="fas fa-save"></i> Lưu thanh toán cổ tức
                     </button>
-                    <a href="{{ route('admin.dividend-history.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('admin.securities.history.index') }}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Hủy
                     </a>
                 </div>
@@ -243,6 +258,65 @@ $(document).ready(function() {
         updatePreviewTable();
     });
     
+    // Add validation for payment date and selected investors
+    $('#payment_date, #investor_ids').on('change', function() {
+        let paymentDate = $('#payment_date').val();
+        let selectedInvestorIds = $('#investor_ids').val();
+        
+        if (paymentDate && selectedInvestorIds && selectedInvestorIds.length > 0) {
+            let paymentYear = new Date(paymentDate).getFullYear();
+            
+            // Check if any investors already have payments in this year
+            $.ajax({
+                url: "{{ route('admin.securities.history.check-existing-payments') }}",
+                type: 'GET',
+                data: {
+                    year: paymentYear,
+                    investor_ids: selectedInvestorIds
+                },
+                success: function(response) {
+                    if (response.has_existing_payments) {
+                        let message = 'Cảnh báo: Một số nhà đầu tư đã nhận cổ tức trong năm ' + paymentYear + ':<br>';
+                        response.investors.forEach(function(investor) {
+                            message += '- ' + investor.name + ' (đã thanh toán ngày ' + investor.payment_date + ')<br>';
+                        });
+                        
+                        $('#payment-warning').html(message).show();
+                    } else {
+                        $('#payment-warning').hide();
+                    }
+                }
+            });
+        }
+    });
+    
+    // Store original investors list
+    var originalInvestors = $('#investor_ids').html();
+    
+    // Handle checkbox for showing all investors
+    $('#show-all-investors').change(function() {
+        if($(this).is(':checked')) {
+            // Load all investors via AJAX
+            $.ajax({
+                url: "{{ route('admin.securities.history.all-investors') }}",
+                type: "GET",
+                success: function(data) {
+                    var options = '';
+                    $.each(data.investors, function(index, investor) {
+                        var hasPaid = investor.has_payment ? ' (Đã nhận cổ tức)' : '';
+                        options += '<option value="' + investor.id + '"' + 
+                                   (investor.has_payment ? ' class="text-muted"' : '') + '>' + 
+                                   investor.full_name + ' - ' + investor.investor_code + hasPaid + '</option>';
+                    });
+                    $('#investor_ids').html(options);
+                }
+            });
+        } else {
+            // Restore original list (unpaid only)
+            $('#investor_ids').html(originalInvestors);
+        }
+    });
+    
     // Functions
     function updateSubmitButtonState() {
         $('#submit-btn').prop('disabled', selectedInvestors.length === 0);
@@ -260,7 +334,7 @@ $(document).ready(function() {
         const paymentType = $('#payment_type').val();
         
         $.ajax({
-            url: "{{ route('admin.dividend-payment.investor-details') }}",
+            url: "{{ route('admin.securities.history.investor-details') }}",
             method: 'GET',
             data: {
                 investor_ids: selectedInvestors

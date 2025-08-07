@@ -10,6 +10,7 @@
     <meta name="theme-color" content="#1a1a1a" media="(prefers-color-scheme: dark)">
     <meta name="description" content="@yield('meta_description', 'Admin Dashboard powered by AdminLTE')">
     <meta name="supported-color-schemes" content="light dark">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/source-sans-3@5.0.12/index.css"
         crossorigin="anonymous" media="print" onload="this.media='all'">

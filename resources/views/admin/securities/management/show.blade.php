@@ -10,11 +10,11 @@
             <div class="card-header">
                 <h3 class="card-title">Chi tiết nhà đầu tư: {{ $securitiesManagement->full_name }}</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities-management.edit', $securitiesManagement) }}" 
+                    <a href="{{ route('admin.securities.management.edit', $securitiesManagement) }}" 
                        class="btn btn-warning btn-sm">
                         <i class="fas fa-edit"></i> Sửa
                     </a>
-                    <a href="{{ route('admin.securities-management.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
                 </div>

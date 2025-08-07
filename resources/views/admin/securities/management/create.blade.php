@@ -20,12 +20,12 @@
             <div class="card-header">
                 <h3 class="card-title">Thêm nhà đầu tư mới</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities-management.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
                 </div>
             </div>
-            <form action="{{ route('admin.securities-management.store') }}" method="POST">
+            <form action="{{ route('admin.securities.management.store') }}" method="POST">
                 @csrf
                 <div class="card-body">
                     <div class="row">
@@ -44,9 +44,9 @@
                         <!-- SID -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="sid">SID</label>
+                                <label for="sid">SID <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('sid') is-invalid @enderror" 
-                                       id="sid" name="sid" value="{{ old('sid') }}">
+                                       id="sid" name="sid" value="{{ old('sid') }}" required>
                                 @error('sid')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -58,9 +58,9 @@
                         <!-- Mã nhà đầu tư -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="investor_code">Mã nhà đầu tư</label>
+                                <label for="investor_code">Mã nhà đầu tư <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('investor_code') is-invalid @enderror" 
-                                       id="investor_code" name="investor_code" value="{{ old('investor_code') }}">
+                                       id="investor_code" name="investor_code" value="{{ old('investor_code') }}" required>
                                 @error('investor_code')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -84,9 +84,9 @@
                         <!-- Ngày phát hành -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="issue_date">Ngày phát hành</label>
+                                <label for="issue_date">Ngày phát hành <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('issue_date') is-invalid @enderror" 
-                                       id="issue_date" name="issue_date" value="{{ old('issue_date') }}">
+                                       id="issue_date" name="issue_date" value="{{ old('issue_date') }}" required>
                                 @error('issue_date')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -212,9 +212,9 @@
 
                     <!-- Địa chỉ -->
                     <div class="form-group">
-                        <label for="address">Địa chỉ</label>
+                        <label for="address">Địa chỉ <span class="text-danger">*</span></label>
                         <textarea class="form-control @error('address') is-invalid @enderror" 
-                                  id="address" name="address" rows="3">{{ old('address') }}</textarea>
+                                  id="address" name="address" rows="3" required>{{ old('address') }}</textarea>
                         @error('address')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -274,7 +274,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Lưu nhà đầu tư
                     </button>
-                    <a href="{{ route('admin.securities-management.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Hủy
                     </a>
                 </div>
