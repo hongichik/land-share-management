@@ -40,6 +40,19 @@ return [
                     ],
                 ],
             ],
+            [
+                'text' => 'Quản lý chứng khoán',
+                'icon' => 'bi bi-graph-up',
+                'active' => 'admin/securities-management*',
+                'submenu' => [
+                    [
+                        'text' => 'Thông tin quản lý chứng khoán',
+                        'icon' => 'bi bi-file-earmark-text',
+                        'route' => 'admin.securities-management.index',
+                        'active' => 'admin/securities-management*',
+                    ],
+                ],
+            ],
         ],
     ],
 ];

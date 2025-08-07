@@ -85,3 +85,31 @@
 .payment-info strong {
     color: #495057;
 }
+
+.info-box:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.progress {
+    background-color: rgba(255,255,255,0.2);
+}
+
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.card {
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
