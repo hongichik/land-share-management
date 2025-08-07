@@ -113,3 +113,141 @@
 .pulse-animation {
     animation: pulse 2s infinite;
 }
+
+/* Dashboard statistics cards styling */
+.dashboard-stat {
+    position: relative;
+    display: block;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dashboard-stat:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-stat .visual {
+    width: 80px;
+    height: 80px;
+    display: block;
+    float: left;
+    padding-top: 10px;
+    padding-left: 15px;
+    margin-bottom: 15px;
+    font-size: 35px;
+    line-height: 35px;
+}
+
+.dashboard-stat .visual > i {
+    margin-left: -15px;
+    font-size: 80px;
+    line-height: 87px;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.dashboard-stat .details {
+    position: relative;
+    right: 15px;
+    padding-right: 15px;
+    padding-top: 25px;
+    text-align: right;
+}
+
+.dashboard-stat .details .number {
+    padding-top: 0;
+    font-size: 2.3rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    text-align: right;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-stat .details .desc {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-stat .more {
+    clear: both;
+    display: block;
+    padding: 6px 10px;
+    position: relative;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: 12px;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dashboard-stat .more:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+.dashboard-stat.bg-gradient-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.dashboard-stat.bg-gradient-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #0dcaf0 100%);
+}
+
+.dashboard-stat.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.dashboard-stat.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+}
+
+.dashboard-stat.bg-gradient-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+}
+
+.dashboard-stat.bg-gradient-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+}
+
+/* Animation effect for dashboard stats */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.dashboard-stat {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.dashboard-stat:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.dashboard-stat:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dashboard-stat:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.dashboard-stat:nth-child(4) {
+    animation-delay: 0.4s;
+}

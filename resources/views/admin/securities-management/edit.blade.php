@@ -3,6 +3,16 @@
 @section('title', 'Sửa thông tin nhà đầu tư')
 @section('page_title', 'Sửa thông tin nhà đầu tư')
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap4-theme@1.0.0/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+<style>
+    .select2-container--bootstrap4 .select2-selection--single {
+        height: calc(2.25rem + 2px) !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <div class="col-12">
@@ -123,6 +133,84 @@
                         </div>
                     </div>
 
+                    <!-- Thông tin ngân hàng -->
+                    <div class="row">
+                        <!-- Số tài khoản -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="account_number">Số tài khoản</label>
+                                <input type="text" class="form-control @error('account_number') is-invalid @enderror" 
+                                       id="account_number" name="account_number" value="{{ old('account_number', $securitiesManagement->account_number) }}">
+                                @error('account_number')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Tên ngân hàng -->
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="bank_name">Tên ngân hàng</label>
+                                <select class="form-control select2-bank @error('bank_name') is-invalid @enderror" 
+                                       id="bank_name" name="bank_name">
+                                    <option value="">-- Chọn ngân hàng --</option>
+                                    <option value="VPBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'VPBank' ? 'selected' : '' }}>VPBank</option>
+                                    <option value="BIDV" {{ old('bank_name', $securitiesManagement->bank_name) == 'BIDV' ? 'selected' : '' }}>BIDV</option>
+                                    <option value="Vietcombank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Vietcombank' ? 'selected' : '' }}>Vietcombank</option>
+                                    <option value="VietinBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'VietinBank' ? 'selected' : '' }}>VietinBank</option>
+                                    <option value="MBBANK" {{ old('bank_name', $securitiesManagement->bank_name) == 'MBBANK' ? 'selected' : '' }}>MBBANK</option>
+                                    <option value="ACB" {{ old('bank_name', $securitiesManagement->bank_name) == 'ACB' ? 'selected' : '' }}>ACB</option>
+                                    <option value="SHB" {{ old('bank_name', $securitiesManagement->bank_name) == 'SHB' ? 'selected' : '' }}>SHB</option>
+                                    <option value="Techcombank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Techcombank' ? 'selected' : '' }}>Techcombank</option>
+                                    <option value="Agribank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Agribank' ? 'selected' : '' }}>Agribank</option>
+                                    <option value="HDBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'HDBank' ? 'selected' : '' }}>HDBank</option>
+                                    <option value="LienVietPostBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'LienVietPostBank' ? 'selected' : '' }}>LienVietPostBank</option>
+                                    <option value="VIB" {{ old('bank_name', $securitiesManagement->bank_name) == 'VIB' ? 'selected' : '' }}>VIB</option>
+                                    <option value="SeABank" {{ old('bank_name', $securitiesManagement->bank_name) == 'SeABank' ? 'selected' : '' }}>SeABank</option>
+                                    <option value="VBSP" {{ old('bank_name', $securitiesManagement->bank_name) == 'VBSP' ? 'selected' : '' }}>VBSP</option>
+                                    <option value="TPBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'TPBank' ? 'selected' : '' }}>TPBank</option>
+                                    <option value="OCB" {{ old('bank_name', $securitiesManagement->bank_name) == 'OCB' ? 'selected' : '' }}>OCB</option>
+                                    <option value="MSB" {{ old('bank_name', $securitiesManagement->bank_name) == 'MSB' ? 'selected' : '' }}>MSB</option>
+                                    <option value="Sacombank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Sacombank' ? 'selected' : '' }}>Sacombank</option>
+                                    <option value="Eximbank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Eximbank' ? 'selected' : '' }}>Eximbank</option>
+                                    <option value="SCB" {{ old('bank_name', $securitiesManagement->bank_name) == 'SCB' ? 'selected' : '' }}>SCB</option>
+                                    <option value="VDB" {{ old('bank_name', $securitiesManagement->bank_name) == 'VDB' ? 'selected' : '' }}>VDB</option>
+                                    <option value="Nam A Bank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Nam A Bank' ? 'selected' : '' }}>Nam A Bank</option>
+                                    <option value="ABBANK" {{ old('bank_name', $securitiesManagement->bank_name) == 'ABBANK' ? 'selected' : '' }}>ABBANK</option>
+                                    <option value="PVcomBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'PVcomBank' ? 'selected' : '' }}>PVcomBank</option>
+                                    <option value="Bac A Bank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Bac A Bank' ? 'selected' : '' }}>Bac A Bank</option>
+                                    <option value="UOB" {{ old('bank_name', $securitiesManagement->bank_name) == 'UOB' ? 'selected' : '' }}>UOB</option>
+                                    <option value="Woori" {{ old('bank_name', $securitiesManagement->bank_name) == 'Woori' ? 'selected' : '' }}>Woori</option>
+                                    <option value="HSBC" {{ old('bank_name', $securitiesManagement->bank_name) == 'HSBC' ? 'selected' : '' }}>HSBC</option>
+                                    <option value="SCBVL" {{ old('bank_name', $securitiesManagement->bank_name) == 'SCBVL' ? 'selected' : '' }}>SCBVL</option>
+                                    <option value="PBVN" {{ old('bank_name', $securitiesManagement->bank_name) == 'PBVN' ? 'selected' : '' }}>PBVN</option>
+                                    <option value="SHBVN" {{ old('bank_name', $securitiesManagement->bank_name) == 'SHBVN' ? 'selected' : '' }}>SHBVN</option>
+                                    <option value="NCB" {{ old('bank_name', $securitiesManagement->bank_name) == 'NCB' ? 'selected' : '' }}>NCB</option>
+                                    <option value="VietABank" {{ old('bank_name', $securitiesManagement->bank_name) == 'VietABank' ? 'selected' : '' }}>VietABank</option>
+                                    <option value="BVBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'BVBank' ? 'selected' : '' }}>BVBank</option>
+                                    <option value="Vikki Bank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Vikki Bank' ? 'selected' : '' }}>Vikki Bank</option>
+                                    <option value="Vietbank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Vietbank' ? 'selected' : '' }}>Vietbank</option>
+                                    <option value="ANZVL" {{ old('bank_name', $securitiesManagement->bank_name) == 'ANZVL' ? 'selected' : '' }}>ANZVL</option>
+                                    <option value="MBV" {{ old('bank_name', $securitiesManagement->bank_name) == 'MBV' ? 'selected' : '' }}>MBV</option>
+                                    <option value="CIMB" {{ old('bank_name', $securitiesManagement->bank_name) == 'CIMB' ? 'selected' : '' }}>CIMB</option>
+                                    <option value="Kienlongbank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Kienlongbank' ? 'selected' : '' }}>Kienlongbank</option>
+                                    <option value="IVB" {{ old('bank_name', $securitiesManagement->bank_name) == 'IVB' ? 'selected' : '' }}>IVB</option>
+                                    <option value="BAOVIET Bank" {{ old('bank_name', $securitiesManagement->bank_name) == 'BAOVIET Bank' ? 'selected' : '' }}>BAOVIET Bank</option>
+                                    <option value="SAIGONBANK" {{ old('bank_name', $securitiesManagement->bank_name) == 'SAIGONBANK' ? 'selected' : '' }}>SAIGONBANK</option>
+                                    <option value="Co-opBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'Co-opBank' ? 'selected' : '' }}>Co-opBank</option>
+                                    <option value="GPBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'GPBank' ? 'selected' : '' }}>GPBank</option>
+                                    <option value="VRB" {{ old('bank_name', $securitiesManagement->bank_name) == 'VRB' ? 'selected' : '' }}>VRB</option>
+                                    <option value="VCBNeo" {{ old('bank_name', $securitiesManagement->bank_name) == 'VCBNeo' ? 'selected' : '' }}>VCBNeo</option>
+                                    <option value="HLBVN" {{ old('bank_name', $securitiesManagement->bank_name) == 'HLBVN' ? 'selected' : '' }}>HLBVN</option>
+                                    <option value="PGBank" {{ old('bank_name', $securitiesManagement->bank_name) == 'PGBank' ? 'selected' : '' }}>PGBank</option>
+                                </select>
+                                @error('bank_name')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Địa chỉ -->
                     <div class="form-group">
                         <label for="address">Địa chỉ</label>
@@ -196,3 +284,17 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.select2-bank').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Chọn ngân hàng --',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+</script>
+@endpush

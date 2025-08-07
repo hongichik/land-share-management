@@ -76,6 +76,18 @@
                             </tr>
                         </table>
 
+                        <h5><i class="fas fa-university"></i> Thông tin ngân hàng</h5>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Số tài khoản:</strong></td>
+                                <td>{{ $securitiesManagement->account_number ?: 'Chưa có thông tin' }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tên ngân hàng:</strong></td>
+                                <td>{{ $securitiesManagement->bank_name ?: 'Chưa có thông tin' }}</td>
+                            </tr>
+                        </table>
+
                         <h5><i class="fas fa-chart-bar"></i> Thông tin số lượng</h5>
                         <div class="row">
                             <div class="col-6">

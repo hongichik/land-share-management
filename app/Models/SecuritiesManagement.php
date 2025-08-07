@@ -4,13 +4,24 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SecuritiesManagement extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'securities_management';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
         'full_name',
         'sid',
@@ -23,16 +34,32 @@ class SecuritiesManagement extends Model
         'nationality',
         'not_deposited_quantity',
         'deposited_quantity',
+        'bank_account',
+        'bank_name',
+        'bank_branch',
         'notes',
-        'status'
+        'status',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
     protected $casts = [
         'issue_date' => 'date',
         'not_deposited_quantity' => 'integer',
         'deposited_quantity' => 'integer',
-        'status' => 'integer'
+        'status' => 'integer',
     ];
+
+    /**
+     * Get the dividend histories for the securities management.
+     */
+    public function dividendHistories(): HasMany
+    {
+        return $this->hasMany(DividendHistory::class);
+    }
 
     /**
      * Scope lọc những nhà đầu tư đang hoạt động.

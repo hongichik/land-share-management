@@ -7,45 +7,118 @@
 <!-- Payment Status Dashboard -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-gradient-info">
+        <div class="card card-primary card-outline">
             <div class="card-header">
-                <h5 class="card-title text-white"><i class="fas fa-tachometer-alt"></i> Tổng quan thanh toán năm {{ date('Y') }}</h5>
+                <h3 class="card-title">
+                    <i class="fas fa-tachometer-alt mr-1"></i>
+                    Tổng quan thanh toán năm {{ date('Y') }}
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="info-box bg-success">
-                            <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-success">
+                            <div class="visual">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="paid-count">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Đã thanh toán đủ</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-warning">
+                            <div class="visual">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="warning-count">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Cảnh báo sớm</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-danger">
+                            <div class="visual">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="urgent-count">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Sắp hết hạn</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-secondary">
+                            <div class="visual">
+                                <i class="fas fa-ban"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="overdue-count">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Quá hạn</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Progress -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="info-box bg-light elevation-2">
+                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-percentage"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Đã thanh toán đủ</span>
-                                <span class="info-box-number" id="paid-count">-</span>
+                                <span class="info-box-text">Tỷ lệ thanh toán</span>
+                                <span class="info-box-number" id="payment-percentage">0%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" id="payment-progress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    Tỷ lệ hợp đồng đã thanh toán đủ
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-warning">
-                            <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                    <div class="col-md-6">
+                        <div class="info-box bg-light elevation-2">
+                            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-bell"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Cảnh báo sớm</span>
-                                <span class="info-box-number" id="warning-count">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-danger">
-                            <span class="info-box-icon"><i class="fas fa-clock"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Sắp hết hạn</span>
-                                <span class="info-box-number" id="urgent-count">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-dark">
-                            <span class="info-box-icon text-white"><i class="fas fa-ban"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text text-white">Quá hạn</span>
-                                <span class="info-box-number text-white" id="overdue-count">-</span>
+                                <span class="info-box-text">Mức độ khẩn cấp</span>
+                                <span class="info-box-number" id="urgent-percentage">0%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-danger" id="urgent-progress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    Tỷ lệ hợp đồng cần xử lý gấp
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -119,6 +192,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 @endpush
 
 @push('scripts')
@@ -197,6 +271,18 @@ $(document).ready(function() {
         $('#warning-count').text(warningCount);
         $('#urgent-count').text(urgentCount);
         $('#overdue-count').text(overdueCount);
+        
+        // Calculate and update percentages
+        const totalContracts = paidCount + warningCount + urgentCount + overdueCount;
+        if (totalContracts > 0) {
+            const paymentPercentage = Math.round((paidCount / totalContracts) * 100);
+            const urgentPercentage = Math.round(((urgentCount + overdueCount) / totalContracts) * 100);
+            
+            $('#payment-percentage').text(paymentPercentage + '%');
+            $('#urgent-percentage').text(urgentPercentage + '%');
+            $('#payment-progress').css('width', paymentPercentage + '%');
+            $('#urgent-progress').css('width', urgentPercentage + '%');
+        }
     }
 });
 </script>

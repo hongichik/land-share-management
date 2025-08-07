@@ -7,45 +7,118 @@
 <!-- Summary Dashboard -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card bg-gradient-info">
+        <div class="card card-primary card-outline">
             <div class="card-header">
-                <h5 class="card-title text-white"><i class="fas fa-chart-pie"></i> Tổng quan quản lý chứng khoán</h5>
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie mr-1"></i>
+                    Tổng quan quản lý chứng khoán
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-3">
-                        <div class="info-box bg-success">
-                            <span class="info-box-icon"><i class="fas fa-users"></i></span>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-success">
+                            <div class="visual">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="total-investors">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Tổng nhà đầu tư</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-info">
+                            <div class="visual">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="active-investors">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Đang hoạt động</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-warning">
+                            <div class="visual">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="not-deposited">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Chưa lưu ký</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6">
+                        <div class="dashboard-stat bg-gradient-primary">
+                            <div class="visual">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="details">
+                                <div class="number" id="deposited">
+                                    <span>-</span>
+                                </div>
+                                <div class="desc">Đã lưu ký</div>
+                            </div>
+                            <a href="#" class="more">
+                                Chi tiết <i class="fas fa-arrow-circle-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bars -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="info-box bg-light elevation-2">
+                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-percentage"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Tổng nhà đầu tư</span>
-                                <span class="info-box-number" id="total-investors">-</span>
+                                <span class="info-box-text">Tỷ lệ hoạt động</span>
+                                <span class="info-box-number" id="active-percentage">0%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-info" id="active-progress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    Tỷ lệ nhà đầu tư đang hoạt động
+                                </span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-info">
-                            <span class="info-box-icon"><i class="fas fa-user-check"></i></span>
+                    <div class="col-md-6">
+                        <div class="info-box bg-light elevation-2">
+                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-lock"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Đang hoạt động</span>
-                                <span class="info-box-number" id="active-investors">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-warning">
-                            <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Chưa lưu ký</span>
-                                <span class="info-box-number" id="not-deposited">-</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="info-box bg-primary">
-                            <span class="info-box-icon"><i class="fas fa-shield-alt"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Đã lưu ký</span>
-                                <span class="info-box-number" id="deposited">-</span>
+                                <span class="info-box-text">Tỷ lệ lưu ký</span>
+                                <span class="info-box-number" id="deposit-percentage">0%</span>
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" id="deposit-progress" style="width: 0%"></div>
+                                </div>
+                                <span class="progress-description">
+                                    Tỷ lệ chứng khoán đã lưu ký
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -115,6 +188,7 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 @endpush
 
 @push('scripts')
@@ -194,22 +268,32 @@ $('#confirmDelete').click(function() {
     }
 });
 $.ajax({
-        url: "{{ route('admin.securities-management.summary-stats') }}",
-        type: 'GET',
-        success: function(data) {
-            $('#total-investors').text(data.total_investors);
-            $('#active-investors').text(data.active_investors);
-            $('#not-deposited').text(data.not_deposited);
-            $('#deposited').text(data.deposited);
-        },
-        error: function() {
-            $('#total-investors').text('-');
-            $('#active-investors').text('-');
-            $('#not-deposited').text('-');
-            $('#deposited').text('-');
-        }
-    });
-
-
+    url: "{{ route('admin.securities-management.summary-stats') }}",
+    type: 'GET',
+    success: function(data) {
+        $('#total-investors').text(data.total_investors);
+        $('#active-investors').text(data.active_investors);
+        $('#not-deposited').text(data.not_deposited);
+        $('#deposited').text(data.deposited);
+        
+        // Update percentages and progress bars
+        $('#active-percentage').text(data.active_percentage + '%');
+        $('#deposit-percentage').text(data.deposited_percentage + '%');
+        $('#active-progress').css('width', data.active_percentage + '%');
+        $('#deposit-progress').css('width', data.deposited_percentage + '%');
+    },
+    error: function() {
+        $('#total-investors').text('-');
+        $('#active-investors').text('-');
+        $('#not-deposited').text('-');
+        $('#deposited').text('-');
+        
+        // Reset percentages
+        $('#active-percentage').text('0%');
+        $('#deposit-percentage').text('0%');
+        $('#active-progress').css('width', '0%');
+        $('#deposit-progress').css('width', '0%');
+    }
+});
 </script>
 @endpush
