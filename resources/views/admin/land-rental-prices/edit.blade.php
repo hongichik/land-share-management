@@ -95,6 +95,16 @@
                                 <span class="invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="note">Ghi chú</label>
+                            <input type="text" class="form-control @error('note') is-invalid @enderror" 
+                                   id="note" name="note" value="{{ old('note', $landRentalPrice->note) }}" 
+                                   placeholder="Nhập ghi chú về giá thuê đất (nếu có)">
+                            @error('note')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="card-footer">

@@ -23,6 +23,7 @@ class LandRentalPriceController extends Controller
                 'price_decision_file_path',
                 'price_period',
                 'rental_price',
+                'note',
                 'created_at'
             ])->orderBy('id', 'desc');
 
@@ -54,7 +55,11 @@ class LandRentalPriceController extends Controller
                     return 'Chưa có thông tin';
                 })
                 ->editColumn('rental_price', function ($item) {
-                    return number_format($item->rental_price, 0, ',', '.') . ' VND';
+                    $output = number_format($item->rental_price, 0, ',', '.') . ' VND';
+                    if ($item->note) {
+                        $output .= '<br><small class="text-muted"><i class="fas fa-sticky-note"></i> ' . $item->note . '</small>';
+                    }
+                    return $output;
                 })
                 ->editColumn('created_at', function ($item) {
                     return $item->created_at->format('d/m/Y H:i');
@@ -86,7 +91,7 @@ class LandRentalPriceController extends Controller
                     
                     return '<div class="btn-group" role="group">' . $actions . '</div>';
                 })
-                ->rawColumns(['price_decision', 'price_period', 'action'])
+                ->rawColumns(['price_decision', 'price_period', 'rental_price', 'action'])
                 ->make(true);
         }
 
@@ -137,6 +142,7 @@ class LandRentalPriceController extends Controller
             'price_period.end' => 'required|date|after:' . $startDate,
             'price_period.years' => 'nullable|numeric|min:0',
             'rental_price' => 'required|numeric|min:0',
+            'note' => 'nullable|string|max:255',
         ]);
 
         $decisionFilePath = null;
@@ -158,6 +164,7 @@ class LandRentalPriceController extends Controller
             'price_decision_file_path' => $decisionFilePath,
             'price_period' => $pricePeriod,
             'rental_price' => $request->rental_price,
+            'note' => $request->note,
         ]);
 
         return redirect()->route('admin.land-rental-prices.index', $landRentalContract)->with('success', 'Thêm giá thuê đất thành công!');
@@ -193,6 +200,7 @@ class LandRentalPriceController extends Controller
             'price_period.start' => 'required|date',
             'price_period.end' => 'required|date|after:price_period.start',
             'rental_price' => 'required|numeric|min:0',
+            'note' => 'nullable|string|max:255',
         ]);
 
         $decisionFilePath = $landRentalPrice->price_decision_file_path;
@@ -210,6 +218,7 @@ class LandRentalPriceController extends Controller
             'price_decision_file_path' => $decisionFilePath,
             'price_period' => $request->price_period,
             'rental_price' => $request->rental_price,
+            'note' => $request->note,
         ]);
 
         return redirect()->route('admin.land-rental-prices.index', $landRentalContract)->with('success', 'Cập nhật giá thuê đất thành công!');

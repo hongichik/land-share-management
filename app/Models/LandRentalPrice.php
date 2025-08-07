@@ -15,6 +15,7 @@ class LandRentalPrice extends Model
         'price_decision_file_path',
         'price_period',
         'rental_price',
+        'note',
     ];
 
     protected $casts = [
