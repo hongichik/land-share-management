@@ -35,6 +35,8 @@
                             </p>
                             <p><strong>Vị trí thuê đất:</strong>
                                 {{ $landRentalContract->rental_location ?: 'Chưa có thông tin' }}</p>
+                            <p><strong>Mục đích thuê đất:</strong>
+                                {{ $landRentalContract->rental_purpose ?: 'Chưa có thông tin' }}</p>
                             <p><strong>Thuế xuất:</strong> {{ $landRentalContract->export_tax }}%
                             </p>
                             <p><strong>Giá thuế đất:</strong> 

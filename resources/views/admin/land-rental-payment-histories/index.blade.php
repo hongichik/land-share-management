@@ -47,6 +47,11 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <strong>Mục đích thuê:</strong> {{ $landRentalContract->rental_purpose ?: 'Chưa có thông tin' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -29,6 +29,7 @@ class LandRentalContract extends Model
         'rental_decision_file_path',
         'rental_zone',
         'rental_location',
+        'rental_purpose',
         'export_tax',
         'land_tax_price',
         'area',

@@ -22,6 +22,7 @@ return new class extends Migration
 
             $table->string('rental_zone')->nullable()->comment('Vùng/khu vực thuê');
             $table->string('rental_location')->nullable()->comment('Vị trí thuê đất');
+            $table->string('rental_purpose')->nullable()->comment('Mục đích thuê đất');
 
             $table->decimal('export_tax', 5, 4)->default(0.03)->comment('Thuế xuất (mặc định 0.03)');
 

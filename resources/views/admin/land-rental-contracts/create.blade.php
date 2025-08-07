@@ -68,7 +68,7 @@
 
                     <div class="row">
                         <!-- Khu vực thuê -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="rental_zone">Khu vực thuê</label>
                                 <input type="text" class="form-control @error('rental_zone') is-invalid @enderror" 
@@ -80,7 +80,7 @@
                         </div>
 
                         <!-- Vị trí thuê đất -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="rental_location">Vị trí thuê đất</label>
                                 <input type="text" class="form-control @error('rental_location') is-invalid @enderror" 
@@ -90,7 +90,21 @@
                                 @enderror
                             </div>
                         </div>
-                    </div>                    <div class="row">
+                        
+                        <!-- Mục đích thuê đất -->
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="rental_purpose">Mục đích thuê đất</label>
+                                <input type="text" class="form-control @error('rental_purpose') is-invalid @enderror" 
+                                       id="rental_purpose" name="rental_purpose" value="{{ old('rental_purpose') }}">
+                                @error('rental_purpose')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <!-- Thuế xuất -->
                         <div class="col-md-6">
                             <div class="form-group">
