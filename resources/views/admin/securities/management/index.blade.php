@@ -155,6 +155,7 @@
                                 <th>Ngày phát hành</th>
                                 <th>Số lượng</th>
                                 <th>Trạng thái lưu ký</th>
+                                <th>Trạng thái cổ tức</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>
@@ -233,6 +234,7 @@ $(document).ready(function() {
             },
             {data: 'quantities', name: 'quantities', orderable: false, searchable: false},
             {data: 'deposit_badge', name: 'deposit_badge', orderable: false, searchable: false},
+            {data: 'dividend_status', name: 'dividend_status', orderable: false, searchable: false},
             {data: 'status_badge', name: 'status_badge', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],

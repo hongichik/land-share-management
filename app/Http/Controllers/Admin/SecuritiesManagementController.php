@@ -36,6 +36,13 @@ class SecuritiesManagementController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            $currentYear = date('Y');
+            
+            // Get investor IDs who have received dividends in the current year
+            $paidInvestorIds = \App\Models\DividendRecord::whereYear('payment_date', $currentYear)
+                ->pluck('securities_management_id')
+                ->toArray();
+            
             $securities = SecuritiesManagement::select([
                 'id',
                 'full_name',
@@ -65,6 +72,13 @@ class SecuritiesManagementController extends Controller
                     }
                     return '<span class="badge badge-' . $badgeClass . '">' . $row->deposit_status_text . '</span>';
                 })
+                ->addColumn('dividend_status', function ($row) use ($paidInvestorIds, $currentYear) {
+                    if (in_array($row->id, $paidInvestorIds)) {
+                        return '<span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Đã nhận cổ tức ' . $currentYear . '</span>';
+                    } else {
+                        return '<span class="badge badge-secondary"><i class="fas fa-times-circle mr-1"></i> Chưa nhận cổ tức ' . $currentYear . '</span>';
+                    }
+                })
                 ->addColumn('quantities', function ($row) {
                     return 'Chưa lưu ký: ' . number_format($row->not_deposited_quantity) .
                         '<br>Đã lưu ký: ' . number_format($row->deposited_quantity);
@@ -82,7 +96,7 @@ class SecuritiesManagementController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['status_badge', 'deposit_badge', 'quantities', 'action'])
+                ->rawColumns(['status_badge', 'deposit_badge', 'dividend_status', 'quantities', 'action'])
                 ->make(true);
         }
 
