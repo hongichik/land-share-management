@@ -1,0 +1,44 @@
+{
+    "name": "hongdev/master-admin",
+    "description": "Master Admin package for Laravel.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Hongdev\\MasterAdmin\\": "src/"
+        }
+    },
+    "require": {
+        "php": "^8.0",
+        "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0",
+        "illuminate/filesystem": "^8.0|^9.0|^10.0|^11.0",
+        "google/apiclient": "^2.10",
+        "masbug/flysystem-google-drive-ext": "^2.2.1",
+        "league/flysystem": "^3.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.1.1|^7.10.0",
+        "orchestra/testbench": "^8.22.0|^9.0.0|^10.0.0",
+        "phpunit/phpunit": "^9.0|^10.0"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Hongdev\\MasterAdmin\\MasterAdminServiceProvider"
+            ],
+            "aliases": {
+                "GoogleDriveStorage": "Hongdev\\MasterAdmin\\Facades\\GoogleDriveStorage"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
