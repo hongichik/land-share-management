@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Thêm route cho việc xuất kế hoạch thuê đất
+Route::get('/admin/land-rental-contracts/export-plan', [App\Http\Controllers\Admin\LandRentalContractController::class, 'exportRentalPlan'])
+    ->name('admin.land-rental-contracts.export-plan');

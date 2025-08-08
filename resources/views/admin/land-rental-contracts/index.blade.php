@@ -134,10 +134,59 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách Hợp đồng thuê đất</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.land-rental-contracts.export') }}" class="btn btn-success btn-sm mr-1">
-                        <i class="fas fa-file-excel"></i> Xuất Excel
-                    </a>
-                    <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-file-excel"></i> Xuất Excel
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a href="{{ route('admin.land-rental-contracts.export') }}" class="dropdown-item">
+                                <i class="fas fa-list mr-2"></i> Danh sách hợp đồng
+                            </a>
+                            
+                            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportRentalPlanModal">
+                                <i class="fas fa-calendar mr-2"></i> Kế hoạch nộp tiền thuê đất
+                            </a>
+                            
+                            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportTaxPlanModal">
+                                <i class="fas fa-file-invoice-dollar mr-2"></i> Kế hoạch nộp thuế PNN
+                            </a>
+                            
+                            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportNonAgriTaxModal">
+                                <i class="fas fa-calculator mr-2"></i> Bảng tính thuế SDD PNN
+                            </a>
+                            
+                            <div class="dropdown-divider"></div>
+                            <h6 class="dropdown-header">Bảng tính tiền thuê đất</h6>
+                            
+                            <!-- Export Tax Calculation Form -->
+                            <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get" class="p-3">
+                                <div class="form-group">
+                                    <label>Kỳ thanh toán</label>
+                                    <select name="period" class="form-control">
+                                        <option value="1">Kỳ I (Tháng 1-6)</option>
+                                        <option value="2">Kỳ II (Tháng 7-12)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Năm</label>
+                                    <select name="year" class="form-control">
+                                        @php
+                                            $currentYear = (int)date('Y');
+                                            $startYear = $currentYear - 2;
+                                            $endYear = $currentYear + 2;
+                                        @endphp
+                                        @for($year = $startYear; $year <= $endYear; $year++)
+                                            <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                                        @endfor
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-block">
+                                    <i class="fas fa-download mr-1"></i> Xuất báo cáo
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm ml-1">
                         <i class="bi bi-plus"></i> Thêm Hợp đồng
                     </a>
                 </div>
@@ -192,10 +241,200 @@
 </div>
 @endsection
 
+<!-- Excel Export Modal -->
+<div class="modal fade" id="exportExcelModal" tabindex="-1" role="dialog" aria-labelledby="exportExcelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="exportExcelModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất báo cáo Excel</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Export Full List Option -->
+                    <div class="col-md-12 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-list mr-2"></i>Danh sách hợp đồng</h6>
+                                <p class="text-muted small">Xuất tất cả danh sách hợp đồng hiện có</p>
+                                <a href="{{ route('admin.land-rental-contracts.export') }}" class="btn btn-outline-success btn-sm btn-block">
+                                    <i class="fas fa-download mr-1"></i> Xuất danh sách
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Tax Calculation Option -->
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title"><i class="fas fa-calculator mr-2"></i>Bảng tính tiền thuê đất</h6>
+                                <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get">
+                                    <div class="form-group">
+                                        <label>Kỳ thanh toán</label>
+                                        <select name="period" class="form-control">
+                                            <option value="1">Kỳ I (Tháng 1-6)</option>
+                                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Năm</label>
+                                        <select name="year" class="form-control">
+                                            @php
+                                                $currentYear = (int)date('Y');
+                                                $startYear = $currentYear - 2;
+                                                $endYear = $currentYear + 2;
+                                            @endphp
+                                            @for($year = $startYear; $year <= $endYear; $year++)
+                                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                                            @endfor
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-block">
+                                        <i class="fas fa-download mr-1"></i> Xuất báo cáo
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Plan Modal -->
+<div class="modal fade" id="exportRentalPlanModal" tabindex="-1" role="dialog" aria-labelledby="exportRentalPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="exportRentalPlanModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Kế Hoạch Nộp Tiền Thuê Đất</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.land-rental-contracts.export-rental-plan') }}" method="get">
+                    <div class="form-group">
+                        <label>Năm kế hoạch</label>
+                        <select name="year" class="form-control">
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-download mr-1"></i> Xuất kế hoạch
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Tax Plan Modal -->
+<div class="modal fade" id="exportTaxPlanModal" tabindex="-1" role="dialog" aria-labelledby="exportTaxPlanModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="exportTaxPlanModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Kế Hoạch Nộp Thuế PNN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.land-rental-contracts.export-tax-plan') }}" method="get">
+                    <div class="form-group">
+                        <label>Năm kế hoạch</label>
+                        <select name="year" class="form-control">
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-download mr-1"></i> Xuất kế hoạch thuế
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Non-Agricultural Land Tax Modal -->
+<div class="modal fade" id="exportNonAgriTaxModal" tabindex="-1" role="dialog" aria-labelledby="exportNonAgriTaxModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="exportNonAgriTaxModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Thuế SDD PNN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.land-rental-contracts.export-non-agri-tax') }}" method="get">
+                    <div class="form-group">
+                        <label>Năm tính thuế</label>
+                        <select name="year" class="form-control">
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-download mr-1"></i> Xuất bảng tính
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
+<style>
+    .modal-header.bg-success {
+        color: white;
+    }
+    #exportExcelModal .card {
+        box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+        transition: all 0.3s;
+    }
+    #exportExcelModal .card:hover {
+        box-shadow: 0 0 8px rgba(0,0,0,.2);
+    }
+</style>
 @endpush
 
 @push('scripts')

@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\DataTables;
 use Carbon\Carbon;
 use App\Exports\LandRentalContractsExport;
+use App\Exports\LandTaxCalculationExport;
+use App\Exports\LandRentalPlanExport;
+use App\Exports\LandTaxPlanExport;
+use App\Exports\LandNonAgriTaxCalculationExport; // Thêm dòng này
 use Maatwebsite\Excel\Facades\Excel;
 
 class LandRentalContractController extends Controller
@@ -420,7 +424,7 @@ class LandRentalContractController extends Controller
                     $paymentBtn = '<a href="' . route('admin.land-rental-payment-histories.index', $item) . '" class="btn btn-success btn-sm" title="Lịch sử thanh toán">
                         <i class="fas fa-money-bill-wave"></i>
                     </a>';
-                    $deleteBtn = '<form action="' . route('admin.land-rental-contracts.destroy', $item) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa hợp đồng này?\')">
+                    $deleteBtn = '<form action="' . route('admin.land-rental-contracts.destroy', $item) . '" method="POST" class="d-inline mb-0" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa hợp đồng này?\')">
                         ' . csrf_field() . method_field('DELETE') . '
                         <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
                             <i class="fas fa-trash"></i>
@@ -644,5 +648,50 @@ class LandRentalContractController extends Controller
     {
         $filename = 'danh-sach-hop-dong-thue-dat-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandRentalContractsExport(), $filename);
+    }
+
+    /**
+     * Export land tax calculation table for a specific period and year
+     */
+    public function exportTaxCalculation(Request $request)
+    {
+        $period = $request->input('period', 1); // Default to period 1
+        $year = $request->input('year', date('Y')); // Default to current year
+        
+        $filename = 'bang-tinh-tien-thue-dat-ky-' . $period . '-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
+        return Excel::download(new LandTaxCalculationExport($period, $year), $filename);
+    }
+
+    /**
+     * Export land rental plan for a specific year
+     */
+    public function exportRentalPlan(Request $request)
+    {
+        $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
+        
+        $filename = 'ke-hoach-nop-tien-thue-dat-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
+        return Excel::download(new LandRentalPlanExport($year), $filename);
+    }
+
+    /**
+     * Export land tax plan for a specific year
+     */
+    public function exportTaxPlan(Request $request)
+    {
+        $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
+        
+        $filename = 'ke-hoach-nop-thue-pnn-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
+        return Excel::download(new LandTaxPlanExport($year), $filename);
+    }
+
+    /**
+     * Export non-agricultural land tax calculation for a specific year
+     */
+    public function exportNonAgriTax(Request $request)
+    {
+        $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
+        
+        $filename = 'bang-tinh-thue-sdd-pnn-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
+        return Excel::download(new LandNonAgriTaxCalculationExport($year), $filename);
     }
 }

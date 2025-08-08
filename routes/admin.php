@@ -57,13 +57,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('history', DividendHistoryController::class);
         });
 
-
-
-
-
-
         // Land Rental Contracts routes
         Route::get('land-rental-contracts/export', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'export'])->name('land-rental-contracts.export');
+        Route::get('land-rental-contracts/export-tax-calculation', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportTaxCalculation'])->name('land-rental-contracts.export-tax-calculation');
+        Route::get('land-rental-contracts/export-rental-plan', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportRentalPlan'])->name('land-rental-contracts.export-rental-plan');
+        Route::get('land-rental-contracts/export-tax-plan', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportTaxPlan'])->name('land-rental-contracts.export-tax-plan');
+        Route::get('land-rental-contracts/export-non-agri-tax', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportNonAgriTax'])->name('land-rental-contracts.export-non-agri-tax');
         Route::resource('land-rental-contracts', \App\Http\Controllers\Admin\LandRentalContractController::class);
 
 
