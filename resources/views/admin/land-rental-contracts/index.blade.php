@@ -155,35 +155,11 @@
                                 <i class="fas fa-calculator mr-2"></i> Bảng tính thuế SDD PNN
                             </a>
                             
-                            <div class="dropdown-divider"></div>
-                            <h6 class="dropdown-header">Bảng tính tiền thuê đất</h6>
                             
-                            <!-- Export Tax Calculation Form -->
-                            <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get" class="p-3">
-                                <div class="form-group">
-                                    <label>Kỳ thanh toán</label>
-                                    <select name="period" class="form-control">
-                                        <option value="1">Kỳ I (Tháng 1-6)</option>
-                                        <option value="2">Kỳ II (Tháng 7-12)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Năm</label>
-                                    <select name="year" class="form-control">
-                                        @php
-                                            $currentYear = (int)date('Y');
-                                            $startYear = $currentYear - 2;
-                                            $endYear = $currentYear + 2;
-                                        @endphp
-                                        @for($year = $startYear; $year <= $endYear; $year++)
-                                            <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-success btn-block">
-                                    <i class="fas fa-download mr-1"></i> Xuất báo cáo
-                                </button>
-                            </form>
+                            <!-- Replace the embedded form with a button that opens a modal -->
+                            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportTaxCalculationModal">
+                                <i class="fas fa-file-invoice-dollar mr-2"></i> Bảng tính tiền thuê đất
+                            </a>
                         </div>
                     </div>
                     <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm ml-1">
@@ -396,6 +372,50 @@
                 <form action="{{ route('admin.land-rental-contracts.export-non-agri-tax') }}" method="get">
                     <div class="form-group">
                         <label>Năm tính thuế</label>
+                        <select name="year" class="form-control">
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        <i class="fas fa-download mr-1"></i> Xuất bảng tính
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Tax Calculation Modal -->
+<div class="modal fade" id="exportTaxCalculationModal" tabindex="-1" role="dialog" aria-labelledby="exportTaxCalculationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title" id="exportTaxCalculationModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Tiền Thuê Đất</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get">
+                    <div class="form-group">
+                        <label>Kỳ thanh toán</label>
+                        <select name="period" class="form-control">
+                            <option value="1">Kỳ I (Tháng 1-6)</option>
+                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Năm</label>
                         <select name="year" class="form-control">
                             @php
                                 $currentYear = (int)date('Y');
