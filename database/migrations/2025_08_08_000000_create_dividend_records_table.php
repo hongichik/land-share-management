@@ -34,7 +34,6 @@ return new class extends Migration
             
             // Indexes
             $table->index('securities_management_id');
-            $table->index('dividend_date');
             $table->index('payment_date');
         });
     }
