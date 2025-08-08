@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('rental_purpose')->nullable()->comment('Mục đích thuê đất');
 
             $table->decimal('export_tax', 5, 4)->default(0.03)->comment('Thuế xuất (mặc định 0.03)');
+            $table->decimal('land_tax_price', 15, 2)->default(0)->comment('Phí thuê đất (mặc định 0)');
 
             $table->json('area')->nullable()->comment('Thông tin diện tích (JSON)');
 
