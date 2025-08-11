@@ -35,7 +35,7 @@ class LandRentalContractController extends Controller
 
                 // Apply rounding rules for the start month
                 $effectiveStartMonth = $startDate->month;
-                if ($dayOfMonth > 15) {
+                if ($dayOfMonth >= 15) {
                     $effectiveStartMonth++;
                 }
 
@@ -43,7 +43,7 @@ class LandRentalContractController extends Controller
                 if ($effectiveStartMonth <= 6) {
                     $period1Months = 6 - $effectiveStartMonth + 1;
                     if ($dayOfMonth <= 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                        $period1Months -= 0.5;
+                        $period1Months -= 1;
                     }
                 }
 
@@ -54,7 +54,7 @@ class LandRentalContractController extends Controller
                     } else {
                         $period2Months = 12 - $effectiveStartMonth + 1;
                         if ($dayOfMonth <= 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                            $period2Months -= 0.5;
+                            $period2Months -= 1;
                         }
                     }
                 }
@@ -70,7 +70,7 @@ class LandRentalContractController extends Controller
                 if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
                     $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
                     if ($dayOfMonth <= 15 && $dayOfMonth > 1) {
-                        $currentMonths -= 0.5;
+                        $currentMonths -= 1;
                     }
                 } else {
                     $currentMonths = 0;

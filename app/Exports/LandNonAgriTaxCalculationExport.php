@@ -77,7 +77,7 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
                     // - Nếu số ngày còn lại <= 15, làm tròn nửa tháng
                     // - Nếu số ngày còn lại > 15, làm tròn 1 tháng
                     if ($remainingDays <= 15) {
-                        $months = $fullMonths + 0.5;
+                        $months = $fullMonths;
                     } else {
                         $months = $fullMonths + 1;
                     }
