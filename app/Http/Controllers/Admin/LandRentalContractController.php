@@ -42,7 +42,7 @@ class LandRentalContractController extends Controller
                 // Calculate Period 1 (January - June)
                 if ($effectiveStartMonth <= 6) {
                     $period1Months = 6 - $effectiveStartMonth + 1;
-                    if ($dayOfMonth <= 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
+                    if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
                         $period1Months -= 1;
                     }
                 }
@@ -53,7 +53,7 @@ class LandRentalContractController extends Controller
                         $period2Months = 6; // Full second half if started in first half
                     } else {
                         $period2Months = 12 - $effectiveStartMonth + 1;
-                        if ($dayOfMonth <= 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
+                        if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
                             $period2Months -= 1;
                         }
                     }
@@ -61,7 +61,7 @@ class LandRentalContractController extends Controller
 
                 // Calculate total months for rental fee calculation
                 $endOfYear = \Carbon\Carbon::createFromDate($currentYear, 12, 31);
-                if ($dayOfMonth <= 15) {
+                if ($dayOfMonth < 15) {
                     $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
                 } else {
                     $adjustedStart = $startDate->copy()->addMonth()->startOfMonth();
@@ -69,7 +69,7 @@ class LandRentalContractController extends Controller
 
                 if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
                     $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
-                    if ($dayOfMonth <= 15 && $dayOfMonth > 1) {
+                    if ($dayOfMonth < 15 && $dayOfMonth > 1) {
                         $currentMonths -= 1;
                     }
                 } else {

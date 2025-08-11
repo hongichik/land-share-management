@@ -76,7 +76,7 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
                     // Áp dụng quy tắc làm tròn:
                     // - Nếu số ngày còn lại <= 15, làm tròn nửa tháng
                     // - Nếu số ngày còn lại > 15, làm tròn 1 tháng
-                    if ($remainingDays <= 15) {
+                    if ($remainingDays < 15) {
                         $months = $fullMonths;
                     } else {
                         $months = $fullMonths + 1;
