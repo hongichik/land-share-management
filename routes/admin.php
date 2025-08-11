@@ -88,3 +88,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
     });
 });
+
+
+Route::any('{any}', function () {
+    return redirect()->route('admin.dashboard');
+})->where('any', '.*');
