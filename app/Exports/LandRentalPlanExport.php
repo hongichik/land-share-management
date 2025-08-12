@@ -147,26 +147,36 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
             return 0;
         }
         
-        $months = 0;
-        $current = $segmentStart->copy()->startOfMonth();
+        // Simplified month calculation
+        $startMonth = $segmentStart->month;
+        $startYear = $segmentStart->year;
+        $endMonth = $segmentEnd->month;
+        $endYear = $segmentEnd->year;
         
-        while ($current->lessThanOrEqualTo($segmentEnd)) {
-            $monthStart = $current->copy();
-            $monthEnd = $current->copy()->endOfMonth();
-            
-            // Xác định ngày bắt đầu và kết thúc thực tế trong tháng này
-            $effectiveStart = $segmentStart->copy()->max($monthStart);
-            $effectiveEnd = $segmentEnd->copy()->min($monthEnd);
-            
-            // Tính số ngày hiệu lực trong tháng
-            $daysInMonth = $effectiveEnd->diffInDays($effectiveStart) + 1;
-            
-            // Quy tắc: >= 15 ngày thì tính 1 tháng
-            if ($daysInMonth >= 15) {
-                $months++;
+        // If start day >= 15, don't count start month
+        if ($segmentStart->day >= 15) {
+            if ($startMonth == 12) {
+                $startMonth = 1;
+                $startYear++;
+            } else {
+                $startMonth++;
             }
-            
-            $current->addMonth();
+        }
+        
+        // If end day < 15, don't count end month
+        if ($segmentEnd->day < 15) {
+            if ($endMonth == 1) {
+                $endMonth = 12;
+                $endYear--;
+            } else {
+                $endMonth--;
+            }
+        }
+        
+        // Calculate months
+        $months = 0;
+        if ($startYear < $endYear || ($startYear == $endYear && $startMonth <= $endMonth)) {
+            $months = ($endYear - $startYear) * 12 + ($endMonth - $startMonth) + 1;
         }
         
         return $months;

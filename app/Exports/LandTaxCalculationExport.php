@@ -36,6 +36,45 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
     }
 
     /**
+     * Calculate months using simplified logic
+     */
+    private function calculateSimpleMonths($segmentStart, $segmentEnd)
+    {
+        $startMonth = $segmentStart->month;
+        $startYear = $segmentStart->year;
+        $endMonth = $segmentEnd->month;
+        $endYear = $segmentEnd->year;
+        
+        // If start day >= 15, don't count start month
+        if ($segmentStart->day >= 15) {
+            if ($startMonth == 12) {
+                $startMonth = 1;
+                $startYear++;
+            } else {
+                $startMonth++;
+            }
+        }
+        
+        // If end day < 15, don't count end month
+        if ($segmentEnd->day < 15) {
+            if ($endMonth == 1) {
+                $endMonth = 12;
+                $endYear--;
+            } else {
+                $endMonth--;
+            }
+        }
+        
+        // Calculate months
+        $months = 0;
+        if ($startYear < $endYear || ($startYear == $endYear && $startMonth <= $endMonth)) {
+            $months = ($endYear - $startYear) * 12 + ($endMonth - $startMonth) + 1;
+        }
+        
+        return $months;
+    }
+
+    /**
      * Calculate period months for a contract's prices in a given year
      */
     private function calculatePeriodMonths($contract, $currentYear)
@@ -51,9 +90,12 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         // Get prices for the current year
         $prices = $contract->landRentalPrices
             ->filter(function ($price) use ($currentYear) {
-                $startYear = Carbon::parse($price->price_period['start'])->year;
-                $endYear = Carbon::parse($price->price_period['end'])->year;
-                return $startYear == $currentYear || $endYear == $currentYear;
+                $start = Carbon::parse($price->price_period['start']);
+                $end = Carbon::parse($price->price_period['end']);
+                $yearStart = Carbon::create($currentYear, 1, 1);
+                $yearEnd = Carbon::create($currentYear, 12, 31);
+                
+                return $start->lessThanOrEqualTo($yearEnd) && $end->greaterThanOrEqualTo($yearStart);
             })
             ->sortBy('price_period.start');
 
@@ -65,40 +107,16 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             $segmentStart1 = $priceStart->copy()->max($period1Start);
             $segmentEnd1 = $priceEnd->copy()->min($period1End);
             if ($segmentStart1 <= $segmentEnd1) {
-                $current = $segmentStart1->copy()->startOfMonth();
-                while ($current <= $segmentEnd1) {
-                    // Calculate days in this month for this price period
-                    $monthStart = max($segmentStart1, $current->copy()->startOfMonth());
-                    $monthEnd = min($segmentEnd1, $current->copy()->endOfMonth());
-                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
-                    
-                    // Count month if >= 15 days
-                    if ($daysInMonth >= 15) {
-                        $period1Months++;
-                    }
-                    
-                    $current->addMonth();
-                }
+                $months = $this->calculateSimpleMonths($segmentStart1, $segmentEnd1);
+                $period1Months += $months;
             }
 
             // Kỳ 2 (July - December)
             $segmentStart2 = $priceStart->copy()->max($period2Start);
             $segmentEnd2 = $priceEnd->copy()->min($period2End);
             if ($segmentStart2 <= $segmentEnd2) {
-                $current = $segmentStart2->copy()->startOfMonth();
-                while ($current <= $segmentEnd2) {
-                    // Calculate days in this month for this price period
-                    $monthStart = max($segmentStart2, $current->copy()->startOfMonth());
-                    $monthEnd = min($segmentEnd2, $current->copy()->endOfMonth());
-                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
-                    
-                    // Count month if >= 15 days
-                    if ($daysInMonth >= 15) {
-                        $period2Months++;
-                    }
-                    
-                    $current->addMonth();
-                }
+                $months = $this->calculateSimpleMonths($segmentStart2, $segmentEnd2);
+                $period2Months += $months;
             }
         }
 
@@ -108,7 +126,7 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             'current_months' => $currentMonths,
             'period1_months' => $period1Months,
             'period2_months' => $period2Months,
-            'prices' => $prices // Return prices for further use
+            'prices' => $prices
         ];
     }
 
@@ -152,20 +170,7 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
                 
                 $months = 0;
                 if ($segmentStart <= $segmentEnd) {
-                    $current = $segmentStart->copy()->startOfMonth();
-                    while ($current <= $segmentEnd) {
-                        // Calculate days in this month for this price period
-                        $monthStart = max($segmentStart, $current->copy()->startOfMonth());
-                        $monthEnd = min($segmentEnd, $current->copy()->endOfMonth());
-                        $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
-                        
-                        // Count month if >= 15 days
-                        if ($daysInMonth >= 15) {
-                            $months++;
-                        }
-                        
-                        $current->addMonth();
-                    }
+                    $months = $this->calculateSimpleMonths($segmentStart, $segmentEnd);
                 }
                 
                 if ($months > 0 && $price->rental_price) {
