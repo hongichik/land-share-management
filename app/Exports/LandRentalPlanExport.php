@@ -147,20 +147,26 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
             return 0;
         }
         
-        // Tính số tháng với quy tắc ngày 15
         $months = 0;
-        $current = $segmentStart->copy();
+        $current = $segmentStart->copy()->startOfMonth();
         
         while ($current->lessThanOrEqualTo($segmentEnd)) {
+            $monthStart = $current->copy();
             $monthEnd = $current->copy()->endOfMonth();
+            
+            // Xác định ngày bắt đầu và kết thúc thực tế trong tháng này
+            $effectiveStart = $segmentStart->copy()->max($monthStart);
             $effectiveEnd = $segmentEnd->copy()->min($monthEnd);
             
-            // Nếu bắt đầu từ ngày <= 15 hoặc bao phủ cả tháng, tính 1 tháng
-            if ($current->day <= 15 || $current->isSameMonth($effectiveEnd)) {
+            // Tính số ngày hiệu lực trong tháng
+            $daysInMonth = $effectiveEnd->diffInDays($effectiveStart) + 1;
+            
+            // Quy tắc: >= 15 ngày thì tính 1 tháng
+            if ($daysInMonth >= 15) {
                 $months++;
             }
             
-            $current->addMonth()->startOfMonth();
+            $current->addMonth();
         }
         
         return $months;
@@ -171,8 +177,22 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
      */
     private function formatPricePeriod($price, $yearStart, $yearEnd)
     {
-        // Hiển thị price_decision thay vì khoảng thời gian
-        return $price->price_decision ?: '';
+        $priceStart = Carbon::parse($price->price_period['start']);
+        $priceEnd = Carbon::parse($price->price_period['end']);
+        
+        // Lấy giao điểm giữa khoảng thời gian giá và năm được chọn
+        $segmentStart = $priceStart->copy()->max($yearStart);
+        $segmentEnd = $priceEnd->copy()->min($yearEnd);
+        
+        $timePeriod = $segmentStart->format('d/m/Y') . ' - ' . $segmentEnd->format('d/m/Y');
+        
+        $notes = [];
+        if ($price->price_decision) {
+            $notes[] = $price->price_decision;
+        }
+        $notes[] = 'Áp dụng: ' . $timePeriod;
+        
+        return implode('; ', $notes);
     }
 
     /**

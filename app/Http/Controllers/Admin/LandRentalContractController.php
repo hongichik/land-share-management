@@ -47,22 +47,18 @@ class LandRentalContractController extends Controller
             $segmentStart1 = $priceStart->copy()->max($period1Start);
             $segmentEnd1 = $priceEnd->copy()->min($period1End);
             if ($segmentStart1 <= $segmentEnd1) {
-                $current = $segmentStart1->copy();
-                $firstMonth = true;
+                $current = $segmentStart1->copy()->startOfMonth();
                 while ($current <= $segmentEnd1) {
-                    if ($firstMonth) {
-                        $day = $current->day;
-                        if ($day >= 15) {
-                            $period1Months++;
-                        } else {
-                            $current->addMonth();
-                            if ($current > $segmentEnd1) break;
-                            $period1Months++;
-                        }
-                        $firstMonth = false;
-                    } else {
+                    // Calculate days in this month for this price period
+                    $monthStart = max($segmentStart1, $current->copy()->startOfMonth());
+                    $monthEnd = min($segmentEnd1, $current->copy()->endOfMonth());
+                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
+                    
+                    // Count month if >= 15 days
+                    if ($daysInMonth >= 15) {
                         $period1Months++;
                     }
+                    
                     $current->addMonth();
                 }
             }
@@ -71,22 +67,18 @@ class LandRentalContractController extends Controller
             $segmentStart2 = $priceStart->copy()->max($period2Start);
             $segmentEnd2 = $priceEnd->copy()->min($period2End);
             if ($segmentStart2 <= $segmentEnd2) {
-                $current = $segmentStart2->copy();
-                $firstMonth = true;
+                $current = $segmentStart2->copy()->startOfMonth();
                 while ($current <= $segmentEnd2) {
-                    if ($firstMonth) {
-                        $day = $current->day;
-                        if ($day >= 15) {
-                            $period2Months++;
-                        } else {
-                            $current->addMonth();
-                            if ($current > $segmentEnd2) break;
-                            $period2Months++;
-                        }
-                        $firstMonth = false;
-                    } else {
+                    // Calculate days in this month for this price period
+                    $monthStart = max($segmentStart2, $current->copy()->startOfMonth());
+                    $monthEnd = min($segmentEnd2, $current->copy()->endOfMonth());
+                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
+                    
+                    // Count month if >= 15 days
+                    if ($daysInMonth >= 15) {
                         $period2Months++;
                     }
+                    
                     $current->addMonth();
                 }
             }
@@ -218,22 +210,18 @@ class LandRentalContractController extends Controller
                             $segmentEnd = min($priceEnd, $periodInfo['end']);
                             $months = 0;
                             if ($segmentStart <= $segmentEnd) {
-                                $current = $segmentStart->copy();
-                                $firstMonth = true;
+                                $current = $segmentStart->copy()->startOfMonth();
                                 while ($current <= $segmentEnd) {
-                                    if ($firstMonth) {
-                                        $day = $current->day;
-                                        if ($day >= 15) {
-                                            $months++;
-                                        } else {
-                                            $current->addMonth();
-                                            if ($current > $segmentEnd) break;
-                                            $months++;
-                                        }
-                                        $firstMonth = false;
-                                    } else {
+                                    // Calculate days in this month for this price period
+                                    $monthStart = max($segmentStart, $current->copy()->startOfMonth());
+                                    $monthEnd = min($segmentEnd, $current->copy()->endOfMonth());
+                                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
+                                    
+                                    // Count month if >= 15 days
+                                    if ($daysInMonth >= 15) {
                                         $months++;
                                     }
+                                    
                                     $current->addMonth();
                                 }
                             }
@@ -255,29 +243,39 @@ class LandRentalContractController extends Controller
                     foreach ($prices as $price) {
                         $priceStart = \Carbon\Carbon::parse($price->price_period['start']);
                         $priceEnd = \Carbon\Carbon::parse($price->price_period['end']);
-                        $segmentStart = max($priceStart, \Carbon\Carbon::create($currentYear, 1, 1));
-                        $segmentEnd = min($priceEnd, \Carbon\Carbon::create($currentYear, 12, 31));
-                        $months = 0;
-                        if ($segmentStart <= $segmentEnd) {
-                            $current = $segmentStart->copy();
-                            $firstMonth = true;
-                            while ($current <= $segmentEnd) {
-                                if ($firstMonth) {
-                                    $day = $current->day;
-                                    if ($day >= 15) {
-                                        $months++;
-                                    } else {
-                                        $current->addMonth();
-                                        if ($current > $segmentEnd) break;
-                                        $months++;
-                                    }
-                                    $firstMonth = false;
-                                } else {
-                                    $months++;
-                                }
-                                $current->addMonth();
-                            }
+                        
+                        // Lấy giao điểm giữa khoảng thời gian giá và năm được chọn
+                        $yearStart = \Carbon\Carbon::create($currentYear, 1, 1);
+                        $yearEnd = \Carbon\Carbon::create($currentYear, 12, 31);
+                        $segmentStart = $priceStart->copy()->max($yearStart);
+                        $segmentEnd = $priceEnd->copy()->min($yearEnd);
+                        
+                        if ($segmentStart->greaterThan($segmentEnd)) {
+                            continue;
                         }
+                        
+                        $months = 0;
+                        $current = $segmentStart->copy()->startOfMonth();
+                        
+                        while ($current->lessThanOrEqualTo($segmentEnd)) {
+                            $monthStart = $current->copy();
+                            $monthEnd = $current->copy()->endOfMonth();
+                            
+                            // Xác định ngày bắt đầu và kết thúc thực tế trong tháng này
+                            $effectiveStart = $segmentStart->copy()->max($monthStart);
+                            $effectiveEnd = $segmentEnd->copy()->min($monthEnd);
+                            
+                            // Tính số ngày hiệu lực trong tháng
+                            $daysInMonth = $effectiveEnd->diffInDays($effectiveStart) + 1;
+                            
+                            // Quy tắc: >= 15 ngày thì tính 1 tháng
+                            if ($daysInMonth >= 15) {
+                                $months++;
+                            }
+                            
+                            $current->addMonth();
+                        }
+                        
                         if ($months > 0 && $price->rental_price && $areaValue) {
                             $fee = ($price->rental_price * $areaValue / 12) * $months;
                             $yearTotal += $fee;
@@ -382,22 +380,18 @@ class LandRentalContractController extends Controller
                             $segmentEnd = min($priceEnd, $periodInfo['end']);
                             $months = 0;
                             if ($segmentStart <= $segmentEnd) {
-                                $current = $segmentStart->copy();
-                                $firstMonth = true;
+                                $current = $segmentStart->copy()->startOfMonth();
                                 while ($current <= $segmentEnd) {
-                                    if ($firstMonth) {
-                                        $day = $current->day;
-                                        if ($day >= 15) {
-                                            $months++;
-                                        } else {
-                                            $current->addMonth();
-                                            if ($current > $segmentEnd) break;
-                                            $months++;
-                                        }
-                                        $firstMonth = false;
-                                    } else {
+                                    // Calculate days in this month for this price period
+                                    $monthStart = max($segmentStart, $current->copy()->startOfMonth());
+                                    $monthEnd = min($segmentEnd, $current->copy()->endOfMonth());
+                                    $daysInMonth = $monthStart->diffInDays($monthEnd) + 1;
+                                    
+                                    // Count month if >= 15 days
+                                    if ($daysInMonth >= 15) {
                                         $months++;
                                     }
+                                    
                                     $current->addMonth();
                                 }
                             }
@@ -793,4 +787,5 @@ class LandRentalContractController extends Controller
         $filename = 'bang-tinh-thue-sdd-pnn-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandNonAgriTaxCalculationExport($year), $filename);
     }
+
 }
