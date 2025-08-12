@@ -55,18 +55,15 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             if ($contractYear == $currentYear) {
                 $dayOfMonth = $startDate->day;
 
-                // Apply rounding rules for the start month
+                // New logic: >=15 count from current month, <15 from next month
                 $effectiveStartMonth = $startDate->month;
-                if ($dayOfMonth >= 15) {
+                if ($dayOfMonth < 15) {
                     $effectiveStartMonth++;
                 }
 
                 // Calculate Period 1 (January - June)
                 if ($effectiveStartMonth <= 6) {
                     $period1Months = 6 - $effectiveStartMonth + 1;
-                    if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                        $period1Months -= 1;
-                    }
                 }
 
                 // Calculate Period 2 (July - December) 
@@ -75,25 +72,19 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
                         $period2Months = 6; // Full second half if started in first half
                     } else {
                         $period2Months = 12 - $effectiveStartMonth + 1;
-                        if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                            $period2Months -= 1;
-                        }
                     }
                 }
 
                 // Calculate total months for rental fee calculation
                 $endOfYear = \Carbon\Carbon::createFromDate($currentYear, 12, 31);
                 if ($dayOfMonth < 15) {
-                    $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
+                    $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1)->addMonth();
                 } else {
-                    $adjustedStart = $startDate->copy()->addMonth()->startOfMonth();
+                    $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
                 }
 
                 if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
                     $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
-                    if ($dayOfMonth < 15 && $dayOfMonth > 1) {
-                        $currentMonths -= 1;
-                    }
                 } else {
                     $currentMonths = 0;
                 }
@@ -172,7 +163,8 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             $area = (float)$contract->area['value'];
             $rentalPrice = (float)$latestPrice->rental_price;
             $totalAmount = $area * $rentalPrice;
-            $periodAmount = $totalAmount / 2; // Divided by 2 for half-yearly payment
+            $months = $periodMonths;
+            $periodAmount = ($totalAmount / 12) * $months; // Changed formula
             
             // Số còn phải nộp = Số phải nộp - Số đã nộp
             $remainingAmount = $periodAmount - $paidAmount;
@@ -183,9 +175,10 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
                 'area' => $area,
                 'unit_price' => $rentalPrice,
                 'total_amount' => $totalAmount,
+                'months' => $months, // New column
                 'period_amount' => $periodAmount,
-                'paid_amount' => $paidAmount, // Số tiền đã nộp
-                'remaining_amount' => $remainingAmount, // Số còn phải nộp
+                'paid_amount' => $paidAmount,
+                'remaining_amount' => $remainingAmount,
                 'notes' => ''
             ];
         }
@@ -204,12 +197,13 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             $formattedData[] = [
                 $row['index'],
                 $row['location'],
-                (float)$row['area'],  // Đảm bảo là số
-                (float)$row['unit_price'], // Đảm bảo là số
-                (float)$row['total_amount'], // Đảm bảo là số
-                (float)$row['period_amount'], // Số phải nộp
-                (float)$row['paid_amount'], // Số đã nộp
-                (float)$row['remaining_amount'], // Số còn phải nộp
+                (float)$row['area'],
+                (float)$row['unit_price'],
+                (float)$row['total_amount'],
+                (int)$row['months'], // New column
+                (float)$row['period_amount'],
+                (float)$row['paid_amount'],
+                (float)$row['remaining_amount'],
                 $row['notes']
             ];
         }
@@ -253,10 +247,11 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             'C' => 15,
             'D' => 15,
             'E' => 20,
-            'F' => 25,
+            'F' => 10, // New column: months
             'G' => 25,
-            'H' => 20,
+            'H' => 25,
             'I' => 20,
+            'J' => 20,
         ];
     }
 
@@ -406,10 +401,11 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         $sheet->setCellValue('C'.$firstHeaderRow, 'Diện tích (m2)');
         $sheet->setCellValue('D'.$firstHeaderRow, 'Đơn giá (đ/m2/năm)');
         $sheet->setCellValue('E'.$firstHeaderRow, 'Thành tiền (đồng)');
-        $sheet->setCellValue('F'.$firstHeaderRow, 'Số phải nộp kỳ ' . $this->period . '/' . $this->year . ' (đồng)');
-        $sheet->setCellValue('G'.$firstHeaderRow, 'Số đã nộp/được miễn, giảm (đồng)');
-        $sheet->setCellValue('H'.$firstHeaderRow, 'Số còn phải nộp (đồng)');
-        $sheet->setCellValue('I'.$firstHeaderRow, 'Ghi chú');
+        $sheet->setCellValue('F'.$firstHeaderRow, 'Số tháng tính tiền'); // New column
+        $sheet->setCellValue('G'.$firstHeaderRow, 'Số phải nộp kỳ ' . $this->period . '/' . $this->year . ' (đồng)');
+        $sheet->setCellValue('H'.$firstHeaderRow, 'Số đã nộp/được miễn, giảm (đồng)');
+        $sheet->setCellValue('I'.$firstHeaderRow, 'Số còn phải nộp (đồng)');
+        $sheet->setCellValue('J'.$firstHeaderRow, 'Ghi chú');
 
         // Set column labels (A, B, (1), etc) - row 8
         $secondHeaderRow = 8;
@@ -418,13 +414,14 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         $sheet->setCellValue('C'.$secondHeaderRow, '(1)');
         $sheet->setCellValue('D'.$secondHeaderRow, '(2)');
         $sheet->setCellValue('E'.$secondHeaderRow, '(3)=(1)x(2)');
-        $sheet->setCellValue('F'.$secondHeaderRow, '(4)=(3)/2');
-        $sheet->setCellValue('G'.$secondHeaderRow, '(5)');
-        $sheet->setCellValue('H'.$secondHeaderRow, '(6)=(4-5)');
-        $sheet->setCellValue('I'.$secondHeaderRow, '(7)');
+        $sheet->setCellValue('F'.$secondHeaderRow, '(4)'); // New column
+        $sheet->setCellValue('G'.$secondHeaderRow, '(5)=((3)/12)x(4)');
+        $sheet->setCellValue('H'.$secondHeaderRow, '(6)');
+        $sheet->setCellValue('I'.$secondHeaderRow, '(7)=(5-6)');
+        $sheet->setCellValue('J'.$secondHeaderRow, '(8)');
         
         // Style both header rows
-        $sheet->getStyle('A'.$firstHeaderRow.':I'.$secondHeaderRow)->applyFromArray([
+        $sheet->getStyle('A'.$firstHeaderRow.':J'.$secondHeaderRow)->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -449,12 +446,12 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         $sheet->getRowDimension($secondHeaderRow)->setRowHeight(25);
 
         // Style the data rows
-        $dataStartRow = 9; // Data bắt đầu từ dòng 9
-        $dataEndRow = 8 + count($this->data); // Tính số dòng dữ liệu chính xác
+        $dataStartRow = 9;
+        $dataEndRow = 8 + count($this->data);
         
         if ($dataEndRow >= $dataStartRow) {
             // Style all data cells
-            $sheet->getStyle('A'.$dataStartRow.':I'.$dataEndRow)->applyFromArray([
+            $sheet->getStyle('A'.$dataStartRow.':J'.$dataEndRow)->applyFromArray([
                 'font' => ['size' => 11],
                 'borders' => [
                     'allBorders' => [
@@ -469,26 +466,28 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             // Center align specific columns
             $sheet->getStyle('A'.$dataStartRow.':A'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle('C'.$dataStartRow.':C'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F'.$dataStartRow.':F'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER); // months
             
             // Right align number columns
-            $sheet->getStyle('D'.$dataStartRow.':H'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('D'.$dataStartRow.':I'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             
             // Format currency cells - ensure values are interpreted as numbers
-            $sheet->getStyle('C'.$dataStartRow.':H'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('C'.$dataStartRow.':I'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
             
             // Add total row
             $totalRow = $dataEndRow + 1;
             $sheet->setCellValue('A'.$totalRow, 'Tổng');
-            $sheet->mergeCells('A'.$totalRow.':D'.$totalRow);
+            $sheet->mergeCells('A'.$totalRow.':E'.$totalRow);
             
             // Correct formulas for the total row
-            $sheet->setCellValue('E'.$totalRow, '=SUM(E'.$dataStartRow.':E'.$dataEndRow.')');
+            // F: months, sum
             $sheet->setCellValue('F'.$totalRow, '=SUM(F'.$dataStartRow.':F'.$dataEndRow.')');
             $sheet->setCellValue('G'.$totalRow, '=SUM(G'.$dataStartRow.':G'.$dataEndRow.')');
             $sheet->setCellValue('H'.$totalRow, '=SUM(H'.$dataStartRow.':H'.$dataEndRow.')');
+            $sheet->setCellValue('I'.$totalRow, '=SUM(I'.$dataStartRow.':I'.$dataEndRow.')');
             
             // Style total row
-            $sheet->getStyle('A'.$totalRow.':I'.$totalRow)->applyFromArray([
+            $sheet->getStyle('A'.$totalRow.':J'.$totalRow)->applyFromArray([
                 'font' => ['bold' => true, 'size' => 11],
                 'borders' => [
                     'allBorders' => [
@@ -504,11 +503,11 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             ]);
             
             $sheet->getStyle('A'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('E'.$totalRow.':H'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-            $sheet->getStyle('E'.$totalRow.':H'.$totalRow)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('F'.$totalRow.':I'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('F'.$totalRow.':I'.$totalRow)->getNumberFormat()->setFormatCode('#,##0');
             
             // Ensure total row uses numeric values
-            foreach (['E', 'F', 'G', 'H'] as $col) {
+            foreach (['F', 'G', 'H', 'I'] as $col) {
                 $cellRef = $col.$totalRow;
                 $sheet->getCell($cellRef)->setValueExplicit(
                     $sheet->getCell($cellRef)->getCalculatedValue(),
@@ -518,15 +517,15 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
 
             // Thêm dòng bằng chữ
             $wordsRow = $totalRow + 1;
-            $totalRemainingAmount = $sheet->getCell('H'.$totalRow)->getCalculatedValue();
+            $totalRemainingAmount = $sheet->getCell('I'.$totalRow)->getCalculatedValue();
             $amountInWords = $this->convertNumberToWords((int)$totalRemainingAmount) . ' đồng';
             
             $sheet->setCellValue('B'.$wordsRow, 'Bằng chữ:');
             $sheet->setCellValue('C'.$wordsRow, ucfirst($amountInWords));
-            $sheet->mergeCells('C'.$wordsRow.':I'.$wordsRow);
+            $sheet->mergeCells('C'.$wordsRow.':J'.$wordsRow);
             
             // Style dòng bằng chữ
-            $sheet->getStyle('A'.$wordsRow.':I'.$wordsRow)->applyFromArray([
+            $sheet->getStyle('A'.$wordsRow.':J'.$wordsRow)->applyFromArray([
                 'font' => ['bold' => true, 'italic' => true, 'size' => 11],
                 'borders' => [
                     'allBorders' => [
@@ -551,10 +550,10 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             
             $sheet->mergeCells('A'.$signatureRow.':C'.$signatureRow);
             $sheet->mergeCells('D'.$signatureRow.':F'.$signatureRow);
-            $sheet->mergeCells('G'.$signatureRow.':I'.$signatureRow);
+            $sheet->mergeCells('G'.$signatureRow.':J'.$signatureRow);
             
-            $sheet->getStyle('A'.$signatureRow.':I'.$signatureRow)->getFont()->setBold(true)->setSize(11);
-            $sheet->getStyle('A'.$signatureRow.':I'.$signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A'.$signatureRow.':J'.$signatureRow)->getFont()->setBold(true)->setSize(11);
+            $sheet->getStyle('A'.$signatureRow.':J'.$signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             
             // Add space for signatures
             $signatureSpaceRow = $signatureRow + 1;
@@ -564,10 +563,10 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             
             $sheet->mergeCells('A'.$signatureSpaceRow.':C'.$signatureSpaceRow);
             $sheet->mergeCells('D'.$signatureSpaceRow.':F'.$signatureSpaceRow);
-            $sheet->mergeCells('G'.$signatureSpaceRow.':I'.$signatureSpaceRow);
+            $sheet->mergeCells('G'.$signatureSpaceRow.':J'.$signatureSpaceRow);
             
-            $sheet->getStyle('A'.$signatureSpaceRow.':I'.$signatureSpaceRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('A'.$signatureSpaceRow.':I'.$signatureSpaceRow)->getFont()->setItalic(true)->setSize(11);
+            $sheet->getStyle('A'.$signatureSpaceRow.':J'.$signatureSpaceRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A'.$signatureSpaceRow.':J'.$signatureSpaceRow)->getFont()->setItalic(true)->setSize(11);
             
             // Add empty rows for actual signatures
             $sheet->getRowDimension($signatureRow + 2)->setRowHeight(40);
@@ -577,3 +576,4 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         return $sheet;
     }
 }
+

@@ -33,47 +33,46 @@ class LandRentalContractController extends Controller
             if ($contractYear == $currentYear) {
                 $dayOfMonth = $startDate->day;
 
-                // Apply rounding rules for the start month
-                $effectiveStartMonth = $startDate->month;
+                // Làm tròn theo quy tắc: >=15 ngày/tháng tính từ tháng hiện tại, <15 ngày tính từ tháng tiếp theo
                 if ($dayOfMonth >= 15) {
-                    $effectiveStartMonth++;
+                    $effectiveStartMonth = $startDate->month;
+                } else {
+                    $effectiveStartMonth = $startDate->month + 1;
                 }
 
-                // Calculate Period 1 (January - June)
-                if ($effectiveStartMonth <= 6) {
-                    $period1Months = 6 - $effectiveStartMonth + 1;
-                    if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                        $period1Months -= 1;
-                    }
-                }
-
-                // Calculate Period 2 (July - December) 
-                if ($effectiveStartMonth <= 12) {
+                // Nếu vượt quá tháng 12 thì không tính trong năm hiện tại
+                if ($effectiveStartMonth > 12) {
+                    $period1Months = 0;
+                    $period2Months = 0;
+                    $currentMonths = 0;
+                } else {
+                    // Calculate Period 1 (January - June)
                     if ($effectiveStartMonth <= 6) {
-                        $period2Months = 6; // Full second half if started in first half
-                    } else {
-                        $period2Months = 12 - $effectiveStartMonth + 1;
-                        if ($dayOfMonth < 15 && $dayOfMonth > 1 && $effectiveStartMonth == $startDate->month) {
-                            $period2Months -= 1;
+                        $period1Months = 6 - $effectiveStartMonth + 1;
+                    }
+
+                    // Calculate Period 2 (July - December) 
+                    if ($effectiveStartMonth <= 12) {
+                        if ($effectiveStartMonth <= 6) {
+                            $period2Months = 6; // Full second half if started in first half
+                        } else {
+                            $period2Months = 12 - $effectiveStartMonth + 1;
                         }
                     }
-                }
 
-                // Calculate total months for rental fee calculation
-                $endOfYear = \Carbon\Carbon::createFromDate($currentYear, 12, 31);
-                if ($dayOfMonth < 15) {
-                    $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
-                } else {
-                    $adjustedStart = $startDate->copy()->addMonth()->startOfMonth();
-                }
-
-                if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
-                    $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
-                    if ($dayOfMonth < 15 && $dayOfMonth > 1) {
-                        $currentMonths -= 1;
+                    // Tính tổng số tháng thuê trong năm
+                    $endOfYear = \Carbon\Carbon::createFromDate($currentYear, 12, 31);
+                    if ($dayOfMonth >= 15) {
+                        $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
+                    } else {
+                        $adjustedStart = $startDate->copy()->addMonth()->startOfMonth();
                     }
-                } else {
-                    $currentMonths = 0;
+
+                    if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
+                        $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
+                    } else {
+                        $currentMonths = 0;
+                    }
                 }
             } else if ($contractYear < $currentYear) {
                 // Existing contract from previous year - full periods
@@ -695,3 +694,4 @@ class LandRentalContractController extends Controller
         return Excel::download(new LandNonAgriTaxCalculationExport($year), $filename);
     }
 }
+

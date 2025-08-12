@@ -156,17 +156,6 @@
                 }
             });
 
-            // Khi thay đổi ngày kết thúc
-            $('#price_period_end').on('change', function() {
-                const startDate = $('#price_period_start').val();
-                const endDate = $(this).val();
-                
-                if (startDate && endDate && new Date(endDate) > new Date(startDate)) {
-                    $('#price_period_years').val(''); // Clear years trước khi tính
-                    calculatePeriod();
-                }
-            });
-
             // Validate ngày kết thúc
             $('#price_period_end').on('blur', function() {
                 const startDate = $('#price_period_start').val();
