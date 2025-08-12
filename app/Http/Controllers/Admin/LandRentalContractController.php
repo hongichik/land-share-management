@@ -18,79 +18,87 @@ use Maatwebsite\Excel\Facades\Excel;
 class LandRentalContractController extends Controller
 {
     /**
-     * Calculate period months for a contract
+     * Calculate period months for a contract's prices in a given year
      */
-    private function calculatePeriodMonths($item, $currentYear)
+    private function calculatePeriodMonths($contract, $currentYear)
     {
         $period1Months = 0; // January - June
         $period2Months = 0; // July - December
-        $currentMonths = 12; // Default for existing contracts
 
-        if ($item->rental_period && isset($item->rental_period['start_date'])) {
-            $startDate = \Carbon\Carbon::parse($item->rental_period['start_date']);
-            $contractYear = $startDate->year;
+        $period1Start = Carbon::create($currentYear, 1, 1);
+        $period1End = Carbon::create($currentYear, 6, 30);
+        $period2Start = Carbon::create($currentYear, 7, 1);
+        $period2End = Carbon::create($currentYear, 12, 31);
 
-            if ($contractYear == $currentYear) {
-                $dayOfMonth = $startDate->day;
+        // Get prices for the current year
+        $prices = $contract->landRentalPrices
+            ->filter(function ($price) use ($currentYear) {
+                $startYear = Carbon::parse($price->price_period['start'])->year;
+                $endYear = Carbon::parse($price->price_period['end'])->year;
+                return $startYear == $currentYear || $endYear == $currentYear;
+            })
+            ->sortBy('price_period.start');
 
-                // Làm tròn theo quy tắc: >=15 ngày/tháng tính từ tháng hiện tại, <15 ngày tính từ tháng tiếp theo
-                if ($dayOfMonth >= 15) {
-                    $effectiveStartMonth = $startDate->month;
-                } else {
-                    $effectiveStartMonth = $startDate->month + 1;
-                }
+        foreach ($prices as $price) {
+            $priceStart = Carbon::parse($price->price_period['start']);
+            $priceEnd = Carbon::parse($price->price_period['end']);
 
-                // Nếu vượt quá tháng 12 thì không tính trong năm hiện tại
-                if ($effectiveStartMonth > 12) {
-                    $period1Months = 0;
-                    $period2Months = 0;
-                    $currentMonths = 0;
-                } else {
-                    // Calculate Period 1 (January - June)
-                    if ($effectiveStartMonth <= 6) {
-                        $period1Months = 6 - $effectiveStartMonth + 1;
-                    }
-
-                    // Calculate Period 2 (July - December) 
-                    if ($effectiveStartMonth <= 12) {
-                        if ($effectiveStartMonth <= 6) {
-                            $period2Months = 6; // Full second half if started in first half
+            // Kỳ 1 (January - June)
+            $segmentStart1 = $priceStart->copy()->max($period1Start);
+            $segmentEnd1 = $priceEnd->copy()->min($period1End);
+            if ($segmentStart1 <= $segmentEnd1) {
+                $current = $segmentStart1->copy();
+                $firstMonth = true;
+                while ($current <= $segmentEnd1) {
+                    if ($firstMonth) {
+                        $day = $current->day;
+                        if ($day >= 15) {
+                            $period1Months++;
                         } else {
-                            $period2Months = 12 - $effectiveStartMonth + 1;
+                            $current->addMonth();
+                            if ($current > $segmentEnd1) break;
+                            $period1Months++;
                         }
-                    }
-
-                    // Tính tổng số tháng thuê trong năm
-                    $endOfYear = \Carbon\Carbon::createFromDate($currentYear, 12, 31);
-                    if ($dayOfMonth >= 15) {
-                        $adjustedStart = \Carbon\Carbon::createFromDate($currentYear, $startDate->month, 1);
+                        $firstMonth = false;
                     } else {
-                        $adjustedStart = $startDate->copy()->addMonth()->startOfMonth();
+                        $period1Months++;
                     }
-
-                    if ($adjustedStart->year == $currentYear && $adjustedStart <= $endOfYear) {
-                        $currentMonths = $adjustedStart->diffInMonths($endOfYear) + 1;
-                    } else {
-                        $currentMonths = 0;
-                    }
+                    $current->addMonth();
                 }
-            } else if ($contractYear < $currentYear) {
-                // Existing contract from previous year - full periods
-                $period1Months = 6;
-                $period2Months = 6;
-                $currentMonths = 12;
             }
-        } else {
-            // Default for contracts without start date
-            $period1Months = 6;
-            $period2Months = 6;
-            $currentMonths = 12;
+
+            // Kỳ 2 (July - December)
+            $segmentStart2 = $priceStart->copy()->max($period2Start);
+            $segmentEnd2 = $priceEnd->copy()->min($period2End);
+            if ($segmentStart2 <= $segmentEnd2) {
+                $current = $segmentStart2->copy();
+                $firstMonth = true;
+                while ($current <= $segmentEnd2) {
+                    if ($firstMonth) {
+                        $day = $current->day;
+                        if ($day >= 15) {
+                            $period2Months++;
+                        } else {
+                            $current->addMonth();
+                            if ($current > $segmentEnd2) break;
+                            $period2Months++;
+                        }
+                        $firstMonth = false;
+                    } else {
+                        $period2Months++;
+                    }
+                    $current->addMonth();
+                }
+            }
         }
+
+        $currentMonths = $period1Months + $period2Months;
 
         return [
             'current_months' => $currentMonths,
             'period1_months' => $period1Months,
-            'period2_months' => $period2Months
+            'period2_months' => $period2Months,
+            'prices' => $prices // Return prices for further use
         ];
     }
 
@@ -120,23 +128,23 @@ class LandRentalContractController extends Controller
                 ->editColumn('contract_and_decision', function ($item) {
                     $result = '<div class="contract-decision-info">';
                     $result .= '<strong>📄 ' . $item->contract_number . '</strong><br/>';
-                    
+
                     if ($item->contract_file_path) {
                         $contractUrl = asset('storage/' . str_replace('public/', '', $item->contract_file_path));
                         $result .= '<a href="' . $contractUrl . '" target="_blank" class="btn btn-outline-primary btn-sm mb-1" title="Xem file hợp đồng">
                             <i class="fas fa-file-pdf"></i> File HĐ
                         </a><br/>';
                     }
-                    
+
                     $result .= '<small><strong>🏛️ ' . ($item->rental_decision ?: 'Chưa có QĐ') . '</strong></small>';
-                    
+
                     if ($item->rental_decision_file_path) {
                         $decisionUrl = asset('storage/' . str_replace('public/', '', $item->rental_decision_file_path));
                         $result .= '<br/><a href="' . $decisionUrl . '" target="_blank" class="btn btn-outline-info btn-sm" title="Xem file quyết định">
                             <i class="fas fa-file-alt"></i> File QĐ
                         </a>';
                     }
-                    
+
                     $result .= '</div>';
                     return $result;
                 })
@@ -147,13 +155,13 @@ class LandRentalContractController extends Controller
                     } else {
                         $result .= '<strong>🗺️ Khu vực:</strong> <em class="text-muted">Chưa có thông tin</em><br/>';
                     }
-                    
+
                     if ($item->rental_location) {
                         $result .= '<strong>📍 Vị trí:</strong> ' . $item->rental_location;
                     } else {
                         $result .= '<strong>📍 Vị trí:</strong> <em class="text-muted">Chưa có thông tin</em>';
                     }
-                    
+
                     $result .= '</div>';
                     return $result;
                 })
@@ -170,37 +178,113 @@ class LandRentalContractController extends Controller
                     // Calculate periods using helper function
                     $currentYear = date('Y');
                     $periods = $this->calculatePeriodMonths($item, $currentYear);
+                    $prices = $periods['prices'];
                     $currentMonths = $periods['current_months'];
                     $period1Months = $periods['period1_months'];
                     $period2Months = $periods['period2_months'];
 
-                    // Calculate rental fee information
-                    $yearlyRentalFee = 0;
-                    $today = now()->toDateString(); // lấy ngày hiện tại yyyy-mm-dd
-
-                    $latestPrice = $item->landRentalPrices
-                        ->filter(function ($price) use ($today) {
-                            $start = $price->price_period['start'];
-                            $end = $price->price_period['end'];
-
-                            return $start <= $today && $end >= $today;
-                        })
-                        ->sortByDesc('created_at')
-                        ->first();
-
-                    if ($latestPrice && $latestPrice->rental_price) {
-                        $yearlyRentalFee = $latestPrice->rental_price * $item->area['value'];
-                    }
-
+                    $areaValue = $item->area['value'] ?? 0;
                     $result = '<strong>' . $areaInfo . '</strong><br/>';
                     $result .= '<small class="text-info">Số tháng năm ' . $currentYear . ': ' . $currentMonths . ' tháng</small><br/>';
                     $result .= '<small class="text-primary">Kỳ 1: ' . $period1Months . ' tháng</small><br/>';
                     $result .= '<small class="text-secondary">Kỳ 2: ' . $period2Months . ' tháng</small><br/>';
 
-                    if ($yearlyRentalFee > 0) {
-                        $result .= '<small class="text-success">Tiền thuê/năm: ' . number_format($yearlyRentalFee, 0, ',', '.') . ' VND</small><br/>';
-                        $result .= '<small class="text-warning">Tiền thuê/kỳ I: ' . number_format(($yearlyRentalFee / 12) * $period1Months, 0, ',', '.') . ' VND</small><br/>';
-                        $result .= '<small class="text-warning">Tiền thuê/kỳ II: ' . number_format(($yearlyRentalFee / 12) * $period2Months, 0, ',', '.') . ' VND</small>';
+                    // Define periods
+                    $periodsArr = [
+                        1 => [
+                            'start' => Carbon::create($currentYear, 1, 1),
+                            'end' => Carbon::create($currentYear, 6, 30),
+                            'label' => 'Kỳ I',
+                            'months' => $period1Months,
+                            'color' => 'text-warning'
+                        ],
+                        2 => [
+                            'start' => Carbon::create($currentYear, 7, 1),
+                            'end' => Carbon::create($currentYear, 12, 31),
+                            'label' => 'Kỳ II',
+                            'months' => $period2Months,
+                            'color' => 'text-warning'
+                        ]
+                    ];
+
+                    foreach ($periodsArr as $periodKey => $periodInfo) {
+                        $periodTotal = 0;
+                        $periodDetail = '';
+                        foreach ($prices as $price) {
+                            $priceStart = \Carbon\Carbon::parse($price->price_period['start']);
+                            $priceEnd = \Carbon\Carbon::parse($price->price_period['end']);
+                            // Calculate intersection between price period and current period
+                            $segmentStart = max($priceStart, $periodInfo['start']);
+                            $segmentEnd = min($priceEnd, $periodInfo['end']);
+                            $months = 0;
+                            if ($segmentStart <= $segmentEnd) {
+                                $current = $segmentStart->copy();
+                                $firstMonth = true;
+                                while ($current <= $segmentEnd) {
+                                    if ($firstMonth) {
+                                        $day = $current->day;
+                                        if ($day >= 15) {
+                                            $months++;
+                                        } else {
+                                            $current->addMonth();
+                                            if ($current > $segmentEnd) break;
+                                            $months++;
+                                        }
+                                        $firstMonth = false;
+                                    } else {
+                                        $months++;
+                                    }
+                                    $current->addMonth();
+                                }
+                            }
+                            if ($months > 0 && $price->rental_price && $areaValue) {
+                                $fee = ($price->rental_price * $areaValue / 12) * $months;
+                                $periodTotal += $fee;
+                                // Only show detail if months > 0 for this period
+                                $periodDetail .= '<div style="font-size:0.9em;">- ' . $months . ' tháng (' . $segmentStart->format('d/m/Y') . ' - ' . $segmentEnd->format('d/m/Y') . '): <strong>' . number_format($fee, 0, ',', '.') . ' VND</strong></div>';
+                            }
+                        }
+                        // Always show period summary, even if periodTotal = 0
+                        $result .= '<small class="' . $periodInfo['color'] . '">' . $periodInfo['label'] . ': <strong>' . number_format($periodTotal, 0, ',', '.') . ' VND</strong></small>';
+                        if ($periodDetail) $result .= '<br/>' . $periodDetail;
+                        $result .= '<br/>';
+                    }
+
+                    // Tổng tiền thuê/năm
+                    $yearTotal = 0;
+                    foreach ($prices as $price) {
+                        $priceStart = \Carbon\Carbon::parse($price->price_period['start']);
+                        $priceEnd = \Carbon\Carbon::parse($price->price_period['end']);
+                        $segmentStart = max($priceStart, \Carbon\Carbon::create($currentYear, 1, 1));
+                        $segmentEnd = min($priceEnd, \Carbon\Carbon::create($currentYear, 12, 31));
+                        $months = 0;
+                        if ($segmentStart <= $segmentEnd) {
+                            $current = $segmentStart->copy();
+                            $firstMonth = true;
+                            while ($current <= $segmentEnd) {
+                                if ($firstMonth) {
+                                    $day = $current->day;
+                                    if ($day >= 15) {
+                                        $months++;
+                                    } else {
+                                        $current->addMonth();
+                                        if ($current > $segmentEnd) break;
+                                        $months++;
+                                    }
+                                    $firstMonth = false;
+                                } else {
+                                    $months++;
+                                }
+                                $current->addMonth();
+                            }
+                        }
+                        if ($months > 0 && $price->rental_price && $areaValue) {
+                            $fee = ($price->rental_price * $areaValue / 12) * $months;
+                            $yearTotal += $fee;
+                        }
+                    }
+                    if ($yearTotal > 0) {
+                        $result .= '<small class="text-success">Tiền thuê/năm: <strong>' . number_format($yearTotal, 0, ',', '.') . ' VND</strong></small>';
                     } else {
                         $result .= '<small class="text-muted">Chưa có giá thuê</small>';
                     }
@@ -253,73 +337,90 @@ class LandRentalContractController extends Controller
                 ->editColumn('payment', function ($item) {
                     $currentYear = date('Y');
                     $result = '<div class="payment-info">';
-                    
+
                     // Lấy tất cả thanh toán của hợp đồng này trong năm hiện tại
                     $payments = $item->paymentHistories()
                         ->whereYear('payment_date', $currentYear)
                         ->get();
                     
-                    // Tính toán số tiền cần thanh toán cho mỗi kỳ
+                    // Tính toán số tiền cần thanh toán cho mỗi kỳ dựa trên từng mức giá
                     $periods = $this->calculatePeriodMonths($item, $currentYear);
+                    $prices = $periods['prices'];
                     $period1Months = $periods['period1_months'];
                     $period2Months = $periods['period2_months'];
-                    
-                    // Lấy giá thuê hiện tại
-                    $today = now()->toDateString();
-                    $latestPrice = $item->landRentalPrices
-                        ->filter(function ($price) use ($today) {
-                            $start = $price->price_period['start'];
-                            $end = $price->price_period['end'];
-                            return $start <= $today && $end >= $today;
-                        })
-                        ->sortByDesc('created_at')
-                        ->first();
-                    
-                    $yearlyRentalFee = 0;
-                    if ($latestPrice && $latestPrice->rental_price && $item->area && isset($item->area['value'])) {
-                        $yearlyRentalFee = $latestPrice->rental_price * $item->area['value'];
-                    }
-                    
+
+                    $areaValue = $item->area['value'] ?? 0;
+
+
+                    $periodsArr = [
+                        1 => [
+                            'start' => \Carbon\Carbon::create($currentYear, 1, 1),
+                            'end' => \Carbon\Carbon::create($currentYear, 6, 30),
+                            'months' => $period1Months,
+                            'label' => 'Kỳ 1',
+                        ],
+                        2 => [
+                            'start' => \Carbon\Carbon::create($currentYear, 7, 1),
+                            'end' => \Carbon\Carbon::create($currentYear, 12, 31),
+                            'months' => $period2Months,
+                            'label' => 'Kỳ 2',
+                        ]
+                    ];
+
                     // Ngày hiện tại để kiểm tra deadline
                     $currentDate = now();
                     $currentMonth = $currentDate->month;
                     $currentDay = $currentDate->day;
-                    
-                    // Tính toán cho từng kỳ
-                    for ($period = 1; $period <= 2; $period++) {
-                        $periodMonths = $period == 1 ? $period1Months : $period2Months;
-                        $periodName = $period == 1 ? 'Kỳ 1' : 'Kỳ 2';
-                        
-                        // Deadline cho mỗi kỳ
-                        $deadline = $period == 1 ? '31/5' : '31/10';
-                        $deadlineMonth = $period == 1 ? 5 : 10;
-                        $deadlineDay = 31;
-                        
-                        // Tính số tiền cần thanh toán cho kỳ này
-                        $requiredAmount = $yearlyRentalFee > 0 ? ($yearlyRentalFee / 12) * $periodMonths : 0;
-                        
-                        // Tính tổng số tiền đã thanh toán cho kỳ này
-                        $paidAmount = $payments->where('period', $period)->sum('amount');
-                        
-                        // Tính số tiền còn lại
+
+                    foreach ($periodsArr as $periodKey => $periodInfo) {
+                        $requiredAmount = 0;
+                        // Tính tổng tiền phải nộp cho kỳ này dựa trên từng mức giá
+                        foreach ($prices as $price) {
+                            $priceStart = \Carbon\Carbon::parse($price->price_period['start']);
+                            $priceEnd = \Carbon\Carbon::parse($price->price_period['end']);
+                            $segmentStart = max($priceStart, $periodInfo['start']);
+                            $segmentEnd = min($priceEnd, $periodInfo['end']);
+                            $months = 0;
+                            if ($segmentStart <= $segmentEnd) {
+                                $current = $segmentStart->copy();
+                                $firstMonth = true;
+                                while ($current <= $segmentEnd) {
+                                    if ($firstMonth) {
+                                        $day = $current->day;
+                                        if ($day >= 15) {
+                                            $months++;
+                                        } else {
+                                            $current->addMonth();
+                                            if ($current > $segmentEnd) break;
+                                            $months++;
+                                        }
+                                        $firstMonth = false;
+                                    } else {
+                                        $months++;
+                                    }
+                                    $current->addMonth();
+                                }
+                            }
+                            if ($months > 0 && $price->rental_price && $areaValue) {
+                                $requiredAmount += ($price->rental_price * $areaValue / 12) * $months;
+                            }
+                        }
+
+                        $paidAmount = $payments->where('period', $periodKey)->sum('amount');
                         $remainingAmount = $requiredAmount - $paidAmount;
-                        
-                        $result .= '<strong>' . $periodName . ' (' . $periodMonths . ' tháng):</strong><br/>';
-                        
+
+                        $result .= '<strong>' . $periodInfo['label'] . ' (' . $periodInfo['months'] . ' tháng):</strong><br/>';
                         if ($requiredAmount > 0) {
                             $result .= '<small class="text-info">Cần: ' . number_format($requiredAmount, 0, ',', '.') . ' VND</small><br/>';
                             $result .= '<small class="text-success">Đã trả: ' . number_format($paidAmount, 0, ',', '.') . ' VND</small><br/>';
-                            
                             if ($remainingAmount > 0) {
                                 $result .= '<span class="payment-status partial">Còn lại: ' . number_format($remainingAmount, 0, ',', '.') . ' VND</span><br/>';
-                                
-                                // Kiểm tra cảnh báo deadline với các mức độ khác nhau
+                                // Cảnh báo deadline
                                 $showWarning = false;
                                 $warningClass = '';
                                 $warningText = '';
                                 $warningIcon = '';
-                                
-                                if ($period == 1) {
+                                if ($periodKey == 1) {
                                     // Kỳ 1: deadline 31/5
                                     if ($currentMonth <= 5) {
                                         if ($currentMonth == 5 && $currentDay >= 25) {
@@ -370,11 +471,9 @@ class LandRentalContractController extends Controller
                                         $warningText = 'QUÁ HẠN! Đã quá 31/10/' . $currentYear;
                                     }
                                 }
-                                
                                 if ($showWarning) {
                                     $result .= '<span class="' . $warningClass . '">' . $warningIcon . ' ' . $warningText . '</span>';
                                 }
-                                
                             } else if ($remainingAmount < 0) {
                                 $result .= '<span class="payment-status surplus">Thừa: ' . number_format(abs($remainingAmount), 0, ',', '.') . ' VND</span>';
                             } else {
@@ -383,30 +482,31 @@ class LandRentalContractController extends Controller
                         } else {
                             $result .= '<small class="text-muted">Chưa có thông tin giá thuê</small>';
                         }
-                        
+
                         // Thêm ghi chú deadline chi tiết cho mỗi kỳ
+                        $deadline = $periodKey == 1 ? '31/5' : '31/10';
                         $deadlineNote = '<div style="margin-top: 5px; padding: 3px 6px; background-color: #f8f9fa; border-left: 3px solid ';
-                        if ($period == 1) {
+                        if ($periodKey == 1) {
                             $deadlineNote .= '#17a2b8;';
                         } else {
                             $deadlineNote .= '#ffc107;';
                         }
                         $deadlineNote .= ' font-size: 0.75em;">';
-                        $deadlineNote .= '<strong>📅 Deadline ' . $periodName . ':</strong> Phải nộp tiền thuê đất trước <strong>' . $deadline . '/' . $currentYear . '</strong><br/>';
+                        $deadlineNote .= '<strong>📅 Deadline ' . $periodInfo['label'] . ':</strong> Phải nộp tiền thuê đất trước <strong>' . $deadline . '/' . $currentYear . '</strong><br/>';
                         $deadlineNote .= '<em>Hệ thống sẽ cảnh báo từ tháng ';
-                        if ($period == 1) {
+                        if ($periodKey == 1) {
                             $deadlineNote .= '4 và khẩn cấp từ ngày 25/5';
                         } else {
                             $deadlineNote .= '9 và khẩn cấp từ ngày 25/10';
                         }
                         $deadlineNote .= '</em></div>';
                         $result .= $deadlineNote;
-                        
-                        if ($period == 1) {
+
+                        if ($periodKey == 1) {
                             $result .= '<hr/>';
                         }
                     }
-                    
+
                     $result .= '</div>';
                     return $result;
                 })
@@ -431,7 +531,7 @@ class LandRentalContractController extends Controller
                     </form>';
                     return '<div class="btn-group" role="group">' . $showBtn . ' ' . $priceBtn . ' ' . $paymentBtn . ' ' . $editBtn . ' ' . $deleteBtn . '</div>';
                 })
-                ->rawColumns(['contract_and_decision', 'rental_zone', 'area', 'land_tax_price','payment', 'rental_period', 'action'])
+                ->rawColumns(['contract_and_decision', 'rental_zone', 'area', 'land_tax_price', 'payment', 'rental_period', 'action'])
                 ->make(true);
         }
 
@@ -656,7 +756,7 @@ class LandRentalContractController extends Controller
     {
         $period = $request->input('period', 1); // Default to period 1
         $year = $request->input('year', date('Y')); // Default to current year
-        
+
         $filename = 'bang-tinh-tien-thue-dat-ky-' . $period . '-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandTaxCalculationExport($period, $year), $filename);
     }
@@ -667,7 +767,7 @@ class LandRentalContractController extends Controller
     public function exportRentalPlan(Request $request)
     {
         $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
-        
+
         $filename = 'ke-hoach-nop-tien-thue-dat-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandRentalPlanExport($year), $filename);
     }
@@ -678,7 +778,7 @@ class LandRentalContractController extends Controller
     public function exportTaxPlan(Request $request)
     {
         $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
-        
+
         $filename = 'ke-hoach-nop-thue-pnn-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandTaxPlanExport($year), $filename);
     }
@@ -689,9 +789,8 @@ class LandRentalContractController extends Controller
     public function exportNonAgriTax(Request $request)
     {
         $year = $request->input('year', date('Y')); // Lấy năm từ request, nếu không có thì lấy năm hiện tại
-        
+
         $filename = 'bang-tinh-thue-sdd-pnn-nam-' . $year . '-' . Carbon::now()->format('dmY') . '.xlsx';
         return Excel::download(new LandNonAgriTaxCalculationExport($year), $filename);
     }
 }
-

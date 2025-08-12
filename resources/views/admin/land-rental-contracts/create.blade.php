@@ -258,14 +258,7 @@ $(document).ready(function() {
             calculateRentalPeriod();
         }
     });
-    
-    // Khi thay đổi ngày kết thúc
-    $('#rental_end_date').on('change', function() {
-        if ($('#rental_start_date').val() && $('#rental_end_date').val()) {
-            $('#rental_years').val(''); // Clear years
-            calculateRentalPeriod();
-        }
-    });
+
     
     // Validate ngày kết thúc phải sau ngày bắt đầu
     $('#rental_end_date').on('blur', function() {

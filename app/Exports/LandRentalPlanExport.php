@@ -40,89 +40,139 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
     private function generatePlanData()
     {
         $contracts = LandRentalContract::with(['landRentalPrices'])->get();
+
         $planData = [];
+        $contractIndex = 1;
         
-        foreach ($contracts as $index => $contract) {
+        foreach ($contracts as $contract) {
             // Bỏ qua các hợp đồng không có giá hoặc diện tích
             if (!$contract->area || !isset($contract->area['value'])) {
                 continue;
             }
             
-            // Lấy giá thuê mới nhất hiệu lực cho năm hiện tại
-            $startOfYear = Carbon::createFromDate($this->year, 1, 1)->toDateString();
-            $endOfYear = Carbon::createFromDate($this->year, 12, 31)->toDateString();
+            // Lấy tất cả giá thuê hiệu lực cho năm hiện tại
+            $startOfYear = Carbon::createFromDate($this->year, 1, 1);
+            $endOfYear = Carbon::createFromDate($this->year, 12, 31);
             
-            $latestPrice = $contract->landRentalPrices
+            $applicablePrices = $contract->landRentalPrices
                 ->filter(function ($price) use ($startOfYear, $endOfYear) {
-                    $start = $price->price_period['start'] ?? null;
-                    $end = $price->price_period['end'] ?? null;
-                    
-                    if (!$start || !$end) return false;
+                    $start = Carbon::parse($price->price_period['start']);
+                    $end = Carbon::parse($price->price_period['end']);
                     
                     // Kiểm tra nếu khoảng thời gian giá thuê trùng với năm được chọn
-                    return $start <= $endOfYear && $end >= $startOfYear;
+                    return $start->lessThanOrEqualTo($endOfYear) && $end->greaterThanOrEqualTo($startOfYear);
                 })
-                ->sortByDesc('created_at')
-                ->first();
+                ->sortBy('price_period.start');
                 
-            if (!$latestPrice) {
+            if ($applicablePrices->isEmpty()) {
                 continue;
             }
             
             $area = (float)$contract->area['value'];
-            $rentalPrice = (float)$latestPrice->rental_price;
+            $purpose = $contract->rental_purpose ?: 'Chưa xác định';
             
-            // Tính tổng tiền thuê cho cả năm
-            $totalYearAmount = $area * $rentalPrice;
-            
-            // Số tháng tính tiền thuê (thường là 12 tháng nếu hợp đồng có hiệu lực cả năm)
-            $months = 12;
-            
-            // Nếu hợp đồng bắt đầu trong năm hiện tại, tính số tháng chính xác
-            if ($contract->rental_period && isset($contract->rental_period['start_date'])) {
-                $startDate = Carbon::parse($contract->rental_period['start_date']);
+            // Nếu chỉ có 1 mức giá, hiển thị bình thường
+            if ($applicablePrices->count() == 1) {
+                $price = $applicablePrices->first();
+                $rentalPrice = (float)$price->rental_price;
+                
+                // Tính số tháng cho mức giá này trong năm
+                $months = $this->calculateMonthsForPricePeriod($price, $startOfYear, $endOfYear);
+                
+                // Tính tiền thuê
+                $amount = ($area * $rentalPrice / 12) * $months;
 
-                if ($startDate->year == $this->year) {
-                    $endOfYear = Carbon::createFromDate($this->year, 12, 31);
+                $planData[] = [
+                    'index' => $contractIndex,
+                    'purpose' => $purpose,
+                    'contract' => $contract->contract_number,
+                    'area' => $area,
+                    'unit_price' => $rentalPrice,
+                    'months' => $months,
+                    'amount' => $amount,
+                    'notes' => $this->formatPricePeriod($price, $startOfYear, $endOfYear)
+                ];
+            } else {
+                // Nếu có nhiều mức giá, hiển thị với sub-index
+                $subIndex = 0;
+                
+                foreach ($applicablePrices as $price) {
+                    $rentalPrice = (float)$price->rental_price;
                     
-                    // Tính số tháng đầy đủ
-                    $fullMonths = $startDate->copy()->floorMonth()->diffInMonths($endOfYear->copy()->floorMonth());
+                    // Tính số tháng cho mức giá này trong năm
+                    $months = $this->calculateMonthsForPricePeriod($price, $startOfYear, $endOfYear);
                     
-                    // Tính số ngày còn lại trong tháng cuối
-                    $remainingDays = $startDate->day;
-
-                    
-                    // Áp dụng quy tắc làm tròn:
-                    // - Nếu số ngày còn lại < 15, làm tròn nửa tháng
-                    // - Nếu số ngày còn lại >= 15, làm tròn 1 tháng
-                    if ($remainingDays < 15) {
-                        $months = $fullMonths;
-
-                    } else {
-                        $months = $fullMonths + 1;
+                    if ($months > 0) {
+                        // Tính tiền thuê
+                        $amount = ($area * $rentalPrice / 12) * $months;
+                        
+                        // Tạo index với sub-index
+                        $displayIndex = $subIndex == 0 ? $contractIndex : $contractIndex . '.' . $subIndex.' ';
+                        
+                        $planData[] = [
+                            'index' => $displayIndex,
+                            'purpose' => $subIndex == 0 ? $purpose : '', // Chỉ hiển thị mục đích ở dòng đầu
+                            'contract' => $subIndex == 0 ? $contract->contract_number : '', // Chỉ hiển thị số HĐ ở dòng đầu
+                            'area' => $subIndex == 0 ? $area : '', // Chỉ hiển thị diện tích ở dòng đầu
+                            'unit_price' => $rentalPrice,
+                            'months' => $months,
+                            'amount' => $amount,
+                            'notes' => $this->formatPricePeriod($price, $startOfYear, $endOfYear)
+                        ];
+                        
+                        $subIndex++;
                     }
                 }
             }
             
-            // Xác định mục đích thuê đất
-            $purpose = $contract->rental_purpose ?: 'Chưa xác định';
-            
-            // Tính tiền thuê dựa trên số tháng thực tế
-            $amount = $totalYearAmount / 12 * $months;
-
-            $planData[] = [
-                'index' => $index + 1,
-                'purpose' => $purpose,
-                'contract' => $contract->contract_number,
-                'area' => $area,
-                'unit_price' => $rentalPrice,
-                'months' => $months,
-                'amount' => $amount,
-                'notes' => ''
-            ];
+            $contractIndex++;
         }
         
         return $planData;
+    }
+
+    /**
+     * Tính số tháng cho một khoảng thời gian giá cụ thể trong năm
+     */
+    private function calculateMonthsForPricePeriod($price, $yearStart, $yearEnd)
+    {
+        $priceStart = Carbon::parse($price->price_period['start']);
+        $priceEnd = Carbon::parse($price->price_period['end']);
+        
+        // Lấy giao điểm giữa khoảng thời gian giá và năm được chọn
+        $segmentStart = $priceStart->copy()->max($yearStart);
+        $segmentEnd = $priceEnd->copy()->min($yearEnd);
+        
+        if ($segmentStart->greaterThan($segmentEnd)) {
+            return 0;
+        }
+        
+        // Tính số tháng với quy tắc ngày 15
+        $months = 0;
+        $current = $segmentStart->copy();
+        
+        while ($current->lessThanOrEqualTo($segmentEnd)) {
+            $monthEnd = $current->copy()->endOfMonth();
+            $effectiveEnd = $segmentEnd->copy()->min($monthEnd);
+            
+            // Nếu bắt đầu từ ngày <= 15 hoặc bao phủ cả tháng, tính 1 tháng
+            if ($current->day <= 15 || $current->isSameMonth($effectiveEnd)) {
+                $months++;
+            }
+            
+            $current->addMonth()->startOfMonth();
+        }
+        
+        return $months;
+    }
+
+    /**
+     * Format khoảng thời gian giá cho ghi chú
+     */
+    private function formatPricePeriod($price, $yearStart, $yearEnd)
+    {
+        // Hiển thị price_decision thay vì khoảng thời gian
+        return $price->price_decision ?: '';
     }
 
     /**
@@ -137,7 +187,7 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                 $row['index'],
                 $row['purpose'],
                 $row['contract'],
-                (float)$row['area'],
+                $row['area'] !== '' ? (float)$row['area'] : '',
                 (float)$row['unit_price'],
                 (float)$row['months'],
                 (float)$row['amount'],
@@ -177,7 +227,7 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
             'Đơn giá (đồng)',
             'Số tháng sử dụng (tháng)',
             'Số tiền (đồng)',
-            'Ghi chú'
+            ''
         ];
     }
 
