@@ -139,14 +139,6 @@
                 }
             });
 
-            $('#price_period_end').on('change', function() {
-                const startDate = $('#price_period_start').val();
-                const endDate = $(this).val();
-                if (startDate && endDate) {
-                    $('#price_period_years').val('');
-                    calculatePeriod();
-                }
-            });
 
             $('#price_period_end').on('blur', function() {
                 const startDate = $('#price_period_start').val();
