@@ -1,0 +1,1762 @@
+[
+    {
+        "câu hỏi": "Theo giáo trình, thông tin (Information) được định nghĩa là gì?",
+        "trả lời": [
+            "Là tập hợp các thiết bị vật lý của máy tính.",
+            "Là một khái niệm trừu tượng, tuy nhiên đây lại chính là cái để chúng ta có thể hiểu biết và nhận thức thế giới. Thông tin tồn tại khách quan có thể ghi lại và truyền đi.",
+            "Là tập hợp những câu lệnh hoặc chỉ thị được viết theo một trật tự xác định.",
+            "Là một hệ thống trong đó nhiều máy tính được kết nối với nhau để chia sẻ tài nguyên."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Đơn vị đo thông tin nhỏ nhất trong máy tính điện tử là gì?",
+        "trả lời": [
+            "Byte",
+            "KiloByte (KB)",
+            "Bit (Binary Digit)",
+            "MegaByte (MB)"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Theo giáo trình, 1 KiloByte (KB) bằng bao nhiêu Byte?",
+        "trả lời": [
+            "1000 Byte",
+            "1024 Byte",
+            "512 Byte",
+            "2048 Byte"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Phần cứng (Hardware) được định nghĩa là gì trong giáo trình?",
+        "trả lời": [
+            "Là tập hợp những câu lệnh hoặc chỉ thị được viết bằng một hoặc nhiều ngôn ngữ lập trình.",
+            "Là bộ não của máy tính, thực hiện tính toán và điều khiển mọi hoạt động.",
+            "Là các thành phần vật lý của máy tính, bao gồm các thiết bị điện tử và cơ khí.",
+            "Là các chương trình ứng dụng chạy trên hệ thống máy tính."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phần mềm (Software) được định nghĩa là gì?",
+        "trả lời": [
+            "Là tập hợp những câu lệnh hoặc chỉ thị được viết bằng một hoặc nhiều ngôn ngữ lập trình theo một trật tự xác định.",
+            "Là các thiết bị điện tử và cơ khí của máy tính.",
+            "Là bộ nhớ trung gian bên trong CPU.",
+            "Là thiết bị dùng để nhập dữ liệu vào máy tính."
+        ],
+        "câu đúng": 0
+    },
+    {
+        "câu hỏi": "Theo giáo trình, có mấy loại phần mềm máy tính chính?",
+        "trả lời": [
+            "Một loại: Phần mềm ứng dụng.",
+            "Hai loại: Phần mềm hệ thống và phần mềm ứng dụng.",
+            "Ba loại: Phần mềm hệ thống, phần mềm ứng dụng và phần mềm tiện ích.",
+            "Bốn loại: Hệ điều hành, driver, phần sụn, và BIOS."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Phần mềm hệ thống là gì?",
+        "trả lời": [
+            "Là phần mềm dùng để vận hành máy tính, ví dụ như các hệ điều hành.",
+            "Là những chương trình được viết ra cho các mục đích ứng dụng khác nhau.",
+            "Là các chương trình cho phép người dùng soạn thảo văn bản.",
+            "Là các ứng dụng giúp quản lý tệp tin và thư mục."
+        ],
+        "câu đúng": 0
+    },
+    {
+        "câu hỏi": "Công việc chính của Bộ xử lý trung tâm (CPU) là gì?",
+        "trả lời": [
+            "Lưu trữ dữ liệu tạm thời của các chương trình đang hoạt động.",
+            "Thực hiện các phép toán logic và quan hệ.",
+            "Giải mã các lệnh và tạo tín hiệu điều khiển.",
+            "Tính toán và điều khiển mọi hoạt động trong máy tính."
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Khối điều khiển (Control Unit) trong Bộ xử lý trung tâm (CPU) có nhiệm vụ gì?",
+        "trả lời": [
+            "Thực hiện các phép tính số học (cộng, trừ, nhân, chia).",
+            "Lưu trữ dữ liệu tạm thời.",
+            "Giải mã các lệnh, tạo ra các tín hiệu điều khiển công việc của các bộ phận khác của máy tính.",
+            "Giúp tăng tốc độ trao đổi thông tin trong máy tính."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Đặc điểm nào sau đây là của bộ nhớ RAM?",
+        "trả lời": [
+            "Là bộ nhớ chỉ có chức năng đọc, thông tin không bị mất khi không có điện.",
+            "Dùng để lưu trữ các chương trình hệ thống, chương trình điều khiển việc nhập xuất cơ sở.",
+            "Là bộ nhớ truy xuất ngẫu nhiên giúp lưu trữ dữ liệu tạm thời của các chương trình đang hoạt động và dữ liệu trên RAM sẽ bị mất khi tắt máy tính.",
+            "Cung cấp bộ nhớ đệm khi có yêu cầu từ hệ thống."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Bộ nhớ ROM (Read Only Memory) có đặc điểm gì?",
+        "trả lời": [
+            "Thông tin được ghi vào ROM bị mất khi không có điện.",
+            "Là bộ nhớ truy xuất ngẫu nhiên.",
+            "Dùng để lưu trữ dữ liệu tạm thời của các chương trình đang hoạt động.",
+            "Là bộ nhớ chỉ có chức năng đọc, thông tin được ghi vào ROM không bị mất ngay cả khi không có điện."
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Mạng máy tính được định nghĩa như thế nào trong giáo trình?",
+        "trả lời": [
+            "Là một hệ thống duy nhất được sử dụng để truy cập Internet.",
+            "Là một hệ thống trong đó nhiều máy tính được kết nối với nhau để chia sẻ thông tin và nguồn tài nguyên.",
+            "Là một phần mềm ứng dụng cho phép người dùng xem và tương tác với các văn bản.",
+            "Là tập hợp các quy tắc ứng xử đã được chuẩn hóa để tất cả các thiết bị có thể giao tiếp được với nhau."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Mạng cục bộ (Local Area Network - LAN) thường giới hạn trong khu vực địa lý nào?",
+        "trả lời": [
+            "Trên một khu vực vùng địa lý lớn, thường cho quốc gia hay cả lục địa.",
+            "Toàn bộ các máy tính trên thế giới được kết nối với nhau.",
+            "Trong một khu vực địa lý, chẳng hạn như một tòa nhà đơn lẻ hoặc một trường đại học.",
+            "Cung cấp truy cập được kiểm soát từ bên ngoài đối với khách hàng và đối tác."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Mạng diện rộng (Wide Area Network – WAN) là mạng tồn tại trên khu vực địa lý nào?",
+        "trả lời": [
+            "Thường giới hạn trong một tòa nhà đơn lẻ.",
+            "Trên một khu vực vùng địa lý lớn, thường cho quốc gia hay cả lục địa, phạm vi vài trăm cho đến vài ngàn km.",
+            "Kết nối các thiết bị trong phạm vi vài mét.",
+            "Là mạng duy nhất được sử dụng để truy cập Internet toàn cầu."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Theo giáo trình, Internet là gì?",
+        "trả lời": [
+            "Là một phần mềm ứng dụng để soạn thảo văn bản.",
+            "Là một tập hợp các quy tắc ứng xử đã được chuẩn hóa để các thiết bị giao tiếp.",
+            "Là tập hợp các máy tính được kết nối lại với nhau thông qua hệ thống phương tiện truyền dẫn trên toàn thế giới được cung cấp bởi các công ty cung ứng dịch vụ với mục đích trao đổi thông tin.",
+            "Là một loại phần mềm hệ thống dùng để vận hành máy tính."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chính phủ điện tử (E-Government) được định nghĩa là gì?",
+        "trả lời": [
+            "Là quá trình thực hiện các hoạt động thương mại thông qua phương tiện điện tử.",
+            "Là hệ thống cho phép người dùng thực hiện cuộc gọi điện thoại, cuộc gọi video qua mạng máy tính.",
+            "Là việc ứng dụng công nghệ thông tin để hỗ trợ cho việc dạy và học.",
+            "Là một hệ thống các ứng dụng công nghệ thông tin nhằm phân phối các dịch vụ công đến người dân và các doanh nghiệp, đồng thời hỗ trợ chính phủ nhận ý kiến đóng góp và truyền thông báo."
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Virus tin học được định nghĩa là gì?",
+        "trả lời": [
+            "Là phần mềm dùng để vận hành máy tính như các hệ điều hành.",
+            "Là tập hợp các quy tắc ứng xử đã được chuẩn hóa để các thiết bị giao tiếp.",
+            "Là những đoạn mã chương trình do một cá nhân, tổ chức nào đó thiết kế để xâm nhập vào các máy tính với mục đích ăn cắp thông tin, xóa dữ liệu, gửi email nặc danh, dọa dẫm, tống tiền, lấy trộm thông tin quốc gia, cá nhân,…",
+            "Là một công cụ hiển thị toàn bộ nội dung của ổ cứng và các thư mục."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Nút trái (Left Button) trên chuột dùng để làm gì?",
+        "trả lời": [
+            "Mở một trình đơn (Menu) lệnh.",
+            "Cuộn màn hình lên xuống.",
+            "Thực hiện một thao tác chọn hay thực hiện một lệnh nào đó.",
+            "Phóng to, thu nhỏ màn hình."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Nút cuộn (Scroll Button) trên chuột thường dùng để làm gì?",
+        "trả lời": [
+            "Chọn một đối tượng.",
+            "Mở trình đơn ngữ cảnh.",
+            "Cuộn màn hình lên xuống, cuộn danh sách lệnh lên xuống, phóng to, thu nhỏ.",
+            "Thực hiện lệnh sao chép."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phím nào trên bàn phím dùng để hủy bỏ một hoạt động đang thực hiện hoặc thoát ra khỏi một ứng dụng nào đó đang hoạt động?",
+        "trả lời": [
+            "Enter",
+            "Tab",
+            "Esc (Escape)",
+            "Shift"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phím nào trên bàn phím dùng để bật/tắt chế độ gõ chữ IN HOA?",
+        "trả lời": [
+            "Shift",
+            "Ctrl",
+            "Caps Lock",
+            "Alt"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phím Enter trên bàn phím có chức năng gì trong soạn thảo văn bản?",
+        "trả lời": [
+            "Xóa ký tự bên trái con trỏ.",
+            "Di chuyển con trỏ qua phải một từ.",
+            "Ra lệnh thực hiện một lệnh hoặc chạy một chương trình, xuống dòng, kết thúc đoạn.",
+            "Tạo khoảng cách giữa các ký tự."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phím Backspace trên bàn phím dùng để làm gì?",
+        "trả lời": [
+            "Xóa ký tự bên phải con trỏ.",
+            "Xóa ký tự bên trái con trỏ.",
+            "Tạo khoảng trắng.",
+            "Xuống dòng."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hệ điều hành (Operating System) là gì?",
+        "trả lời": [
+            "Là một tập hợp các ứng dụng văn phòng.",
+            "Là một chương trình diệt virus.",
+            "Là một tập hợp các phần mềm dùng để quản lý tài nguyên phần cứng và cung cấp các dịch vụ cho chương trình máy tính.",
+            "Là một thiết bị ngoại vi của máy tính."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dựa vào đặc trưng về giao diện, hệ điều hành máy tính được phân chia thành mấy loại cơ bản?",
+        "trả lời": [
+            "Một loại: Hệ điều hành giao diện đồ họa.",
+            "Hai loại: Hệ điều hành giao diện lệnh và hệ điều hành giao diện đồ họa.",
+            "Ba loại: Hệ điều hành Windows, Linux và Unix.",
+            "Bốn loại: Hệ điều hành dành cho máy tính cá nhân, máy chủ, di động và nhúng."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Có mấy cách để truy cập thực đơn Start trong Windows được đề cập trong giáo trình?",
+        "trả lời": [
+            "Một cách.",
+            "Hai cách.",
+            "Ba cách.",
+            "Bốn cách."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng chính của thanh tác vụ (Taskbar) là gì?",
+        "trả lời": [
+            "Chỉ hiển thị đồng hồ và biểu tượng mạng.",
+            "Quản lý các tệp tin và thư mục.",
+            "Hiển thị các chương trình hoặc cửa sổ đang mở và cho phép chuyển đổi giữa chúng.",
+            "Cho phép điều chỉnh độ phân giải màn hình."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Màn hình nền (Desktop) của Windows được bố trí rất nhiều các đối tượng nào?",
+        "trả lời": [
+            "Cửa sổ Explorer.",
+            "Thanh tác vụ.",
+            "Các biểu tượng (Icon).",
+            "Thực đơn Start."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Biểu tượng \"This PC\" (hoặc Computer) cho phép người dùng làm gì?",
+        "trả lời": [
+            "Xóa các tệp tin tạm thời.",
+            "Duyệt nhanh đến các tài nguyên trên máy tính.",
+            "Cài đặt phần mềm mới.",
+            "Thay đổi cấu hình hệ thống."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Recycle Bin là gì?",
+        "trả lời": [
+            "Là nơi lưu trữ vĩnh viễn các tệp tin đã xóa.",
+            "Là một công cụ quét virus.",
+            "Là nơi lưu trữ tạm thời các tệp tin và các đối tượng đã bị xóa.",
+            "Là một thư mục chứa các tệp tin hệ thống."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để xóa các tệp tin, đối tượng trực tiếp không lưu trong Recycle Bin (xóa vĩnh viễn), bạn dùng tổ hợp phím nào?",
+        "trả lời": [
+            "Ctrl + Delete",
+            "Shift + Delete",
+            "Alt + Delete",
+            "F1 + Delete"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Tệp tin (File) được định nghĩa là gì?",
+        "trả lời": [
+            "Là nơi lưu giữ các tệp tin theo một chủ đề.",
+            "Là một tập hợp các dữ liệu có liên quan với nhau, được tổ chức theo một cấu trúc nào đó, thường được lưu trữ trên đĩa từ.",
+            "Là đường chỉ dẫn nơi lưu giữ tệp tin, thư mục trên thiết bị lưu trữ.",
+            "Là một ứng dụng phần mềm tiện ích."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Thư mục (Folder) được định nghĩa là gì?",
+        "trả lời": [
+            "Là một tập hợp các dữ liệu có liên quan với nhau.",
+            "Là nơi lưu giữ các tệp tin theo một chủ đề do người dùng tạo lập.",
+            "Là đường chỉ dẫn nơi lưu giữ tệp tin trên thiết bị lưu trữ.",
+            "Là một loại tệp tin hệ thống."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Windows Explorer là công cụ gì?",
+        "trả lời": [
+            "Một trình duyệt web.",
+            "Một phần mềm soạn thảo văn bản.",
+            "Một công cụ hiển thị toàn bộ nội dung của ổ cứng và các thư mục, các tệp trên máy tính.",
+            "Một phần mềm diệt virus."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phần mềm nén và giải nén WinRAR dùng để làm gì?",
+        "trả lời": [
+            "Tạo và chỉnh sửa ảnh.",
+            "Nén các tệp có dung lượng lớn thành các tệp có kích thước nhỏ hơn nhằm thuận tiện trong lưu trữ và trao đổi thông tin.",
+            "Chuyển đổi định dạng phim và âm thanh.",
+            "Quản lý email."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để tăng tính bảo mật cho tệp tin nén, WinRAR cho phép người dùng làm gì?",
+        "trả lời": [
+            "Chỉ cho phép nén tệp tin có kích thước nhỏ.",
+            "Chia tệp tin nén ra làm nhiều tệp tin có kích thước nhỏ hơn.",
+            "Đặt mật mã giải nén.",
+            "Tự động gửi tệp tin qua Email sau khi nén."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phần mềm soạn thảo văn bản đảm bảo các chức năng nào sau đây?",
+        "trả lời": [
+            "Chỉ cho phép hiển thị nội dung văn bản trên màn hình.",
+            "Không cho phép người sử dụng sửa đổi, bổ sung nội dung văn bản.",
+            "Cho phép người sử dụng tạo các văn bản có sự kết hợp các đối tượng đồ họa, hiển thị, sửa đổi, định dạng và lưu trữ văn bản.",
+            "Chỉ dùng để tính toán và phân tích dữ liệu."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trong Microsoft Office Word 2016, \"Thẻ File\" có chức năng chính gì?",
+        "trả lời": [
+            "Định dạng nhanh ký tự về kiểu chữ, cỡ chữ, màu sắc.",
+            "Chèn bảng biểu, hình ảnh, sơ đồ.",
+            "Lưu tệp, mở tệp đã có, tạo tệp mới, hiển thị danh sách tệp mở trước đó, thiết lập tùy chọn của Word.",
+            "Thiết lập các hiệu ứng chuyển tiếp slide."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "\"Thẻ Home\" trong Word 2016 chứa các nút lệnh liên quan đến gì?",
+        "trả lời": [
+            "Chèn công thức toán học và biểu tượng đặc biệt.",
+            "Định dạng tài liệu như cắt, dán, sao chép, định dạng ký tự, đoạn văn bản.",
+            "Đặt trang in và định dạng đoạn.",
+            "Tạo thư và chuyển đổi văn bản sang dạng thư."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để tạo một tệp văn bản mới trong Word 2016, tổ hợp phím nào thường được sử dụng?",
+        "trả lời": [
+            "Ctrl + S",
+            "Ctrl + O",
+            "Ctrl + N",
+            "Ctrl + P"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để lưu tệp văn bản trong Word 2016, tổ hợp phím nào thường được sử dụng?",
+        "trả lời": [
+            "Ctrl + O",
+            "Ctrl + N",
+            "Ctrl + P",
+            "Ctrl + S"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Tên tệp văn bản trong Word tối đa bao nhiêu ký tự và không chứa ký tự đặc biệt nào?",
+        "trả lời": [
+            "Tối đa 256 ký tự và không chứa dấu cách.",
+            "Tối đa 255 ký tự và không chứa một trong các ký tự như \\ ? : * \" >.",
+            "Tối đa 128 ký tự và chỉ chứa chữ cái và số.",
+            "Không giới hạn ký tự, nhưng không chứa ký hiệu @."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Chế độ gõ tiếng Việt chuẩn quốc tế hiện nay quy định bảng mã và kiểu gõ nào?",
+        "trả lời": [
+            "TCVN3 và kiểu gõ VNI.",
+            "VNI và kiểu gõ Telex.",
+            "Unicode và kiểu gõ Telex.",
+            "Unicode và kiểu gõ VNI."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phím Delete trên bàn phím dùng để làm gì trong soạn thảo văn bản?",
+        "trả lời": [
+            "Xóa ký tự bên trái con trỏ.",
+            "Xóa ký tự bên phải con trỏ.",
+            "Di chuyển con trỏ xuống một dòng.",
+            "Tạo khoảng cách giữa các ký tự."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để chọn toàn bộ văn bản trong Word, tổ hợp phím nào được sử dụng?",
+        "trả lời": [
+            "Ctrl + C",
+            "Ctrl + V",
+            "Ctrl + A",
+            "Ctrl + X"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khi định dạng trang in (Page Setup) trong Word, để thuận tiện cho việc đặt trang, giáo trình khuyến nghị lựa chọn đơn vị đo về đơn vị nào?",
+        "trả lời": [
+            "Inches",
+            "Points",
+            "Centimeters",
+            "Millimeters"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khái niệm đoạn trong soạn thảo văn bản bằng phần mềm Tin học được định nghĩa như thế nào?",
+        "trả lời": [
+            "Là một dòng văn bản.",
+            "Là một câu có nghĩa.",
+            "Là một dãy các ký tự và được kết thúc bằng nhấn phím Enter.",
+            "Là một khối văn bản được chọn."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Mục đích chính của việc chia văn bản thành nhiều \"Section\" (đoạn) là gì?",
+        "trả lời": [
+            "Để văn bản dễ đọc hơn.",
+            "Để áp dụng các định dạng khác nhau (ví dụ: chia cột, lề trang giấy, hướng trang in, số trang) trong cùng một văn bản.",
+            "Để tự động thêm mục lục.",
+            "Để chèn hình ảnh và biểu đồ dễ dàng hơn."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Khi chèn số trang vào văn bản trong Word, để bắt đầu số trang từ một con số cụ thể (không phải số 1), bạn thực hiện bước nào?",
+        "trả lời": [
+            "Chỉ cần chọn kiểu chèn số trang.",
+            "Chọn mục Format Page Number trong nhóm Page Number và nhập số trang sẽ bắt đầu.",
+            "Dùng chức năng chỉnh sửa thủ công trên mỗi trang.",
+            "Thiết lập trong hộp thoại Page Setup."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để trộn nhiều ô thành một ô trong bảng biểu của Word, bạn sử dụng lệnh nào trong nhóm lệnh Merge của thẻ Layout trong Table Tools?",
+        "trả lời": [
+            "Split Cells",
+            "Insert Cells",
+            "Merge Cells",
+            "Delete Cells"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng chính của WordArt trong Word là gì?",
+        "trả lời": [
+            "Vẽ các khối hình đơn giản.",
+            "Chèn hình ảnh vào văn bản.",
+            "Tạo chữ nghệ thuật với nhiều kiểu dáng và hiệu ứng.",
+            "Chèn công thức toán học."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khi chèn hình ảnh vào văn bản trong Word, để tách nền cho ảnh, bạn sử dụng nút lệnh nào trong thẻ Format?",
+        "trả lời": [
+            "Corrections",
+            "Color",
+            "Artistic Effects",
+            "Remove Background"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Microsoft Excel là một phần mềm ứng dụng cho phép thực hiện các chức năng nào?",
+        "trả lời": [
+            "Soạn thảo văn bản và thiết kế bài thuyết trình.",
+            "Tính toán đại số, phân tích dữ liệu, lập bảng biểu báo cáo, vẽ đồ thị.",
+            "Quản lý email và duyệt web.",
+            "Chỉ dùng để lưu trữ dữ liệu dạng văn bản."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Trong Excel, \"Workbook\" là gì?",
+        "trả lời": [
+            "Là một trang tính duy nhất.",
+            "Là một tệp tin làm việc (tính toán, vẽ đồ thị, …) và lưu trữ dữ liệu, chứa nhiều worksheet hay chart sheet.",
+            "Là nơi lưu trữ và làm việc với dữ liệu theo dạng ô.",
+            "Là một đồ thị riêng lẻ."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Worksheet\" (hay Sheet) trong Excel chứa những gì?",
+        "trả lời": [
+            "Chỉ chứa một đồ thị.",
+            "Là một tệp tin làm việc chứa nhiều workbook.",
+            "Là nơi lưu trữ và làm việc với dữ liệu, chứa nhiều ô được tổ chức thành các cột và các dòng.",
+            "Là một công cụ quản lý file."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Một Worksheet trong Excel 2016 chứa tối đa bao nhiêu cột?",
+        "trả lời": [
+            "256 cột",
+            "1024 cột",
+            "16,384 cột",
+            "65,536 cột"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dữ liệu kiểu chuỗi (Text) trong Excel mặc định được căn lề như thế nào?",
+        "trả lời": [
+            "Căn phải",
+            "Căn giữa",
+            "Căn trái",
+            "Căn đều hai bên"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dữ liệu kiểu số (Number) trong Excel mặc định được căn lề như thế nào?",
+        "trả lời": [
+            "Căn trái",
+            "Căn giữa",
+            "Căn đều hai bên",
+            "Căn phải"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Dữ liệu loại công thức (Formular) trong Excel được quy định bắt đầu bởi dấu gì?",
+        "trả lời": [
+            "\"+\" hoặc \"-\"",
+            "\"=\" hoặc \"+\"",
+            "\"(\"",
+            "\"#\""
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Khi sao chép (copy) một công thức chứa địa chỉ tương đối (ví dụ: A1), địa chỉ tham chiếu của vùng đích sẽ thay đổi như thế nào?",
+        "trả lời": [
+            "Giữ nguyên giống như vùng nguồn.",
+            "Thay đổi theo nghĩa phương, chiều và khoảng cách so với vị trí gốc.",
+            "Tự động chuyển thành địa chỉ tuyệt đối.",
+            "Bị xóa."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Địa chỉ tuyệt đối (Absolute Address) trong Excel có dạng nào?",
+        "trả lời": [
+            "<cột><dòng>",
+            "$<cột><dòng>",
+            "$<cột>$<dòng>",
+            "<cột>$<dòng>"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trong Excel, phím chức năng nào giúp chuyển đổi nhanh kiểu địa chỉ (tương đối, tuyệt đối, hỗn hợp)?",
+        "trả lời": [
+            "F1",
+            "F2",
+            "F4",
+            "F5"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để gộp các ô trong Excel và căn giữa nội dung trong ô mới, bạn sử dụng lệnh nào trong nhóm Alignment của thẻ Home?",
+        "trả lời": [
+            "Wrap Text",
+            "Orientation",
+            "Merge & Center",
+            "Decrease Indent"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng \"Wrap Text\" trong Excel dùng để làm gì?",
+        "trả lời": [
+            "Căn giữa văn bản trong ô.",
+            "Xoay hướng chữ trong ô.",
+            "Tự động xuống dòng trong một ô nếu nội dung vượt quá độ rộng ô.",
+            "Định dạng khung viền cho ô."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng \"Sort\" (Sắp xếp) trong Excel dùng để làm gì?",
+        "trả lời": [
+            "Hiển thị dữ liệu theo tiêu chuẩn nhất định.",
+            "Nén dữ liệu trong bảng tính.",
+            "Thao tác dữ liệu trong một bảng tính được thiết lập dựa trên các tiêu chuẩn (tăng dần/giảm dần).",
+            "Chuyển đổi định dạng dữ liệu."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng \"Filter\" (Lọc dữ liệu) trong Excel cho phép gì?",
+        "trả lời": [
+            "Thay đổi font chữ trong bảng tính.",
+            "Chỉ hiển thị dữ liệu theo tiêu chuẩn nhất định đã đặt ra.",
+            "Tính tổng các giá trị trong một vùng dữ liệu.",
+            "Sắp xếp dữ liệu theo nhiều cột."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để tính tổng của các giá trị có trong danh sách?",
+        "trả lời": [
+            "AVERAGE",
+            "COUNT",
+            "SUM",
+            "MAX"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để tính trung bình cộng của các đối số?",
+        "trả lời": [
+            "SUM",
+            "COUNT",
+            "AVERAGE",
+            "MIN"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để tìm giá trị số học lớn nhất của các giá trị có trong danh sách?",
+        "trả lời": [
+            "MIN",
+            "SUM",
+            "COUNT",
+            "MAX"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Hàm IF trong Excel có công dụng gì?",
+        "trả lời": [
+            "Tính tổng các ô thỏa mãn điều kiện.",
+            "Đếm số ô dữ liệu kiểu số.",
+            "Trả về các giá trị cho trước với một điều kiện logic nào đó.",
+            "Cắt lấy số kí tự của chuỗi tính từ bên trái."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Mỗi tệp tin trình chiếu (PowerPoint) bao gồm nhiều gì?",
+        "trả lời": [
+            "Worksheet",
+            "Document",
+            "Slide (trang trình chiếu)",
+            "Page"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Các đối tượng trong một trang trình chiếu (slide) có thể bao gồm những gì?",
+        "trả lời": [
+            "Chỉ có văn bản.",
+            "Chỉ có hình ảnh và biểu đồ.",
+            "Văn bản, hình ảnh, biểu đồ, các đoạn phim.",
+            "Chỉ có âm thanh."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Phần mềm trình chiếu PowerPoint là thành phần quan trọng trong bộ phần mềm nổi tiếng của hãng nào?",
+        "trả lời": [
+            "Apple",
+            "Google",
+            "Microsoft",
+            "Adobe"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hệ thống Ribbon trong PowerPoint gồm các thành phần nào?",
+        "trả lời": [
+            "Thanh công cụ truy cập nhanh và thanh trạng thái.",
+            "Thẻ (Tab), nhóm (Group) và các nút lệnh (Command button).",
+            "Vùng soạn thảo và thanh cuộn.",
+            "Chỉ có thanh tiêu đề và các nút điều khiển."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để tạo một tệp tin trình chiếu trống (Blank presentation) trong PowerPoint, bạn chọn lệnh nào?",
+        "trả lời": [
+            "File -> Open",
+            "File -> Save",
+            "File -> New -> Blank presentation",
+            "Home -> New Slide"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để tạo một slide mới trong PowerPoint, tổ hợp phím nào thường được sử dụng?",
+        "trả lời": [
+            "Ctrl + N",
+            "Ctrl + S",
+            "Ctrl + M",
+            "Ctrl + P"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để chèn thêm khung văn bản vào slide khi cần, bạn sử dụng đối tượng nào trong thẻ Insert, nhóm lệnh Text?",
+        "trả lời": [
+            "Shapes",
+            "SmartArt",
+            "Textbox",
+            "WordArt"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để chèn âm thanh vào slide trong PowerPoint, bạn sử dụng lệnh nào trong nhóm Media của thẻ Insert?",
+        "trả lời": [
+            "Video",
+            "Audio",
+            "Screen recording",
+            "Picture"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để chèn đoạn phim vào slide trong PowerPoint, bạn sử dụng lệnh nào trong nhóm Media của thẻ Insert?",
+        "trả lời": [
+            "Audio",
+            "Picture",
+            "Video",
+            "Screen recording"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chức năng \"Screen recording\" trong PowerPoint 2016 dùng để làm gì?",
+        "trả lời": [
+            "Chỉ chèn hình ảnh vào slide.",
+            "Chỉ ghi âm.",
+            "Ghi âm và quay phim màn hình.",
+            "Chèn biểu đồ vào slide."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chế độ hiển thị \"Normal\" trong PowerPoint thường dùng cho công việc gì?",
+        "trả lời": [
+            "Xem tổng thể bài trình chiếu.",
+            "Thêm ghi chú cho các Slide.",
+            "Tạo nội dung cho các Slide của bài trình chiếu.",
+            "Thiết lập các thông số cho các trang in handout."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chế độ hiển thị \"Slide Sorter\" trong PowerPoint thường dùng để làm gì?",
+        "trả lời": [
+            "Tạo nội dung cho slide.",
+            "Xem tổng thể bài trình chiếu, bố cục và thứ tự các Slide.",
+            "Thêm ghi chú riêng cho từng slide.",
+            "Thiết kế kiểu dáng, màu sắc cho slide."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Slide Master\" trong PowerPoint lưu trữ thông tin gì?",
+        "trả lời": [
+            "Nội dung văn bản của từng slide.",
+            "Thông tin về thiết kế kiểu dáng, màu sắc, font chữ, bố cục cho các slide.",
+            "Các hiệu ứng chuyển động của đối tượng.",
+            "Các siêu liên kết trong bài trình chiếu."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Mục đích chính của việc sử dụng \"Slide Master\" là gì?",
+        "trả lời": [
+            "Tạo các slide riêng lẻ mà không theo một định dạng chung nào.",
+            "Giúp bài trình chiếu có sự nhất quán về định dạng và tiết kiệm thời gian thiết kế.",
+            "Chỉ để thêm hiệu ứng cho các đối tượng.",
+            "Dùng để chèn âm thanh và video."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Hyperlink\" (siêu liên kết) trong PowerPoint cho phép thực hiện liên kết theo các kiểu nào?",
+        "trả lời": [
+            "Chỉ liên kết đến một trang web.",
+            "Chỉ liên kết giữa các slide trong cùng một tệp tin PowerPoint.",
+            "Liên kết giữa các slide trong cùng một tệp, giữa 2 tệp tin PowerPoint, hoặc từ PowerPoint với một tệp tin có phần mở rộng khác.",
+            "Chỉ liên kết đến các file âm thanh."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Có mấy nhóm hiệu ứng cho đối tượng trong slide được PowerPoint cung cấp?",
+        "trả lời": [
+            "Một nhóm.",
+            "Hai nhóm.",
+            "Ba nhóm.",
+            "Bốn nhóm (Entrance, Exit, Emphasis, Motion Paths)."
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "\"Internet\" là gì theo khái niệm căn bản trong tài liệu?",
+        "trả lời": [
+            "Là một phần mềm ứng dụng để soạn thảo văn bản.",
+            "Là một hệ thống chia sẻ thông tin toàn cầu, một cộng đồng các máy tính được liên kết dựa trên giao thức IP.",
+            "Là một thiết bị phần cứng giúp kết nối máy tính.",
+            "Là một giao thức chuẩn hóa cho việc truyền dữ liệu."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "ISP (Internet Service Provider) là gì?",
+        "trả lời": [
+            "Là nhà sản xuất thiết bị mạng.",
+            "Là tổ chức chuyên cung cấp các giải pháp kết nối mạng Internet cho các đơn vị, tổ chức hay các cá nhân người dùng.",
+            "Là một loại phần mềm diệt virus.",
+            "Là giao thức truyền dữ liệu trên Internet."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Phương pháp kết nối Internet phổ biến nhất hiện nay đối với các thiết bị di động thông minh là gì?",
+        "trả lời": [
+            "Sử dụng thiết bị Modem quay số.",
+            "Sử dụng các kết nối không dây (qua các công nghệ 3G, 4G và 5G).",
+            "Thuê đường truyền riêng (leased line).",
+            "Kết nối trực tiếp bằng cáp Ethernet."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để máy tính có thể kết nối tới mạng nội bộ, tối thiểu cần có thiết bị nào được gắn vào máy tính?",
+        "trả lời": [
+            "Router",
+            "Switch",
+            "Card giao tiếp mạng NIC (Network Interface Card)",
+            "Hub"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "\"Băng thông\" (bandwidth) trong thiết kế mạng máy tính là khái niệm đặc trưng cho điều gì?",
+        "trả lời": [
+            "Thời gian truyền dữ liệu.",
+            "Khả năng lưu trữ dữ liệu của mạng.",
+            "Tốc độ tối đa mà loại công nghệ kết nối có thể đạt được.",
+            "Độ ổn định của kết nối mạng."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Đơn vị cơ sở của tốc độ truy cập mạng là gì?",
+        "trả lời": [
+            "Byte/giây (Bps)",
+            "Kilobyte/giây (KBps)",
+            "Megabyte/giây (MBps)",
+            "Bit/giây (bps)"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Máy chủ (server) là gì?",
+        "trả lời": [
+            "Là một loại máy tính cá nhân có cấu hình thấp.",
+            "Là một thiết bị ngoại vi dùng để in ấn.",
+            "Là một hoặc một số máy tính có cấu hình cao hoạt động liên tục để đáp ứng các yêu cầu dịch vụ hoặc quản lý các máy tính khác.",
+            "Là một phần mềm ứng dụng."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Nếu máy chủ chứa dữ liệu mà trình duyệt có thể truy cập (trong nội bộ mạng hoặc/và từ Internet) sử dụng giao thức HTTP thì máy chủ này được gọi là gì?",
+        "trả lời": [
+            "Máy chủ in",
+            "Máy chủ dữ liệu",
+            "Máy chủ web",
+            "Máy chủ FTP"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Lệnh nào được sử dụng trong Windows Command Processor để xem địa chỉ IP của máy tính?",
+        "trả lời": [
+            "PING",
+            "TRACERT",
+            "IPCONFIG",
+            "NETSTAT"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Lệnh nào dùng để kiểm tra một địa chỉ host trên mạng có tồn tại hay không bằng cách gửi thông tin và chờ phản hồi?",
+        "trả lời": [
+            "IPCONFIG",
+            "PING",
+            "GETMAC",
+            "ROUTE"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Phishing\" (Kỹ thuật lừa đảo) là gì trong môi trường Internet?",
+        "trả lời": [
+            "Là một loại phần mềm độc hại.",
+            "Là kỹ thuật lấy thông tin của người dùng Internet bằng cách lừa họ chủ động cung cấp thông tin.",
+            "Là một phương pháp mã hóa dữ liệu.",
+            "Là một công cụ bảo vệ mạng."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Tường lửa\" (Firewall) là gì?",
+        "trả lời": [
+            "Là một loại virus máy tính.",
+            "Là một phần mềm diệt virus.",
+            "Là một công cụ được tích hợp vào hệ thống mạng để chống sự truy cập trái phép, nhằm bảo vệ các nguồn thông tin nội bộ.",
+            "Là một giao thức truyền dữ liệu an toàn."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khi tải file từ web, biện pháp phòng tránh nguy cơ từ Trojan hoặc phần mềm độc hại khác được khuyến nghị là gì?",
+        "trả lời": [
+            "Tải từ bất kỳ nguồn nào để tiết kiệm thời gian.",
+            "Luôn mở file ngay lập tức sau khi tải về.",
+            "Chỉ tải các chương trình hoặc file từ các nguồn đáng tin cậy và quét virus trước khi mở.",
+            "Tắt phần mềm diệt virus để tăng tốc độ tải."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "\"Trình duyệt web\" là gì?",
+        "trả lời": [
+            "Là một loại máy chủ để lưu trữ trang web.",
+            "Là một ngôn ngữ lập trình web.",
+            "Là một phần mềm ứng dụng cho phép người dùng xem và tương tác với các văn bản, hình ảnh, video, nhạc, trò chơi và các thông tin khác trên một trang web.",
+            "Là một công cụ tìm kiếm trên Internet."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "HTML (HyperText Markup Language) được sử dụng để làm gì?",
+        "trả lời": [
+            "Là giao thức để trao đổi thông tin giữa máy chủ web và trình duyệt.",
+            "Là một ngôn ngữ đánh dấu chuyên dùng để mô tả nội dung của trang web.",
+            "Là một công cụ tìm kiếm thông tin.",
+            "Là một giao thức bảo mật cho trình duyệt."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "URL (Uniform Resource Locator) là gì?",
+        "trả lời": [
+            "Là tên của trình duyệt web.",
+            "Là địa chỉ duy nhất của mỗi tài nguyên web.",
+            "Là một loại phần mềm diệt virus.",
+            "Là giao thức truyền tải siêu văn bản."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "\"Cookie\" là gì trong ngữ cảnh trình duyệt web?",
+        "trả lời": [
+            "Là một loại virus máy tính.",
+            "Là một đoạn mã Javascript chạy trên trình duyệt.",
+            "Là một đoạn nhỏ dữ liệu mà trang web lưu vào hệ thống của người dùng khi họ kết nối hay truy cập vào trang web.",
+            "Là một công cụ tìm kiếm."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để tìm tất cả các tài liệu chứa chính xác một từ/cụm từ nào đó khi tìm kiếm với Google Search, bạn thực hiện cách nào?",
+        "trả lời": [
+            "Đặt từ khóa trong dấu ngoặc đơn ().",
+            "Đặt từ khóa trong dấu ngoặc kép \"\".",
+            "Thêm dấu cộng (+) trước từ khóa.",
+            "Sử dụng toán tử OR giữa các từ khóa."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để loại bỏ những kết quả tìm kiếm chứa từ khóa nhất định khi tìm kiếm với Google Search, bạn thực hiện cách nào?",
+        "trả lời": [
+            "Đặt dấu cộng (+) trước từ khóa cần bỏ.",
+            "Đặt dấu trừ (-) trước từ khóa cần bỏ khỏi kết quả tìm kiếm.",
+            "Đặt từ khóa trong dấu ngoặc kép \"\".",
+            "Sử dụng toán tử AND."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để giới hạn tìm kiếm trong một website nhất định khi tìm kiếm với Google Search, bạn sử dụng toán tử tìm kiếm nào?",
+        "trả lời": [
+            "\"inurl:\"",
+            "\"site:\"",
+            "\"filetype:\"",
+            "\"define:\""
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Tên miền \".gov.vn\" tại Việt Nam dành cho đối tượng nào?",
+        "trả lời": [
+            "Tổ chức, cá nhân hoạt động thương mại.",
+            "Các tổ chức, cá nhân hoạt động trong lĩnh vực giáo dục, đào tạo.",
+            "Các cơ quan, tổ chức nhà nước ở trung ương và địa phương.",
+            "Các tổ chức, cá nhân hoạt động trong lĩnh vực sản xuất, phân phối, cung cấp thông tin."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Tên miền \".edu.vn\" tại Việt Nam dành cho đối tượng nào?",
+        "trả lời": [
+            "Tổ chức, cá nhân hoạt động thương mại.",
+            "Các tổ chức, cá nhân hoạt động trong lĩnh vực giáo dục, đào tạo.",
+            "Các cơ quan, tổ chức nhà nước ở trung ương và địa phương.",
+            "Các tổ chức, cá nhân hoạt động trong lĩnh vực nghiên cứu."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Thư điện tử (email) là gì?",
+        "trả lời": [
+            "Là một loại phần mềm soạn thảo văn bản.",
+            "Là một hệ thống chia sẻ thông tin toàn cầu.",
+            "Là một hệ thống chuyển nhận thư từ qua các mạng máy tính, cho phép trao đổi thông tin rất nhanh.",
+            "Là một thiết bị phần cứng để kết nối mạng."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Ưu điểm của dịch vụ thư điện tử là gì?",
+        "trả lời": [
+            "Chi phí cao hơn so với thư truyền thống.",
+            "Thời gian truyền thư điện tử rất ngắn (chỉ vài giây đến vài phút) với chi phí rất nhỏ.",
+            "Chỉ có thể gửi văn bản, không gửi được tệp tin đính kèm.",
+            "Yêu cầu phải đến bưu điện để gửi."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Trong soạn thảo email mới, trường \"To\" dùng để nhập thông tin gì?",
+        "trả lời": [
+            "Tiêu đề thư.",
+            "Địa chỉ người nhận chính.",
+            "Địa chỉ người nhận bản sao ẩn.",
+            "Nội dung thư."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Trong soạn thảo email mới, trường \"Cc\" (carbon copy) dùng để nhập thông tin gì?",
+        "trả lời": [
+            "Địa chỉ người nhận chính.",
+            "Địa chỉ người nhận bản sao, mà những người nhận khác có thể nhìn thấy.",
+            "Địa chỉ người nhận bản sao ẩn, mà những người nhận khác không nhìn thấy.",
+            "Nội dung thư."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Trong soạn thảo email mới, trường \"Bcc\" (blind carbon copy) dùng để nhập thông tin gì?",
+        "trả lời": [
+            "Địa chỉ người nhận chính.",
+            "Địa chỉ người nhận bản sao, mà những người nhận khác có thể nhìn thấy.",
+            "Địa chỉ người nhận bản sao ẩn, mà những người nhận khác không nhìn thấy.",
+            "Tiêu đề thư."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Điểm khác biệt chính giữa người nhận trong danh sách Cc và Bcc khi dùng lệnh \"Reply all\" là gì?",
+        "trả lời": [
+            "Người nhận trong Cc không nhận được thư phản hồi, còn Bcc thì có.",
+            "Chỉ những người có tên trong danh sách Cc nhận được thư phản hồi, Bcc thì không.",
+            "Cả Cc và Bcc đều nhận được thư phản hồi.",
+            "Không có sự khác biệt nào."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Giao thức nào được sử dụng để lấy thư từ máy chủ về (cho các chương trình thư điện tử)?",
+        "trả lời": [
+            "SMTP",
+            "POP3",
+            "IMAP",
+            "HTTP"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Giao thức nào được sử dụng để gửi thư từ máy khách hoặc phân phối thư giữa các máy chủ?",
+        "trả lời": [
+            "POP3",
+            "IMAP",
+            "SMTP",
+            "FTP"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khi nào bạn cần sử dụng một địa chỉ IP công cộng (Public IP)?",
+        "trả lời": [
+            "Khi máy tính được kết nối với mạng nội bộ.",
+            "Khi máy tính chỉ hoạt động ngoại tuyến.",
+            "Khi máy tính kết nối thành công với Internet, để đại diện cho máy tính trên Internet.",
+            "Khi máy tính sử dụng các thiết bị ngoại vi."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Tổ hợp phím nào dùng để sao chép (copy) nội dung trong Excel?",
+        "trả lời": [
+            "Ctrl + X",
+            "Ctrl + V",
+            "Ctrl + C",
+            "Ctrl + A"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Tổ hợp phím nào dùng để dán (paste) nội dung đã sao chép/cắt trong Excel?",
+        "trả lời": [
+            "Ctrl + X",
+            "Ctrl + C",
+            "Ctrl + A",
+            "Ctrl + V"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Khi bạn nhập dữ liệu loại số không hợp lệ vào một ô trong Excel, Excel sẽ tự động chuyển nó thành kiểu dữ liệu gì?",
+        "trả lời": [
+            "Kiểu logic",
+            "Kiểu ngày tháng",
+            "Kiểu công thức",
+            "Kiểu chuỗi"
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Để làm tròn giá trị của một biểu thức số đến số chữ số thập phân mong muốn trong Excel, bạn sử dụng hàm nào?",
+        "trả lời": [
+            "SUM",
+            "AVERAGE",
+            "ROUND",
+            "COUNT"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để đếm số ô dữ liệu kiểu số trong một vùng tham chiếu?",
+        "trả lời": [
+            "SUM",
+            "COUNT",
+            "AVERAGE",
+            "COUNTIF"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để đếm các ô thỏa mãn điều kiện cho trước?",
+        "trả lời": [
+            "SUMIF",
+            "IF",
+            "COUNTIF",
+            "COUNT"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để tính tổng các ô thỏa mãn điều kiện?",
+        "trả lời": [
+            "COUNTIF",
+            "IF",
+            "SUMIF",
+            "AVERAGE"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm LEFT trong Excel có công dụng gì?",
+        "trả lời": [
+            "Cắt lấy số kí tự của chuỗi tính từ bên phải.",
+            "Cắt lấy số kí tự của chuỗi tính từ bên trái.",
+            "Cắt chuỗi ký tự ở giữa xâu ký tự.",
+            "Chuyển ký tự thường thành hoa."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hàm MID trong Excel có công dụng gì?",
+        "trả lời": [
+            "Cắt lấy số kí tự của chuỗi tính từ bên trái.",
+            "Cắt chuỗi ký tự ở giữa xâu ký tự cho trước.",
+            "Cắt lấy số kí tự của chuỗi tính từ bên phải.",
+            "Tính độ dài một chuỗi."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hàm RIGHT trong Excel có công dụng gì?",
+        "trả lời": [
+            "Cắt lấy số kí tự của chuỗi tính từ bên trái.",
+            "Cắt chuỗi ký tự ở giữa xâu ký tự.",
+            "Cắt lấy số kí tự của chuỗi tính từ bên phải.",
+            "Chuyển ký tự hoa thành thường."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để trả về ngày tháng năm hiện hành?",
+        "trả lời": [
+            "DATE()",
+            "NOW()",
+            "TODAY()",
+            "TIME()"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để lấy giá trị ngày trong một chuỗi ngày tháng năm cụ thể?",
+        "trả lời": [
+            "MONTH",
+            "YEAR",
+            "DAY",
+            "DAYS360"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để lấy giá trị tháng trong một chuỗi ngày tháng năm cụ thể?",
+        "trả lời": [
+            "DAY",
+            "YEAR",
+            "MONTH",
+            "TODAY"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm nào trong Excel dùng để lấy giá trị năm trong một chuỗi ngày tháng năm cụ thể?",
+        "trả lời": [
+            "DAY",
+            "MONTH",
+            "YEAR",
+            "TODAY"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Hàm VLOOKUP trong Excel có công dụng gì?",
+        "trả lời": [
+            "Tìm kiếm giá trị theo dạng dòng.",
+            "Tìm kiếm giá trị theo dạng cột.",
+            "Đếm số ô thỏa mãn điều kiện.",
+            "Tính tổng các ô thỏa mãn điều kiện."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Hàm HLOOKUP trong Excel có công dụng gì?",
+        "trả lời": [
+            "Tìm kiếm giá trị theo dạng cột.",
+            "Tìm kiếm giá trị theo dạng dòng.",
+            "Đếm các ô dữ liệu kiểu số.",
+            "Làm tròn giá trị số."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Lỗi #VALUE! trong Excel thường xuất hiện khi nào?",
+        "trả lời": [
+            "Ô tham chiếu của công thức bị xóa.",
+            "Công thức chưa hoàn thành hoặc hàm yêu cầu giá trị số/logic nhưng lại nhập chuỗi.",
+            "Công thức nhập vào có số chia là 0.",
+            "Giá trị trả về quá lớn hoặc quá nhỏ."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Lỗi #REF! trong Excel thường xuất hiện khi nào?",
+        "trả lời": [
+            "Giá trị trả về không tương thích với các hàm dò tìm.",
+            "Công thức nhập vào có số chia là 0.",
+            "Dùng hàm trả về một giá trị quá lớn hoặc quá nhỏ.",
+            "Ô tham chiếu của công thức đã bị xóa hoặc liên kết tham chiếu không thực thi được."
+        ],
+        "câu đúng": 3
+    },
+    {
+        "câu hỏi": "Lỗi #NUM! trong Excel thường xuất hiện khi nào?",
+        "trả lời": [
+            "Nhập sai tên hàm.",
+            "Công thức nhập vào có số chia là 0.",
+            "Dùng hàm trả về một giá trị quá lớn hoặc quá nhỏ so với khả năng tính toán của Excel.",
+            "Ô tham chiếu của công thức bị xóa."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Lỗi #NAME? trong Excel thường xuất hiện khi nào?",
+        "trả lời": [
+            "Ô tham chiếu của công thức bị xóa.",
+            "Công thức nhập vào có số chia là 0.",
+            "Nhập sai tên hàm hoặc dùng những kí tự không được phép trong công thức.",
+            "Giá trị trả về không tương thích với các hàm dò tìm."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Lỗi #DIV/0! trong Excel thường xuất hiện khi nào?",
+        "trả lời": [
+            "Giá trị trả về không tương thích với các hàm dò tìm.",
+            "Ô tham chiếu của công thức bị xóa.",
+            "Công thức nhập vào có số chia là 0 hoặc số chia tham chiếu đến ô trống.",
+            "Dùng hàm lặp đi lặp lại."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Đồ thị trong Excel giúp gì?",
+        "trả lời": [
+            "Chỉ để nhập dữ liệu.",
+            "Chỉ để lưu trữ thông tin.",
+            "Trình bày các số liệu bằng việc vẽ thành các hình ảnh trực quan, dễ hiểu.",
+            "Thay đổi định dạng văn bản."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Đồ thị được liên kết với dữ liệu trong bảng tính có ý nghĩa gì?",
+        "trả lời": [
+            "Dữ liệu trong bảng tính không thể thay đổi.",
+            "Khi thay đổi dữ liệu trong bảng tính thì đồ thị sẽ thay đổi tương ứng theo.",
+            "Đồ thị phải được vẽ lại hoàn toàn khi dữ liệu thay đổi.",
+            "Đồ thị không hiển thị nếu dữ liệu không có."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Biểu đồ nào thường hiển thị các thể loại dọc theo trục ngang và các giá trị dọc theo trục dọc?",
+        "trả lời": [
+            "Biểu đồ đường",
+            "Biểu đồ cột",
+            "Biểu đồ hình tròn",
+            "Biểu đồ bề mặt"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Biểu đồ nào rất phù hợp để biểu thị các khuynh hướng dữ liệu tại các khoảng thời gian bằng nhau như tháng, quý hoặc năm tài chính?",
+        "trả lời": [
+            "Biểu đồ cột",
+            "Biểu đồ hình tròn",
+            "Biểu đồ đường",
+            "Biểu đồ bề mặt"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Biểu đồ nào biểu thị kích cỡ các mục trong một chuỗi dữ liệu, tỷ lệ với tổng số các mục, và các điểm dữ liệu được biểu thị dưới dạng phần trăm của toàn bộ hình tròn?",
+        "trả lời": [
+            "Biểu đồ cột",
+            "Biểu đồ đường",
+            "Biểu đồ hình tròn",
+            "Biểu đồ thanh"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để bắt đầu trình chiếu từ slide đầu tiên trong PowerPoint, bạn có thể nhấn phím nào?",
+        "trả lời": [
+            "Shift + F5",
+            "F5",
+            "Ctrl + S",
+            "Esc"
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Để bắt đầu trình chiếu từ slide hiện tại trong PowerPoint, bạn có thể nhấn tổ hợp phím nào?",
+        "trả lời": [
+            "F5",
+            "Ctrl + F5",
+            "Shift + F5",
+            "Alt + F5"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để kết thúc hiển thị slide ở chế độ trình chiếu trong PowerPoint, bạn sử dụng phím nào?",
+        "trả lời": [
+            "Enter",
+            "Spacebar",
+            "Esc",
+            "F5"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trong quá trình trình chiếu PowerPoint, để chuyển đến slide kế tiếp (nếu không chọn hiệu ứng chạy tự động), bạn có thể thực hiện thao tác nào?",
+        "trả lời": [
+            "Nhấn phím ←.",
+            "Nhấn phím Esc.",
+            "Nhấn Enter hoặc phím →.",
+            "Nhấn phím F5."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Một trong những mối nguy cơ chính khi máy tính được kết nối Internet, đặc biệt đối với hệ thống mạng của các cơ quan tổ chức, là gì?",
+        "trả lời": [
+            "Máy tính hoạt động chậm hơn.",
+            "Tiêu thụ nhiều điện năng hơn.",
+            "Bị lừa đảo bởi các kỹ thuật Phishing, tin nhắn rác, spyware, hoặc lây nhiễm virus.",
+            "Khó khăn trong việc in ấn tài liệu."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trong trường hợp quên mật khẩu đăng nhập giao diện quản trị của ADSL router, cách nào thường được áp dụng để khôi phục mật khẩu mặc định (admin/admin)?",
+        "trả lời": [
+            "Dùng software để dò Username và Password.",
+            "Tra cứu trong cuốn hướng dẫn sử dụng của nhà cung cấp.",
+            "Tiếp tục cấp điện cho ADSL Router và ấn giữ nút Reset trong một khoảng thời gian nhất định.",
+            "Liên hệ ISP để yêu cầu đặt lại mật khẩu từ xa."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để hạn chế việc truy cập trái phép thông tin trên các máy tính có nối mạng Internet, cần làm gì?",
+        "trả lời": [
+            "Thường xuyên thay đổi hình nền desktop.",
+            "Giới hạn quyền truy cập hệ thống bằng tên và mật khẩu, cài đặt và cập nhật phần mềm diệt virus, và cài đặt phần mềm tường lửa.",
+            "Ngừng kết nối Internet khi không sử dụng.",
+            "Chỉ sử dụng các trình duyệt web phổ biến."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Trình duyệt web làm nhiệm vụ chính gì?",
+        "trả lời": [
+            "Chỉ để lưu trữ thông tin trên đám mây.",
+            "Chỉ để gửi và nhận thư điện tử.",
+            "Trao đổi dữ liệu với máy chủ web, hiển thị dữ liệu HTML và thực thi mã lệnh Javascript.",
+            "Quản lý các thiết bị phần cứng của máy tính."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trình duyệt và máy chủ trao đổi dữ liệu sử dụng giao thức nào?",
+        "trả lời": [
+            "FTP (File Transfer Protocol)",
+            "SMTP (Simple Mail Transfer Protocol)",
+            "HTTP (HyperText Transfer Protocol)",
+            "POP3 (Post Office Protocol version 3)"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Văn bản và hình ảnh trên một trang web được thể hiện và định dạng bằng ngôn ngữ nào?",
+        "trả lời": [
+            "Javascript",
+            "Python",
+            "HTML (HyperText Markup Language) kết hợp CSS",
+            "Java"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Mỗi siêu liên kết trên trang web chứa gì là địa chỉ duy nhất của mỗi tài nguyên web?",
+        "trả lời": [
+            "HTML",
+            "HTTP",
+            "URL (Uniform Resource Locator)",
+            "CSS"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Mục đích chính của việc sử dụng cache trình duyệt là gì?",
+        "trả lời": [
+            "Tăng cường bảo mật cho trình duyệt.",
+            "Giảm thời gian tải trang web khi người dùng truy cập lại.",
+            "Lưu trữ mật khẩu người dùng.",
+            "Chặn các quảng cáo không mong muốn."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Bookmark (hoặc Favorite trong Microsoft) trong trình duyệt web là gì?",
+        "trả lời": [
+            "Một loại phần mềm độc hại.",
+            "Một cửa sổ nhỏ tự động mở ra để hiển thị thông báo.",
+            "Một địa chỉ web được trình duyệt lưu lại theo yêu cầu của người dùng như một danh sách các lối tắt.",
+            "Một thành phần mở rộng của trình duyệt."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Chế độ \"ẩn\" (Incognito của Chrome, InPrivate Browsing của IE, Private Browsing của Firefox) cho phép người dùng duyệt web như thế nào?",
+        "trả lời": [
+            "Lưu lại tất cả lịch sử và cookie.",
+            "Duyệt web mà không lưu lại lịch sử và cookie.",
+            "Chặn tất cả các trang web.",
+            "Tăng tốc độ duyệt web một cách đáng kể."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Khi nào bạn cần sử dụng một địa chỉ IP công cộng (Public IP)?",
+        "trả lời": [
+            "Khi máy tính được kết nối với mạng nội bộ.",
+            "Khi máy tính chỉ hoạt động ngoại tuyến.",
+            "Khi máy tính kết nối thành công với Internet, để đại diện cho máy tính trên Internet.",
+            "Khi máy tính sử dụng các thiết bị ngoại vi."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Google Search là dịch vụ gì?",
+        "trả lời": [
+            "Dịch vụ lưu trữ đám mây.",
+            "Dịch vụ thư điện tử.",
+            "Dịch vụ tìm kiếm thông tin trên Internet phổ biến nhất hiện nay.",
+            "Dịch vụ dịch thuật trực tuyến."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Khi tìm kiếm thông tin với Google Search, yếu tố nào rất quan trọng để có kết quả tìm kiếm chính xác và rõ ràng?",
+        "trả lời": [
+            "Thời gian tìm kiếm.",
+            "Số lượng trình duyệt đang mở.",
+            "Từ khóa (keyword) của thông tin muốn tìm kiếm.",
+            "Tốc độ mạng Internet."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Trong hệ thống tên miền, tên miền cấp cao nhất là gì?",
+        "trả lời": [
+            "Tên miền quốc gia (.VN).",
+            "Tên miền gốc (ROOT) được thể hiện bằng dấu \".\".",
+            "Tên miền cấp 2.",
+            "Tên miền thương mại (.COM)."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Địa chỉ IP được xây dựng để làm gì?",
+        "trả lời": [
+            "Là một dãy số dễ nhớ để truy cập trang web.",
+            "Cung cấp cho người dùng khả năng truy cập tới các tài nguyên trên Internet thông qua tên miền dễ nhớ hơn.",
+            "Là địa chỉ không trùng lặp cho mỗi thiết bị hoạt động trên Internet.",
+            "Dùng để xác định loại hình dịch vụ Internet."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dịch vụ Google Documents cho phép người dùng làm gì?",
+        "trả lời": [
+            "Lập bảng tính điện tử trực tuyến.",
+            "Xem và chỉnh sửa tài liệu văn bản word trực tuyến.",
+            "Thiết kế bài thuyết trình.",
+            "Lưu trữ thông tin trên đám mây."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Dịch vụ Google Spreadsheets cho phép người dùng làm gì?",
+        "trả lời": [
+            "Xem và chỉnh sửa tài liệu văn bản word trực tuyến.",
+            "Xem và chỉnh sửa bảng tính điện tử trực tuyến.",
+            "Tạo bảng khảo sát ý kiến.",
+            "Lưu trữ thông tin trên đám mây."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Dịch vụ nào của Google nếu cần lập một bảng khảo sát ý kiến hay thu thập thông tin?",
+        "trả lời": [
+            "Google Documents",
+            "Google Drive",
+            "Google Forms",
+            "Google Search"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dịch vụ lưu trữ thông tin trên đám mây của Google là gì?",
+        "trả lời": [
+            "Google Sheets",
+            "Google Docs",
+            "Google Drive",
+            "Google Forms"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Tác động xã hội của truyền thông số là gì?",
+        "trả lời": [
+            "Hạn chế khả năng giao tiếp của con người.",
+            "Chỉ ảnh hưởng đến công việc, không ảnh hưởng đến sinh hoạt.",
+            "Thay đổi hoàn toàn cách con người giao tiếp, sinh hoạt và làm việc, hình thành cộng đồng ảo.",
+            "Làm giảm các dịch vụ trực tuyến."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Để trao đổi trực tuyến (chat, nói chuyện) qua mạng Internet, bạn có thể sử dụng ứng dụng nào?",
+        "trả lời": [
+            "Microsoft Word",
+            "Microsoft Excel",
+            "Skype, Facebook IM, Google Hangout",
+            "PowerPoint"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "VoIP (Voice over IP) là công nghệ gì?",
+        "trả lời": [
+            "Công nghệ truyền hình ảnh qua mạng Internet.",
+            "Công nghệ truyền tiếng nói của con người (thoại) qua mạng thông tin sử dụng bộ giao thức TCP/IP.",
+            "Công nghệ lưu trữ dữ liệu trực tuyến.",
+            "Công nghệ quản lý mạng nội bộ."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Mạng xã hội là gì?",
+        "trả lời": [
+            "Là một hệ thống website chỉ để đọc tin tức.",
+            "Là mạng được tạo ra để tự thân nó lan rộng trong cộng đồng thông qua các tương tác của các thành viên trong chính cộng đồng đó.",
+            "Là một công cụ tìm kiếm thông tin.",
+            "Là một phần mềm diệt virus."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Diễn đàn (forum) trên Internet là gì?",
+        "trả lời": [
+            "Là một phòng tán gẫu (chat room) trực tiếp.",
+            "Là một khu vực thảo luận của một hệ thống thông tin điện tử Website, nơi các thành viên có thể đăng ý kiến thảo luận, đọc và phản hồi.",
+            "Là một dịch vụ thư điện tử.",
+            "Là một công cụ tìm kiếm hình ảnh."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Chính phủ điện tử hình thành từ việc các cơ quan Chính phủ sử dụng một cách có hệ thống CNTT-TT để làm gì?",
+        "trả lời": [
+            "Chỉ để quản lý văn bản nội bộ.",
+            "Để thực hiện quan hệ với công dân, doanh nghiệp và các tổ chức xã hội, nhằm nâng cao chất lượng dịch vụ công.",
+            "Chỉ để trao đổi thông tin giữa các bộ ngành.",
+            "Để phát triển các trò chơi trực tuyến."
+        ],
+        "câu đúng": 1
+    },
+    {
+        "câu hỏi": "Khi sử dụng mạng Internet để mua bán, cần lưu ý điều gì?",
+        "trả lời": [
+            "Nên chọn các website bất kỳ để có nhiều lựa chọn.",
+            "Luôn sử dụng một phương thức thanh toán không bảo mật để giao dịch nhanh hơn.",
+            "Cần chọn những website hợp pháp để mua hàng, nên sử dụng phương thức thanh toán an toàn, kiểm tra sự an toàn của thiết bị.",
+            "Không cần kiểm tra thiết bị khi mua sắm trực tuyến."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Một lưu ý nhỏ nhưng hữu ích là các trang web mua bán trực tuyến an toàn thường sử dụng giao thức nào?",
+        "trả lời": [
+            "HTTP",
+            "FTP",
+            "HTTPS",
+            "SMTP"
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Dịch vụ ngân hàng điện tử cung cấp các dịch vụ gì cho khách hàng?",
+        "trả lời": [
+            "Chỉ cho phép xem số dư tài khoản.",
+            "Chỉ cho phép chuyển khoản.",
+            "Thanh toán và truy vấn online, chuyển khoản, mở tài khoản tiết kiệm trực tuyến, thanh toán hóa đơn.",
+            "Chỉ cung cấp thông tin về lãi suất."
+        ],
+        "câu đúng": 2
+    },
+    {
+        "câu hỏi": "Theo quan điểm hiện đại, E-learning là gì?",
+        "trả lời": [
+            "Là việc học tập, đào tạo chỉ dựa trên sách giáo khoa truyền thống.",
+            "Là sự phân phát các nội dung học sử dụng các công cụ điện tử hiện đại như máy tính, mạng vệ tinh, Internet, Intranet,…",
+            "Là việc học chỉ diễn ra trong lớp học truyền thống.",
+            "Là việc học chỉ qua các bài giảng trực tiếp của giáo viên."
+        ],
+        "câu đúng": 1
+    }
+]
