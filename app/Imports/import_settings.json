@@ -1,0 +1,171 @@
+{
+  "file_config": {
+    "sheet_name": "Sheet1"
+  },
+  "column_mappings": [
+    {
+      "internal_field": "full_name",
+      "header_text": "Họ và tên",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "sid",
+      "header_text": "Mã định dạnh NĐT (SID)",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "investor_code",
+      "header_text": "Mã nhà đầu tư (Investor code)",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "registration_number",
+      "header_text": "Số ĐKSH",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "issue_date",
+      "header_text": "Ngày cấp",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "address",
+      "header_text": "Địa chỉ",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "email",
+      "header_text": "Email",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "phone",
+      "header_text": "Điện thoại",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "nationality",
+      "header_text": "Quốc tịch",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "not_deposited_quantity",
+      "header_text": "Chưa lưu ký",
+      "parent_header_text": "Số lượng chứng khoán nắm giữ"
+    },
+    {
+      "internal_field": "deposited_quantity",
+      "header_text": "Lưu ký",
+      "parent_header_text": "Số lượng chứng khoán nắm giữ"
+    },
+    {
+      "internal_field": "total_quantity",
+      "header_text": "Cộng",
+      "parent_header_text": "Số lượng chứng khoán nắm giữ"
+    },
+
+    {
+      "internal_field": "pre_tax_payment_not_deposited",
+      "header_text": "Chưa lưu ký",
+      "parent_header_text": "Số tiền thanh toán trước thuế"
+    },
+    {
+      "internal_field": "pre_tax_payment_deposited",
+      "header_text": "Lưu ký",
+      "parent_header_text": "Số tiền thanh toán trước thuế"
+    },
+    {
+      "internal_field": "pre_tax_payment_total",
+      "header_text": "Cộng",
+      "parent_header_text": "Số tiền thanh toán trước thuế"
+    },
+
+    {
+      "internal_field": "pit_tax_not_deposited",
+      "header_text": "Chưa lưu ký",
+      "parent_header_text": "Thuế thu nhập cá nhân"
+    },
+    {
+      "internal_field": "pit_tax_deposited",
+      "header_text": "Lưu ký",
+      "parent_header_text": "Thuế thu nhập cá nhân"
+    },
+    {
+      "internal_field": "pit_tax_total",
+      "header_text": "Cộng",
+      "parent_header_text": "Thuế thu nhập cá nhân"
+    },
+
+    {
+      "internal_field": "post_tax_payment_not_deposited",
+      "header_text": "Chưa lưu ký",
+      "parent_header_text": "Số tiền thanh toán sau thuế"
+    },
+    {
+      "internal_field": "post_tax_payment_deposited",
+      "header_text": "Lưu ký",
+      "parent_header_text": "Số tiền thanh toán sau thuế"
+    },
+    {
+      "internal_field": "post_tax_payment_total",
+      "header_text": "Cộng",
+      "parent_header_text": "Số tiền thanh toán sau thuế"
+    },
+
+    {
+      "internal_field": "bank_account",
+      "header_text": "Số tài khoản",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "bank_name",
+      "header_text": "Tên ngân hàng",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "bank_branch",
+      "header_text": "Chi nhánh",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "notes",
+      "header_text": "Ghi chú",
+      "parent_header_text": null
+    },
+    {
+      "internal_field": "status",
+      "header_text": "Trạng thái",
+      "parent_header_text": null
+    },
+    {
+        "internal_field": "investor_domain_domestic",
+        "header_text": "I. MÔI GIỚI TRONG NƯỚC",
+        "parent_header_text": null
+    },
+    {
+        "internal_field": "investor_domain_foreign",
+        "header_text": "II. MÔI GIỚI NƯỚC NGOÀI",
+        "parent_header_text": null
+    },
+    {
+        "internal_field": "investor_type_individual_domestic",
+        "header_text": "1. Cá nhân",
+        "parent_header_text": "I. MÔI GIỚI TRONG NƯỚC"
+    },
+    {
+        "internal_field": "investor_type_organization_domestic",
+        "header_text": "2. Tổ chức",
+        "parent_header_text": "I. MÔI GIỚI TRONG NƯỚC"
+    },
+    {
+        "internal_field": "investor_type_individual_foreign",
+        "header_text": "1. Cá nhân",
+        "parent_header_text": "II. MÔI GIỚI NƯỚC NGOÀI"
+    },
+    {
+        "internal_field": "investor_type_organization_foreign",
+        "header_text": "2. Tổ chức",
+        "parent_header_text": "II. MÔI GIỚI NƯỚC NGOÀI"
+    }
+  ]
+}

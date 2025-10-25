@@ -23,22 +23,26 @@ class SecuritiesManagement extends Model
      * @var array
      */
     protected $fillable = [
-        'full_name',
-        'sid',
-        'investor_code',
-        'registration_number',
-        'issue_date',
-        'address',
-        'email',
-        'phone',
-        'nationality',
-        'not_deposited_quantity',
-        'deposited_quantity',
-        'bank_account',
-        'bank_name',
-        'bank_branch',
-        'notes',
-        'status',
+    'full_name',
+    'sid',
+    'investor_code',
+    'registration_number',
+    'issue_date',
+    'address',
+    'email',
+    'phone',
+    'nationality',
+    'not_deposited_quantity',
+    'deposited_quantity',
+    'slqmpb_chualk', // Số lượng quyền mua chưa lưu ký (SLQMPB_CHUALK)
+    'slqmpb_dalk',   // Số lượng quyền mua đã lưu ký (SLQMPB_DALK)
+    'type',          // Loại cổ đông (TYPE)
+    'cntc',          // Phân loại Cá nhân/Tổ chức (CNTC)
+    'txnum',         // Mã giao dịch (TXNUM)
+    'bank_account',
+    'bank_name',
+    'bank_branch',
+    'notes',
     ];
 
     /**
@@ -47,10 +51,12 @@ class SecuritiesManagement extends Model
      * @var array
      */
     protected $casts = [
-        'issue_date' => 'date',
-        'not_deposited_quantity' => 'integer',
-        'deposited_quantity' => 'integer',
-        'status' => 'integer',
+    'issue_date' => 'date',
+    'not_deposited_quantity' => 'integer',
+    'deposited_quantity' => 'integer',
+    'slqmpb_chualk' => 'integer',
+    'slqmpb_dalk' => 'integer',
+    'status' => 'integer',
     ];
 
 

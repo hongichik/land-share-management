@@ -25,6 +25,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Dashboard
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Settings routes
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::match(['get', 'post'], '/', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('index');
+            Route::get('/{setting}/edit', [\App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('edit');
+            Route::put('/{setting}', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('update');
+        });
+
         Route::prefix('securities')->name('securities.')->group(function () {
             // Securities Management routes
             Route::prefix('management')->name('management.')->group(function () {

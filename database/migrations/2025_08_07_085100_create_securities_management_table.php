@@ -24,15 +24,21 @@ return new class extends Migration
             $table->string('nationality')->default('Việt Nam')->comment('Quốc tịch');
             $table->bigInteger('not_deposited_quantity')->default(0)->comment('Chưa lưu ký (số lượng)');
             $table->bigInteger('deposited_quantity')->default(0)->comment('Lưu ký (số lượng)');
+            $table->bigInteger('slqmpb_chualk')->default(0)->comment('Số lượng quyền mua chưa lưu ký (SLQMPB_CHUALK)');
+            $table->bigInteger('slqmpb_dalk')->default(0)->comment('Số lượng quyền mua đã lưu ký (SLQMPB_DALK)');
+            $table->string('type')->nullable()->comment('Loại cổ đông, ví dụ: nội bộ, nước ngoài (TYPE)');
+            $table->string('cntc')->nullable()->comment('Phân loại Cá nhân hay Tổ chức (CNTC)');
+            $table->string('txnum')->nullable()->comment('Mã giao dịch (TXNUM)');
             $table->text('notes')->nullable()->comment('Ghi chú');
-            $table->tinyInteger('status')->default(1)->comment('Trạng thái: 1-hoạt động, 0-không hoạt động');
+
+            $table->string('account_number')->nullable()->comment('Số tài khoản ngân hàng');
+            $table->string('bank_name')->nullable()->comment('Tên ngân hàng');
             
             $table->timestamps();
             
             // Indexes
             $table->index(['sid', 'investor_code']);
             $table->index('full_name');
-            $table->index('status');
             $table->index('not_deposited_quantity');
             $table->index('deposited_quantity');
         });

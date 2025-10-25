@@ -41,6 +41,12 @@ return [
                 ],
             ],
             [
+                'text' => 'Quản lý Setting',
+                'icon' => 'bi bi-gear',
+                'route' => 'admin.settings.index',
+                'active' => 'admin/settings*',
+            ],
+            [
                 'text' => 'Quản lý chứng khoán',
                 'icon' => 'bi bi-graph-up',
                 'active' => 'admin/securities/*',
