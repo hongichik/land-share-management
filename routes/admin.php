@@ -58,6 +58,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::prefix('dividend')->name('dividend.')->group(function () {
                 Route::get('get-investors-list', [DividendController::class, 'getInvestorsList'])
                     ->name('get-investors-list');
+                Route::get('get-banks-list', [DividendController::class, 'getBanksList'])
+                    ->name('get-banks-list');
 
                 // Import routes
                 Route::post('import-preview', [DividendController::class, 'importPreview'])
@@ -68,11 +70,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 // Individual resource routes
                 Route::get('summary-stats', [DividendController::class, 'getSummaryStats'])->name('summary-stats');
                 Route::get('/', [DividendController::class, 'index'])->name('index');
-                Route::get('/create', [DividendController::class, 'create'])->name('create');
-                Route::post('/', [DividendController::class, 'store'])->name('store');
-                Route::get('/{dividend}', [DividendController::class, 'show'])->name('show');
-                Route::get('/{dividend}/edit', [DividendController::class, 'edit'])->name('edit');
-                Route::put('/{dividend}', [DividendController::class, 'update'])->name('update');
+                Route::put('/{securitiesManagement}/update-bank', [DividendController::class, 'updateBank'])->name('update-bank');
                 Route::delete('/{dividend}', [DividendController::class, 'destroy'])->name('destroy');
             });
         });

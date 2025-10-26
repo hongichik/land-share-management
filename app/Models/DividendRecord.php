@@ -24,15 +24,20 @@ class DividendRecord extends Model
      */
     protected $fillable = [
         'securities_management_id',
-        'tax_rate',
         'deposited_shares_quantity',
-        'deposited_amount_before_tax',
         'non_deposited_shares_quantity',
+        'deposited_amount_before_tax',
         'non_deposited_amount_before_tax',
+        'deposited_personal_income_tax',
+        'non_deposited_personal_income_tax',
+        'dividend_price_per_share',
+        'dividend_percentage',
         'payment_date',
         'account_number',
         'bank_name',
         'notes',
+        'payment_status',
+        'transfer_date',
     ];
 
     /**
@@ -41,11 +46,16 @@ class DividendRecord extends Model
      * @var array
      */
     protected $casts = [
-        'dividend_date' => 'date',
         'payment_date' => 'date',
-        'tax_rate' => 'decimal:4',
-        'deposited_amount_before_tax' => 'decimal:2',
+        'transfer_date' => 'datetime',
+        'non_deposited_shares_quantity' => 'integer',
+        'deposited_shares_quantity' => 'integer',
         'non_deposited_amount_before_tax' => 'decimal:2',
+        'deposited_amount_before_tax' => 'decimal:2',
+        'non_deposited_personal_income_tax' => 'decimal:2',
+        'deposited_personal_income_tax' => 'decimal:2',
+        'dividend_price_per_share' => 'decimal:2',
+        'dividend_percentage' => 'decimal:4',
     ];
 
     /**
@@ -77,13 +87,34 @@ class DividendRecord extends Model
     }
 
     /**
+     * Get the total amount after tax.
+     *
+     * @return float
+     */
+    public function getTotalAmountAfterTaxAttribute(): float
+    {
+        $totalTax = $this->deposited_personal_income_tax + $this->non_deposited_personal_income_tax;
+        return $this->getTotalAmountBeforeTaxAttribute() - $totalTax;
+    }
+
+    /**
+     * Get the total personal income tax.
+     *
+     * @return float
+     */
+    public function getTotalPersonalIncomeTaxAttribute(): float
+    {
+        return $this->deposited_personal_income_tax + $this->non_deposited_personal_income_tax;
+    }
+
+    /**
      * Get the deposited amount after tax.
      *
      * @return float
      */
     public function getDepositedAmountAfterTaxAttribute(): float
     {
-        return $this->deposited_amount_before_tax * (1 - $this->tax_rate);
+        return $this->deposited_amount_before_tax - $this->deposited_personal_income_tax;
     }
 
     /**
@@ -93,16 +124,6 @@ class DividendRecord extends Model
      */
     public function getNonDepositedAmountAfterTaxAttribute(): float
     {
-        return $this->non_deposited_amount_before_tax * (1 - $this->tax_rate);
-    }
-
-    /**
-     * Get the total amount after tax.
-     *
-     * @return float
-     */
-    public function getTotalAmountAfterTaxAttribute(): float
-    {
-        return $this->getTotalAmountBeforeTaxAttribute() * (1 - $this->tax_rate);
+        return $this->non_deposited_amount_before_tax - $this->non_deposited_personal_income_tax;
     }
 }

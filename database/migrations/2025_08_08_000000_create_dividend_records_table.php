@@ -14,24 +14,35 @@ return new class extends Migration
         Schema::create('dividend_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('securities_management_id')->constrained('securities_management')->onDelete('cascade');
-            $table->decimal('tax_rate', 5, 4)->default(0.05)->comment('Tỷ lệ thuế áp dụng');
             
-            // Deposited shares
-            $table->bigInteger('deposited_shares_quantity')->default(0)->comment('Số lượng cổ phiếu đã lưu ký');
-            $table->decimal('deposited_amount_before_tax', 15, 2)->default(0)->comment('Giá trị cổ tức trước thuế (đã lưu ký)');
+            // Securities quantity
+            $table->bigInteger('non_deposited_shares_quantity')->default(0)->comment('Số lượng chứng khoán chưa lưu ký');
+            $table->bigInteger('deposited_shares_quantity')->default(0)->comment('Số lượng chứng khoán đã lưu ký');
             
-            // Not deposited shares
-            $table->bigInteger('non_deposited_shares_quantity')->default(0)->comment('Số lượng cổ phiếu chưa lưu ký');
-            $table->decimal('non_deposited_amount_before_tax', 15, 2)->default(0)->comment('Giá trị cổ tức trước thuế (chưa lưu ký)');
+            // Amount before tax
+            $table->decimal('non_deposited_amount_before_tax', 15, 2)->default(0)->comment('Số tiền thanh toán trước thuế (chưa lưu ký)');
+            $table->decimal('deposited_amount_before_tax', 15, 2)->default(0)->comment('Số tiền thanh toán trước thuế (đã lưu ký)');
+            
+            // Personal income tax
+            $table->decimal('non_deposited_personal_income_tax', 15, 2)->default(0)->comment('Thuế thu nhập cá nhân (chưa lưu ký)');
+            $table->decimal('deposited_personal_income_tax', 15, 2)->default(0)->comment('Thuế thu nhập cá nhân (đã lưu ký)');
+            
+            
+            // Dividend price per share
+            $table->decimal('dividend_price_per_share', 15, 2)->default(10000)->comment('Giá của 1 cổ phiếu khi chia cổ tức');
+            $table->decimal('dividend_percentage', 5, 4)->default(0)->comment('Phần trăm cổ tức');
             
             // Payment information
             $table->date('payment_date')->nullable()->comment('Ngày thanh toán cổ tức');
+
             $table->string('account_number')->nullable()->comment('Số tài khoản ngân hàng');
             $table->string('bank_name')->nullable()->comment('Tên ngân hàng');
 
             $table->text('notes')->nullable()->comment('Ghi chú');
             $table->timestamps();
-            
+            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid')->comment('Trạng thái trả tiền cổ tức');
+            $table->datetime('transfer_date')->nullable()->comment('Thời gian chuyển tiền');
+
             // Indexes
             $table->index('securities_management_id');
             $table->index('payment_date');

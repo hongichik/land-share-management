@@ -61,9 +61,6 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách Cổ đông</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities.dividend.create') }}" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Thêm mới
-                    </a>
                     <button type="button" class="btn btn-success btn-sm" id="import-btn">
                         <i class="fas fa-upload"></i> Import
                     </button>
@@ -149,12 +146,48 @@
         </div>
     </div>
 </div>
+
+<!-- Bank Edit Modal -->
+<div class="modal fade" id="bankEditModal" tabindex="-1" role="dialog" aria-labelledby="bankEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bankEditModalLabel">Sửa thông tin ngân hàng</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="investorName">Cổ đông:</label>
+                    <input type="text" class="form-control" id="investorName" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="bankName">Tên ngân hàng:</label>
+                    <select class="form-control" id="bankName" style="width: 100%;">
+                        <option value="">-- Chọn ngân hàng --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bankAccount">Tài khoản:</label>
+                    <input type="text" class="form-control" id="bankAccount" placeholder="Nhập số tài khoản">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveBankInfo">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 <style>
     .import-item {
@@ -199,11 +232,39 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 var currentImportFile = null;
 
 $(document).ready(function() {
     var currentFilter = 'all';
+    
+    // Initialize Select2 for bank selection (use dropdownParent so it works inside modal)
+    $('#bankName').select2({
+        theme: 'bootstrap-5',
+        placeholder: '-- Chọn ngân hàng --',
+        allowClear: true,
+        width: '100%',
+        minimumInputLength: 0,
+        dropdownParent: $('#bankEditModal'),
+        ajax: {
+            url: "{{ route('admin.securities.dividend.get-banks-list') }}",
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    search: params.term || ''
+                };
+            },
+            processResults: function(data) {
+                // ensure proper format and return
+                return {
+                    results: data.results || []
+                };
+            },
+            cache: true
+        }
+    });
     
     var table = $('#securities-table').DataTable({
         processing: true,
@@ -378,6 +439,12 @@ function deleteRecord(id) {
     $('#deleteModal').modal('show');
 }
 
+// Handle modal show event to properly initialize Select2
+$('#bankEditModal').on('shown.bs.modal', function () {
+    // Trigger Select2 to recalculate its position
+    $('#bankName').select2('open').select2('close');
+});
+
 $('#confirmDelete').click(function() {
     if (deleteId) {
         $.ajax({
@@ -396,6 +463,92 @@ $('#confirmDelete').click(function() {
             }
         });
     }
+});
+
+// Bank edit functions
+let currentBankEditId = null;
+
+function editBankInfo(id, fullName, bankName, bankAccount) {
+    currentBankEditId = id;
+    $('#investorName').val(fullName);
+    $('#bankAccount').val(bankAccount);
+    
+    // Clear and reset Select2
+    var $bankSelect = $('#bankName');
+    $bankSelect.val(null).trigger('change');
+
+    // If there's an existing bank value, add it as an option (id/text) and select it
+    if (bankName && bankName.trim() !== '') {
+        // bankName parameter might be stored as full text or code; use it for both id and text if id not available
+        var optionValue = bankName;
+        var optionText = bankName;
+
+        // If the option with this id doesn't exist, append it
+        if (!$bankSelect.find("option[value='" + optionValue + "']").length) {
+            var newOption = new Option(optionText, optionValue, true, true);
+            $bankSelect.append(newOption).trigger('change');
+        } else {
+            $bankSelect.val(optionValue).trigger('change');
+        }
+    }
+    
+    // Show modal and focus on the bank field
+    $('#bankEditModal').modal('show');
+    
+    // Auto-open the dropdown after modal is shown
+    setTimeout(function() {
+        $bankSelect.select2('open');
+    }, 300);
+}
+
+$('#saveBankInfo').click(function() {
+    if (!currentBankEditId) {
+        toastr.error('Lỗi: Không tìm thấy ID');
+        return;
+    }
+
+    var bankName = $('#bankName').val().trim();
+    var bankAccount = $('#bankAccount').val().trim();
+
+    if (!bankName || !bankAccount) {
+        toastr.warning('Vui lòng điền đầy đủ thông tin ngân hàng');
+        return;
+    }
+
+    $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang lưu...');
+
+    $.ajax({
+        url: `/admin/securities/dividend/${currentBankEditId}/update-bank`,
+        type: 'PUT',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        data: {
+            bank_name: bankName,
+            bank_account: bankAccount
+        },
+        success: function(response) {
+            if (response.success) {
+                toastr.success(response.message);
+                $('#bankEditModal').modal('hide');
+                $('#securities-table').DataTable().ajax.reload();
+            } else {
+                toastr.error(response.message || 'Cập nhật thất bại');
+            }
+        },
+        error: function(xhr) {
+            var errorMsg = 'Không thể cập nhật thông tin ngân hàng';
+            if (xhr.responseJSON?.message) {
+                errorMsg = xhr.responseJSON.message;
+            } else if (xhr.responseJSON?.error) {
+                errorMsg = xhr.responseJSON.error;
+            }
+            toastr.error('Lỗi: ' + errorMsg);
+        },
+        complete: function() {
+            $('#saveBankInfo').prop('disabled', false).html('Lưu');
+        }
+    });
 });
 </script>
 @endpush

@@ -48,6 +48,53 @@ class DividendController extends Controller
     }
 
     /**
+     * Get list of Vietnamese banks
+     */
+    public function getBanksList(Request $request)
+    {
+        $search = $request->input('search', '');
+        
+        $banks = [
+            ['id' => 'ACB', 'text' => 'ACB - Ngân hàng Á Châu'],
+            ['id' => 'AGRIBANK', 'text' => 'AGRIBANK - Ngân hàng Nông nghiệp'],
+            ['id' => 'BIDV', 'text' => 'BIDV - Ngân hàng Đầu tư và Phát triển'],
+            ['id' => 'CTG', 'text' => 'CTG - Ngân hàng Công Thương'],
+            ['id' => 'EXIMBANK', 'text' => 'EXIMBANK - Ngân hàng Xuất Nhập khẩu'],
+            ['id' => 'LPB', 'text' => 'LPB - Ngân hàng Kienlongbank'],
+            ['id' => 'MBB', 'text' => 'MBB - Ngân hàng Quân Đội'],
+            ['id' => 'SACOMBANK', 'text' => 'SACOMBANK - Ngân hàng SACOM'],
+            ['id' => 'SHB', 'text' => 'SHB - Ngân hàng SHB'],
+            ['id' => 'TECHCOMBANK', 'text' => 'TECHCOMBANK - Ngân hàng Kỹ Thương'],
+            ['id' => 'TPB', 'text' => 'TPB - Ngân hàng Tiên Phong'],
+            ['id' => 'VIB', 'text' => 'VIB - Ngân hàng VIB'],
+            ['id' => 'VIETCOMBANK', 'text' => 'VIETCOMBANK - Ngân hàng Ngoại Thương Việt Nam'],
+            ['id' => 'VIETINBANK', 'text' => 'VIETINBANK - Ngân hàng Công nghiệp Việt Nam'],
+            ['id' => 'VPBANK', 'text' => 'VPBANK - Ngân hàng VP'],
+            ['id' => 'OCB', 'text' => 'OCB - Ngân hàng Phương Đông'],
+            ['id' => 'SEABANK', 'text' => 'SEABANK - Ngân hàng Biển'],
+            ['id' => 'HDBANK', 'text' => 'HDBANK - Ngân hàng Phát triển'],
+            ['id' => 'ABBANK', 'text' => 'ABBANK - Ngân hàng AB'],
+            ['id' => 'ANBANK', 'text' => 'ANBANK - Ngân hàng An Bình'],
+            ['id' => 'KIENLONGBANK', 'text' => 'KIENLONGBANK - Ngân hàng Kiên Long'],
+            ['id' => 'SCB', 'text' => 'SCB - Ngân hàng Sài Gòn'],
+            ['id' => 'VCCB', 'text' => 'VCCB - Ngân hàng VCC'],
+            ['id' => 'BAO_VIET_BANK', 'text' => 'Bảo Việt Bank'],
+            ['id' => 'LIENVIET', 'text' => 'LienVietPostBank'],
+        ];
+        
+        // Filter based on search
+        if (!empty($search)) {
+            $banks = array_filter($banks, function($bank) use ($search) {
+                return stripos($bank['text'], $search) !== false || stripos($bank['id'], $search) !== false;
+            });
+        }
+        
+        return response()->json([
+            'results' => array_values($banks)
+        ]);
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -171,10 +218,8 @@ class DividendController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group" role="group">';
-                    $btn .= '<a href="' . route('admin.securities.dividend.show', $row->id) . '" class="btn btn-info btn-sm" title="Xem chi tiết">';
-                    $btn .= '<i class="fas fa-eye"></i></a>';
-                    $btn .= '<a href="' . route('admin.securities.dividend.edit', $row->id) . '" class="btn btn-warning btn-sm" title="Sửa">';
-                    $btn .= '<i class="fas fa-edit"></i></a>';
+                    $btn .= '<button type="button" class="btn btn-info btn-sm" onclick="editBankInfo(' . $row->id . ', \'' . addslashes($row->full_name) . '\', \'' . addslashes($row->bank_name ?? '') . '\', \'' . addslashes($row->bank_account ?? '') . '\')" title="Sửa ngân hàng">';
+                    $btn .= '<i class="fas fa-edit"></i></button>';
                     $btn .= '<button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(' . $row->id . ')" title="Xóa">';
                     $btn .= '<i class="fas fa-trash"></i></button>';
                     $btn .= '</div>';
@@ -187,113 +232,6 @@ class DividendController extends Controller
         return view('admin.securities.dividend.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        return view('admin.securities.dividend.create');
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'sid' => 'required|string|max:255|unique:securities_management,sid',
-            'investor_code' => 'required|string|max:255|unique:securities_management,investor_code',
-            'registration_number' => 'required|string|max:255|unique:securities_management,registration_number',
-            'issue_date' => 'required|date',
-            'address' => 'required|string',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'nationality' => 'nullable|string|max:100',
-            'not_deposited_quantity' => 'nullable|integer|min:0',
-            'deposited_quantity' => 'nullable|integer|min:0',
-            'slqmpb_chualk' => 'nullable|integer|min:0',
-            'slqmpb_dalk' => 'nullable|integer|min:0',
-            'cntc' => 'nullable|string|max:10',
-            'txnum' => 'nullable|string|max:50',
-            'bank_account' => 'nullable|string|max:50',
-            'bank_name' => 'nullable|string|max:100',
-            'notes' => 'nullable|string'
-        ], [
-            'full_name.required' => 'Tên đầy đủ là bắt buộc',
-            'sid.required' => 'Mã SID là bắt buộc',
-            'sid.unique' => 'Mã SID đã tồn tại trong hệ thống',
-            'investor_code.required' => 'Mã nhà đầu tư là bắt buộc',
-            'investor_code.unique' => 'Mã nhà đầu tư đã tồn tại trong hệ thống',
-            'registration_number.required' => 'Số đăng ký là bắt buộc',
-            'registration_number.unique' => 'Số đăng ký đã tồn tại trong hệ thống',
-            'issue_date.required' => 'Ngày phát hành là bắt buộc',
-            'address.required' => 'Địa chỉ là bắt buộc'
-        ]);
-
-        SecuritiesManagement::create($request->all());
-
-        return redirect()->route('admin.securities.dividend.index')
-            ->with('success', 'Thêm thông tin quản lý chứng khoán thành công!');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(SecuritiesManagement $securitiesManagement)
-    {
-        return view('admin.securities.dividend.show', compact('securitiesManagement'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(SecuritiesManagement $securitiesManagement)
-    {
-        return view('admin.securities.dividend.edit', compact('securitiesManagement'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, SecuritiesManagement $securitiesManagement)
-    {
-        $request->validate([
-            'full_name' => 'required|string|max:255',
-            'sid' => 'required|string|max:255|unique:securities_management,sid,' . $securitiesManagement->id,
-            'investor_code' => 'required|string|max:255|unique:securities_management,investor_code,' . $securitiesManagement->id,
-            'registration_number' => 'required|string|max:255|unique:securities_management,registration_number,' . $securitiesManagement->id,
-            'issue_date' => 'required|date',
-            'address' => 'required|string',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'nationality' => 'nullable|string|max:100',
-            'not_deposited_quantity' => 'nullable|integer|min:0',
-            'deposited_quantity' => 'nullable|integer|min:0',
-            'slqmpb_chualk' => 'nullable|integer|min:0',
-            'slqmpb_dalk' => 'nullable|integer|min:0',
-            'cntc' => 'nullable|string|max:10',
-            'txnum' => 'nullable|string|max:50',
-            'bank_account' => 'nullable|string|max:50',
-            'bank_name' => 'nullable|string|max:100',
-            'notes' => 'nullable|string'
-        ], [
-            'full_name.required' => 'Tên đầy đủ là bắt buộc',
-            'sid.required' => 'Mã SID là bắt buộc',
-            'sid.unique' => 'Mã SID đã tồn tại trong hệ thống',
-            'investor_code.required' => 'Mã nhà đầu tư là bắt buộc',
-            'investor_code.unique' => 'Mã nhà đầu tư đã tồn tại trong hệ thống',
-            'registration_number.required' => 'Số đăng ký là bắt buộc',
-            'registration_number.unique' => 'Số đăng ký đã tồn tại trong hệ thống',
-            'issue_date.required' => 'Ngày phát hành là bắt buộc',
-            'address.required' => 'Địa chỉ là bắt buộc'
-        ]);
-
-        $securitiesManagement->update($request->all());
-
-        return redirect()->route('admin.securities.dividend.index')
-            ->with('success', 'Cập nhật thông tin quản lý chứng khoán thành công!');
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -306,6 +244,39 @@ class DividendController extends Controller
             'success' => true,
             'message' => 'Xóa thông tin quản lý chứng khoán thành công!'
         ]);
+    }
+
+    /**
+     * Update bank information for a securities record
+     */
+    public function updateBank(Request $request, SecuritiesManagement $securitiesManagement)
+    {
+        $request->validate([
+            'bank_name' => 'required|string|max:255',
+            'bank_account' => 'required|string|max:255',
+        ]);
+
+        try {
+            $securitiesManagement->update([
+                'bank_name' => $request->input('bank_name'),
+                'bank_account' => $request->input('bank_account'),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật thông tin ngân hàng thành công!',
+                'data' => [
+                    'bank_name' => $securitiesManagement->bank_name,
+                    'bank_account' => $securitiesManagement->bank_account,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Update bank info error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi cập nhật thông tin ngân hàng!'
+            ], 422);
+        }
     }
 
     /**
