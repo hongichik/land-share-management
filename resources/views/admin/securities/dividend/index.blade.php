@@ -136,6 +136,22 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
+            <div class="modal-header" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                <div class="row w-100">
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label for="dividendDate" class="mb-2">Ngày trả cổ tức:</label>
+                            <input type="date" class="form-control" id="dividendDate">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-0">
+                            <label for="dividendPrice" class="mb-2">Giá cổ tức/cổ phần (VNĐ):</label>
+                            <input type="number" class="form-control" id="dividendPrice" value="10000" min="0" step="100">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
                 <div id="preview-content"></div>
             </div>
@@ -191,11 +207,12 @@
 <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 <style>
     .import-item {
-        padding: 10px;
-        margin-bottom: 10px;
+        padding: 12px;
+        margin-bottom: 12px;
         border-left: 4px solid #007bff;
         background-color: #f8f9fa;
-        border-radius: 3px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     .import-item.insert {
         border-left-color: #28a745;
@@ -205,23 +222,41 @@
         border-left-color: #ffc107;
         background-color: #fff8f0;
     }
+    .import-item > div:first-child {
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
     .change-item {
         margin-left: 20px;
-        margin-top: 8px;
-        padding: 8px 10px;
-        font-size: 12px;
+        margin-top: 10px;
+        padding: 10px 12px;
+        font-size: 13px;
         background-color: #ffffff;
-        border-radius: 3px;
+        border-radius: 4px;
         border-left: 3px solid #ffc107;
+        line-height: 1.5;
+    }
+    .change-item strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #333;
     }
     .change-old {
         color: #dc3545;
-        display: block;
-        margin-bottom: 4px;
+        display: inline;
     }
     .change-new {
         color: #28a745;
-        display: block;
+        display: inline;
+        font-weight: 500;
+    }
+    .import-item.insert .change-item {
+        border-left-color: #28a745;
+        background-color: #f0faf7;
+    }
+    .import-item.update .change-item {
+        border-left-color: #0066cc;
+        background-color: #f0f5ff;
     }
 </style>
 @endpush
@@ -358,8 +393,24 @@ $(document).ready(function() {
             return;
         }
         
+        // Validate dividend inputs
+        var dividendDate = $('#dividendDate').val();
+        var dividendPrice = $('#dividendPrice').val();
+        
+        if (!dividendDate) {
+            toastr.error('Vui lòng nhập ngày thanh toán cổ tức');
+            return;
+        }
+        
+        if (!dividendPrice || parseFloat(dividendPrice) <= 0) {
+            toastr.error('Vui lòng nhập mức cổ tức mỗi cổ phiếu (> 0)');
+            return;
+        }
+        
         var formData = new FormData();
         formData.append('file', currentImportFile);
+        formData.append('payment_date', dividendDate);
+        formData.append('dividend_price_per_share', dividendPrice);
         formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
         
         $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xử lý...');
@@ -405,15 +456,70 @@ function showImportPreview(response) {
     } else {
         $.each(preview, function(index, item) {
             if (item.type === 'insert') {
-                html += '<div class="import-item insert"><strong>✓ Thêm mới:</strong> ' + item.full_name + '</div>';
+                html += '<div class="import-item insert">';
+                html += '<div><strong>✓ Thêm mới nhà đầu tư:</strong> ' + item.full_name + ' (SID: ' + (item.sid || 'N/A') + ')</div>';
+                
+                // Hiển thị dữ liệu SecuritiesManagement
+                if (item.data && Object.keys(item.data).length > 0) {
+                    html += '<div class="change-item"><strong>Thông tin nhà đầu tư:</strong>';
+                    $.each(item.data, function(field, value) {
+                        html += '<br>• <span style="color: #0066cc;">' + field + '</span>: ' + value;
+                    });
+                    html += '</div>';
+                }
+                
+                // Hiển thị dữ liệu DividendRecord
+                if (item.dividend_record) {
+                    html += '<div class="change-item" style="border-left-color: #28a745;"><strong>📊 Bản ghi Cổ tức sẽ tạo:</strong>';
+                    html += '<br>• Chứng khoán chưa lưu ký: <span class="change-new">' + (item.dividend_record.non_deposited_shares_quantity || 0) + '</span>';
+                    html += '<br>• Chứng khoán đã lưu ký: <span class="change-new">' + (item.dividend_record.deposited_shares_quantity || 0) + '</span>';
+                    html += '<br>• Tiền thanh toán trước thuế (chưa LK): <span class="change-new">' + formatNumber(item.dividend_record.non_deposited_amount_before_tax || 0) + '</span>';
+                    html += '<br>• Tiền thanh toán trước thuế (đã LK): <span class="change-new">' + formatNumber(item.dividend_record.deposited_amount_before_tax || 0) + '</span>';
+                    html += '<br>• Thuế thu nhập cá nhân (chưa LK): <span class="change-new">' + formatNumber(item.dividend_record.non_deposited_personal_income_tax || 0) + '</span>';
+                    html += '<br>• Thuế thu nhập cá nhân (đã LK): <span class="change-new">' + formatNumber(item.dividend_record.deposited_personal_income_tax || 0) + '</span>';
+                    html += '</div>';
+                }
+                
+                html += '</div>';
             } else if (item.type === 'update') {
-                html += '<div class="import-item update"><strong>⟳ Cập nhật:</strong> ' + item.full_name + '</div>';
+                html += '<div class="import-item update">';
+                html += '<div><strong>⟳ Cập nhật nhà đầu tư:</strong> ' + item.full_name + ' (ID: ' + item.id + ', SID: ' + (item.sid || 'N/A') + ')</div>';
+                
+                // Hiển thị thay đổi SecuritiesManagement
+                if (item.changes && Object.keys(item.changes).length > 0) {
+                    html += '<div class="change-item"><strong>Thông tin nhà đầu tư thay đổi:</strong>';
+                    $.each(item.changes, function(field, change) {
+                        html += '<br>• <span style="color: #0066cc;">' + field + '</span>:';
+                        html += '<span class="change-old"> từ: ' + (change.old || 'trống') + '</span>';
+                        html += '<span class="change-new"> → thành: ' + (change.new || 'trống') + '</span>';
+                    });
+                    html += '</div>';
+                }
+                
+                // Hiển thị dữ liệu DividendRecord
+                if (item.dividend_record) {
+                    html += '<div class="change-item" style="border-left-color: #28a745;"><strong>📊 Bản ghi Cổ tức sẽ tạo:</strong>';
+                    html += '<br>• Chứng khoán chưa lưu ký: <span class="change-new">' + (item.dividend_record.non_deposited_shares_quantity || 0) + '</span>';
+                    html += '<br>• Chứng khoán đã lưu ký: <span class="change-new">' + (item.dividend_record.deposited_shares_quantity || 0) + '</span>';
+                    html += '<br>• Tiền thanh toán trước thuế (chưa LK): <span class="change-new">' + formatNumber(item.dividend_record.non_deposited_amount_before_tax || 0) + '</span>';
+                    html += '<br>• Tiền thanh toán trước thuế (đã LK): <span class="change-new">' + formatNumber(item.dividend_record.deposited_amount_before_tax || 0) + '</span>';
+                    html += '<br>• Thuế thu nhập cá nhân (chưa LK): <span class="change-new">' + formatNumber(item.dividend_record.non_deposited_personal_income_tax || 0) + '</span>';
+                    html += '<br>• Thuế thu nhập cá nhân (đã LK): <span class="change-new">' + formatNumber(item.dividend_record.deposited_personal_income_tax || 0) + '</span>';
+                    html += '</div>';
+                }
+                
+                html += '</div>';
             }
         });
     }
     
     $('#preview-content').html(html);
     $('#importPreviewModal').modal('show');
+}
+
+// Hàm format số
+function formatNumber(num) {
+    return new Intl.NumberFormat('vi-VN').format(num);
 }
 
 // Hàm load thống kê

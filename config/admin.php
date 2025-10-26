@@ -63,6 +63,12 @@ return [
                         'route' => 'admin.securities.dividend.index',
                         'active' => 'admin/securities/dividend*',
                     ],
+                    [
+                        'text' => 'Danh sách trả cổ tức',
+                        'icon' => 'bi bi-receipt',
+                        'route' => 'admin.securities.dividend-record.index',
+                        'active' => 'admin/securities/dividend-record*',
+                    ],
                 ],
             ],
         ],

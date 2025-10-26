@@ -23,24 +23,24 @@ class SecuritiesManagement extends Model
      * @var array
      */
     protected $fillable = [
-    'full_name',
-    'sid',
-    'investor_code',
-    'registration_number',
-    'issue_date',
-    'address',
-    'email',
-    'phone',
-    'nationality',
-    'not_deposited_quantity',
-    'deposited_quantity',
-    'slqmpb_chualk', // Số lượng quyền mua chưa lưu ký (SLQMPB_CHUALK)
-    'slqmpb_dalk',   // Số lượng quyền mua đã lưu ký (SLQMPB_DALK)
-    'cntc',          // Phân loại Cá nhân/Tổ chức (CNTC)
-    'txnum',         // Mã giao dịch (TXNUM)
-    'bank_account',
-    'bank_name',
-    'notes',
+        'full_name',
+        'sid',
+        'investor_code',
+        'registration_number',
+        'issue_date',
+        'address',
+        'email',
+        'phone',
+        'nationality',
+        'not_deposited_quantity',  // Chưa lưu ký (số lượng)
+        'deposited_quantity',       // Đã lưu ký (số lượng)
+        'slqmpb_chualk',            // Số lượng quyền mua chưa lưu ký (SLQMPB_CHUALK)
+        'slqmpb_dalk',              // Số lượng quyền mua đã lưu ký (SLQMPB_DALK)
+        'cntc',                     // Phân loại Cá nhân/Tổ chức (CNTC)
+        'txnum',                    // Mã giao dịch (TXNUM)
+        'bank_account',
+        'bank_name',
+        'notes',
     ];
 
     /**
@@ -49,12 +49,12 @@ class SecuritiesManagement extends Model
      * @var array
      */
     protected $casts = [
-    'issue_date' => 'date',
-    'not_deposited_quantity' => 'integer',
-    'deposited_quantity' => 'integer',
-    'slqmpb_chualk' => 'integer',
-    'slqmpb_dalk' => 'integer',
-    'status' => 'integer',
+        'issue_date' => 'date',
+        'not_deposited_quantity' => 'integer',
+        'deposited_quantity' => 'integer',
+        'slqmpb_chualk' => 'integer',
+        'slqmpb_dalk' => 'integer',
+        'status' => 'integer',
     ];
 
 
@@ -71,7 +71,9 @@ class SecuritiesManagement extends Model
      */
     public function scopeNotDeposited($query)
     {
-        return $query->where('not_deposited_quantity', '>', 0);
+        return $query->whereHas('dividendRecords', function ($q) {
+            $q->where('non_deposited_shares_quantity', '>', 0);
+        });
     }
 
     /**
@@ -79,7 +81,9 @@ class SecuritiesManagement extends Model
      */
     public function scopeDeposited($query)
     {
-        return $query->where('deposited_quantity', '>', 0);
+        return $query->whereHas('dividendRecords', function ($q) {
+            $q->where('deposited_shares_quantity', '>', 0);
+        });
     }
 
     /**
@@ -95,9 +99,14 @@ class SecuritiesManagement extends Model
      */
     public function getDepositStatusTextAttribute()
     {
-        if ($this->not_deposited_quantity > 0) {
+        $latestDividend = $this->dividendRecords->first();
+        if (!$latestDividend) {
+            return 'Chưa có dữ liệu';
+        }
+        
+        if ($latestDividend->non_deposited_shares_quantity > 0) {
             return 'Chưa lưu ký';
-        } elseif ($this->deposited_quantity > 0) {
+        } elseif ($latestDividend->deposited_shares_quantity > 0) {
             return 'Đã lưu ký';
         } else {
             return 'Chưa có dữ liệu';

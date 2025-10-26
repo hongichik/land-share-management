@@ -7,8 +7,8 @@ use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Events\BeforeSheet;
 use App\Models\SecuritiesManagement;
+use App\Models\DividendRecord;
 use Illuminate\Support\Facades\Log;
 
 class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, WithTitle
@@ -206,19 +206,19 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
 
         $start_end = [
             'moi_gioi_ca_nhan_trong_nuoc' => [
-                'start' => isset($result['investor_type_individual_domestic'][0]) ? $result['investor_type_individual_domestic'][0] + 2 : null,
+                'start' => isset($result['investor_type_individual_domestic'][0]) ? $result['investor_type_individual_domestic'][0] + 1 : null,
                 'end' => isset($result['investor_type_organization_domestic'][0]) ? $result['investor_type_organization_domestic'][0] - 1 : null
             ],
             'to_chuc_trong_nuoc' => [
-                'start' => isset($result['investor_type_organization_domestic'][0]) ? $result['investor_type_organization_domestic'][0] + 2 : null,
-                'end' => isset($result['investor_type_individual_foreign'][0]) ? $result['investor_type_individual_foreign'][0] - 3 : null
+                'start' => isset($result['investor_type_organization_domestic'][0]) ? $result['investor_type_organization_domestic'][0] + 1 : null,
+                'end' => isset($result['investor_type_individual_foreign'][0]) ? $result['investor_type_individual_foreign'][0] - 2 : null
             ],
             'moi_gioi_ca_nhan_nuoc_ngoai' => [
-                'start' => isset($result['investor_type_individual_foreign'][0]) ? $result['investor_type_individual_foreign'][0] + 2 : null,
+                'start' => isset($result['investor_type_individual_foreign'][0]) ? $result['investor_type_individual_foreign'][0] + 1 : null,
                 'end' => isset($result['investor_type_organization_foreign'][0]) ? $result['investor_type_organization_foreign'][0] - 1 : null
             ],
             'to_chuc_nuoc_ngoai' => [
-                'start' => isset($result['investor_type_organization_foreign'][0]) ? $result['investor_type_organization_foreign'][0] + 2 : null,
+                'start' => isset($result['investor_type_organization_foreign'][0]) ? $result['investor_type_organization_foreign'][0] + 1 : null,
                 'end' => $lastRowWithData ?? count($allData) // Dòng cuối cùng có giá trị cột SID hoặc cuối sheet
             ],
             'column_positions' => $columnPositions
@@ -259,18 +259,6 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
             'email',
             'phone',
             'nationality',
-            'not_deposited_quantity',
-            'deposited_quantity',
-            'total_quantity',
-            'pre_tax_payment_not_deposited',
-            'pre_tax_payment_deposited',
-            'pre_tax_payment_total',
-            'pit_tax_not_deposited',
-            'pit_tax_deposited',
-            'pit_tax_total',
-            'post_tax_payment_not_deposited',
-            'post_tax_payment_deposited',
-            'post_tax_payment_total',
             'bank_account',
             'bank_name',
             'bank_branch',
@@ -318,6 +306,7 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
 
                 // Lấy dữ liệu từ các cột được chỉ định
                 $rowData = [];
+                $hasExcelFormula = false;
                 foreach ($dataFields as $field) {
                     if (isset($columnPositions[$field])) {
                         $colIdx = $columnPositions[$field] - 1; // Convert to 0-based (column_positions là 1-based)
@@ -325,11 +314,28 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                             $value = $row[$colIdx];
                             // Loại bỏ giá trị rỗng hoặc null
                             if ($value !== null && $value !== '') {
-                                $rowData[$field] = $value;
+                                // Check if value is an Excel formula
+                                if ($this->isExcelFormula($value)) {
+                                    $hasExcelFormula = true;
+                                    break; // Skip this row if it contains formulas
+                                }
+                                
+                                // Parse date fields
+                                if (in_array($field, ['issue_date'])) {
+                                    $parsedDate = $this->parseDate($value);
+                                    if ($parsedDate !== null) {
+                                        $rowData[$field] = $parsedDate;
+                                    }
+                                } else {
+                                    $rowData[$field] = $value;
+                                }
                             }
                         }
                     }
                 }
+                
+                // Skip rows with Excel formulas
+                if ($hasExcelFormula) continue;
                 
                 Log::info("Processing row $rowIdx in block $blockName - SID: $sid, Registration: $registrationNumber");                
                 // Kiểm tra xem có dữ liệu không
@@ -348,13 +354,28 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
 
                 if ($existing) {
                     // Chuẩn bị danh sách thay đổi
-                    // Loại bỏ các field không được phép thay đổi (unique constraints)
-                    $fieldsNotAllowedToUpdate = ['sid', 'investor_code'];
+                    // Loại bỏ các field không được phép thay đổi (unique constraints) và dividend fields
+                    $fieldsNotAllowedToUpdate = ['sid', 'investor_code', 'not_deposited_quantity', 'deposited_quantity', 'total_quantity',
+                                                  'pre_tax_payment_not_deposited', 'pre_tax_payment_deposited', 'pre_tax_payment_total',
+                                                  'pit_tax_not_deposited', 'pit_tax_deposited', 'pit_tax_total',
+                                                  'post_tax_payment_not_deposited', 'post_tax_payment_deposited', 'post_tax_payment_total'];
                     
                     $changesList = [];
+                    $dividendData = [];
 
                     foreach ($rowData as $field => $newValue) {
                         if (!$newValue) continue; // Bỏ qua giá trị trống
+                        
+                        // Tách dữ liệu dividend
+                        $dividendFields = ['not_deposited_quantity', 'deposited_quantity', 
+                                          'pre_tax_payment_not_deposited', 'pre_tax_payment_deposited', 'pre_tax_payment_total',
+                                          'pit_tax_not_deposited', 'pit_tax_deposited', 'pit_tax_total',
+                                          'post_tax_payment_not_deposited', 'post_tax_payment_deposited', 'post_tax_payment_total'];
+                        
+                        if (in_array($field, $dividendFields)) {
+                            $dividendData[$field] = $newValue;
+                            continue;
+                        }
                         
                         // Bỏ qua các field có unique constraint
                         if (in_array($field, $fieldsNotAllowedToUpdate)) {
@@ -375,29 +396,79 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                         }
                     }
 
-                    if (!empty($changesList)) {
-                        $changes[] = [
+                    if (!empty($changesList) || !empty($dividendData)) {
+                        $previewItem = [
                             'type' => 'update',
                             'sid' => $sid,
                             'full_name' => $existing->full_name,
                             'id' => $existing->id,
                             'block' => $blockName,
                             'row' => $rowIdx + 1, // Convert to 1-based
-                            'changes' => $changesList
                         ];
+                        
+                        // Thêm thay đổi securities
+                        if (!empty($changesList)) {
+                            $previewItem['changes'] = $changesList;
+                        }
+                        
+                        // Thêm thông tin DividendRecord sẽ tạo
+                        if (!empty($dividendData)) {
+                            $previewItem['dividend_record'] = [
+                                'non_deposited_shares_quantity' => $dividendData['not_deposited_quantity'] ?? 0,
+                                'deposited_shares_quantity' => $dividendData['deposited_quantity'] ?? 0,
+                                'non_deposited_amount_before_tax' => $dividendData['pre_tax_payment_not_deposited'] ?? 0,
+                                'deposited_amount_before_tax' => $dividendData['pre_tax_payment_deposited'] ?? 0,
+                                'non_deposited_personal_income_tax' => $dividendData['pit_tax_not_deposited'] ?? 0,
+                                'deposited_personal_income_tax' => $dividendData['pit_tax_deposited'] ?? 0,
+                            ];
+                        }
+                        
+                        $changes[] = $previewItem;
                         $updateCount++;
                     }
                 } else {
                     // Record mới
                     $full_name = $rowData['full_name'] ?? 'N/A';
-                    $changes[] = [
+                    
+                    // Tách dữ liệu dividend
+                    $dividendFields = ['not_deposited_quantity', 'deposited_quantity', 
+                                      'pre_tax_payment_not_deposited', 'pre_tax_payment_deposited', 'pre_tax_payment_total',
+                                      'pit_tax_not_deposited', 'pit_tax_deposited', 'pit_tax_total',
+                                      'post_tax_payment_not_deposited', 'post_tax_payment_deposited', 'post_tax_payment_total'];
+                    
+                    $dividendData = [];
+                    $securitiesData = [];
+                    
+                    foreach ($rowData as $field => $value) {
+                        if (in_array($field, $dividendFields)) {
+                            $dividendData[$field] = $value;
+                        } else {
+                            $securitiesData[$field] = $value;
+                        }
+                    }
+                    
+                    $previewItem = [
                         'type' => 'insert',
                         'sid' => $sid,
                         'full_name' => $full_name,
                         'block' => $blockName,
                         'row' => $rowIdx + 1, // Convert to 1-based
-                        'data' => $rowData
+                        'data' => $securitiesData
                     ];
+                    
+                    // Thêm thông tin DividendRecord sẽ tạo
+                    if (!empty($dividendData)) {
+                        $previewItem['dividend_record'] = [
+                            'non_deposited_shares_quantity' => $dividendData['not_deposited_quantity'] ?? 0,
+                            'deposited_shares_quantity' => $dividendData['deposited_quantity'] ?? 0,
+                            'non_deposited_amount_before_tax' => $dividendData['pre_tax_payment_not_deposited'] ?? 0,
+                            'deposited_amount_before_tax' => $dividendData['pre_tax_payment_deposited'] ?? 0,
+                            'non_deposited_personal_income_tax' => $dividendData['pit_tax_not_deposited'] ?? 0,
+                            'deposited_personal_income_tax' => $dividendData['pit_tax_deposited'] ?? 0,
+                        ];
+                    }
+                    
+                    $changes[] = $previewItem;
                     $insertCount++;
                 }
             }
@@ -409,6 +480,69 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
             'updateCount' => $updateCount,
             'totalRows' => $insertCount + $updateCount
         ];
+    }
+
+    /**
+     * Parse and convert dates to Y-m-d format
+     * @param $value
+     * @return string|null
+     */
+    private function parseDate($value)
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            // If it's a DateTime object
+            if ($value instanceof \DateTime) {
+                return $value->format('Y-m-d');
+            }
+            
+            // If it's a string, try various formats
+            if (is_string($value)) {
+                // Handle ISO format with time: 2015-12-29T00:00:00.000000Z
+                if (strpos($value, 'T') !== false) {
+                    $date = \DateTime::createFromFormat('Y-m-d\TH:i:s.u\Z', $value);
+                    if (!$date) {
+                        $date = \DateTime::createFromFormat('Y-m-d\TH:i:s\Z', $value);
+                    }
+                    if ($date) {
+                        return $date->format('Y-m-d');
+                    }
+                }
+                
+                // Handle d/m/Y format: 29/12/2015
+                if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $value)) {
+                    $date = \DateTime::createFromFormat('d/m/Y', $value);
+                    if ($date) {
+                        return $date->format('Y-m-d');
+                    }
+                }
+                
+                // Handle Y-m-d format
+                if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+                    return $value;
+                }
+            }
+        } catch (\Exception $e) {
+            Log::warning('Failed to parse date: ' . $value);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Check if value is an Excel formula
+     * @param $value
+     * @return bool
+     */
+    private function isExcelFormula($value)
+    {
+        if (is_string($value)) {
+            return strpos(trim($value), '=') === 0;
+        }
+        return false;
     }
 
     /**
@@ -475,7 +609,7 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
      * @param array $blockPositions Vị trí các block từ getInvestorBlockPositions
      * @return array Kết quả import (processedRows, errors)
      */
-    public function executeImport(array $allData, array $blockPositions): array
+    public function executeImport(array $allData, array $blockPositions, ?string $paymentDate = null, ?float $dividendPricePerShare = null): array
     {
         $processedRows = [
             'inserted' => 0,
@@ -554,17 +688,35 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
 
                     // Lấy dữ liệu từ các cột được chỉ định
                     $rowData = [];
+                    $hasExcelFormula = false;
                     foreach ($dataFields as $field) {
                         if (isset($columnPositions[$field])) {
                             $colIdx = $columnPositions[$field] - 1;
                             if (isset($row[$colIdx])) {
                                 $value = $row[$colIdx];
                                 if ($value !== null && $value !== '') {
-                                    $rowData[$field] = $value;
+                                    // Check if value is an Excel formula
+                                    if ($this->isExcelFormula($value)) {
+                                        $hasExcelFormula = true;
+                                        break; // Skip this row if it contains formulas
+                                    }
+                                    
+                                    // Parse date fields
+                                    if (in_array($field, ['issue_date'])) {
+                                        $parsedDate = $this->parseDate($value);
+                                        if ($parsedDate !== null) {
+                                            $rowData[$field] = $parsedDate;
+                                        }
+                                    } else {
+                                        $rowData[$field] = $value;
+                                    }
                                 }
                             }
                         }
                     }
+                    
+                    // Skip rows with Excel formulas
+                    if ($hasExcelFormula) continue;
                     
                     // Kiểm tra xem có dữ liệu không
                     if (empty(array_filter($rowData))) continue;
@@ -582,14 +734,28 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
 
                     if ($existing) {
                         // Update record - chỉ update những field thay đổi
-                        // Loại bỏ các field không được phép thay đổi (unique constraints)
-                        $fieldsNotAllowedToUpdate = ['sid', 'investor_code'];
+                        // Loại bỏ các field không được phép thay đổi (unique constraints) và dividend fields
+                        $fieldsNotAllowedToUpdate = ['not_deposited_quantity', 'deposited_quantity', 'total_quantity',
+                                                      'pre_tax_payment_not_deposited', 'pre_tax_payment_deposited', 'pre_tax_payment_total',
+                                                      'pit_tax_not_deposited', 'pit_tax_deposited', 'pit_tax_total',
+                                                      'post_tax_payment_not_deposited', 'post_tax_payment_deposited', 'post_tax_payment_total'];
                         
                         $dataToUpdate = [];
+                        $dividendData = [
+                            'securities_management_id' => $existing->id,
+                            'non_deposited_shares_quantity' => 0,
+                            'deposited_shares_quantity' => 0,
+                            'non_deposited_amount_before_tax' => 0,
+                            'deposited_amount_before_tax' => 0,
+                            'non_deposited_personal_income_tax' => 0,
+                            'deposited_personal_income_tax' => 0,
+                            'payment_status' => 'unpaid'
+                        ];
+                        
                         foreach ($rowData as $field => $newValue) {
                             if (!$newValue) continue; // Bỏ qua giá trị trống
                             
-                            // Bỏ qua các field có unique constraint
+                            // Bỏ qua các field có unique constraint hoặc dividend fields
                             if (in_array($field, $fieldsNotAllowedToUpdate)) {
                                 continue;
                             }
@@ -604,17 +770,178 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                             }
                         }
                         
+                        // Xử lý dữ liệu dividend từ rowData
+                        if (isset($rowData['not_deposited_quantity'])) {
+                            $dividendData['non_deposited_shares_quantity'] = $rowData['not_deposited_quantity'];
+                        }
+                        if (isset($rowData['deposited_quantity'])) {
+                            $dividendData['deposited_shares_quantity'] = $rowData['deposited_quantity'];
+                        }
+                        if (isset($rowData['pre_tax_payment_not_deposited'])) {
+                            $dividendData['non_deposited_amount_before_tax'] = $rowData['pre_tax_payment_not_deposited'];
+                        }
+                        if (isset($rowData['pre_tax_payment_deposited'])) {
+                            $dividendData['deposited_amount_before_tax'] = $rowData['pre_tax_payment_deposited'];
+                        }
+                        if (isset($rowData['pit_tax_not_deposited'])) {
+                            $dividendData['non_deposited_personal_income_tax'] = $rowData['pit_tax_not_deposited'];
+                        }
+                        if (isset($rowData['pit_tax_deposited'])) {
+                            $dividendData['deposited_personal_income_tax'] = $rowData['pit_tax_deposited'];
+                        }
+                        
+                        // Add payment_date and dividend_price_per_share from parameters
+                        if ($paymentDate) {
+                            $dividendData['payment_date'] = $paymentDate;
+                        }
+                        if ($dividendPricePerShare !== null) {
+                            $dividendData['dividend_price_per_share'] = $dividendPricePerShare;
+                            
+                            // Tính phần trăm cổ tức (dividend_percentage)
+                            // Công thức: giá cổ tức / (tiền / số cổ phiếu)
+                            $nonDepositedAmount = (float)($dividendData['non_deposited_amount_before_tax'] ?? 0);
+                            $nonDepositedShares = (float)($dividendData['non_deposited_shares_quantity'] ?? 0);
+                            $depositedAmount = (float)($dividendData['deposited_amount_before_tax'] ?? 0);
+                            $depositedShares = (float)($dividendData['deposited_shares_quantity'] ?? 0);
+                            $pricePerShare = (float)$dividendPricePerShare;
+                            
+                            Log::info("===== TÍNH DIVIDEND PERCENTAGE =====");
+                            Log::info("Dữ liệu đầu vào:");
+                            Log::info("  - Giá cổ tức (pricePerShare): " . $pricePerShare);
+                            Log::info("  - Tiền chưa lưu ký (nonDepositedAmount): " . $nonDepositedAmount);
+                            Log::info("  - Số cổ phiếu chưa lưu ký (nonDepositedShares): " . $nonDepositedShares);
+                            Log::info("  - Tiền đã lưu ký (depositedAmount): " . $depositedAmount);
+                            Log::info("  - Số cổ phiếu đã lưu ký (depositedShares): " . $depositedShares);
+                            
+                            // Tính phần trăm cho cổ phiếu chưa lưu ký
+                            if ($nonDepositedShares > 0 && $nonDepositedAmount > 0) {
+                                $pricePerShareCalc = $nonDepositedAmount / $nonDepositedShares;
+                                $percentage = ($pricePerShareCalc / $pricePerShare) * 100;
+                                
+                                Log::info("Trường hợp: CHƯA LƯU KÝ");
+                                Log::info("  - Tiền/Cổ phiếu = " . $nonDepositedAmount . " / " . $nonDepositedShares . " = " . $pricePerShareCalc);
+                                Log::info("  - Công thức: " . $pricePerShareCalc . " / " . $pricePerShare . " = " . $percentage);
+
+                                $dividendData['dividend_percentage'] = round($percentage, 4);
+                                Log::info("  - Kết quả (làm tròn 4 chữ số): " . $dividendData['dividend_percentage']);
+                            } elseif ($depositedShares > 0 && $depositedAmount > 0) {
+                                // Nếu không có cổ phiếu chưa lưu ký, dùng cổ phiếu đã lưu ký
+                                $pricePerShareCalc = $depositedAmount / $depositedShares;
+                                $percentage = ($pricePerShareCalc / $pricePerShare) * 100;
+                                
+                                Log::info("Trường hợp: ĐÃ LƯU KÝ");
+                                Log::info("  - Tiền/Cổ phiếu = " . $depositedAmount . " / " . $depositedShares . " = " . $pricePerShareCalc);
+                                Log::info("  - Công thức: " . $pricePerShareCalc . " / " . $pricePerShare . " = " . $percentage);
+                                
+                                $dividendData['dividend_percentage'] = round($percentage, 4);
+                                Log::info("  - Kết quả (làm tròn 4 chữ số): " . $dividendData['dividend_percentage']);
+                            } else {
+                                Log::info("Không thể tính toán: Thiếu dữ liệu");
+                            }
+                            Log::info("=====================================");
+                        }
+                        
                         if (!empty($dataToUpdate)) {
                             $existing->update($dataToUpdate);
                             Log::info("Updated investor: SID=$sid, Registration=$registrationNumber, Fields: " . implode(', ', array_keys($dataToUpdate)));
                         }
                         
+                        // Tạo bản ghi DividendRecord mới
+                        DividendRecord::create($dividendData);
+                        Log::info("Created dividend record for investor: SID=$sid, Registration=$registrationNumber");
+                        
                         $processedRows['updated']++;
                     } else {
-                        // Insert record mới
-                        SecuritiesManagement::create($rowData);
+                        // Insert record mới trong SecuritiesManagement
+                        // Loại bỏ các field dividend khỏi dữ liệu insert
+                        $dividendFields = ['not_deposited_quantity', 'deposited_quantity', 'total_quantity',
+                                         'pre_tax_payment_not_deposited', 'pre_tax_payment_deposited', 'pre_tax_payment_total',
+                                         'pit_tax_not_deposited', 'pit_tax_deposited', 'pit_tax_total',
+                                         'post_tax_payment_not_deposited', 'post_tax_payment_deposited', 'post_tax_payment_total'];
+                        
+                        $securitiesData = array_diff_key($rowData, array_flip($dividendFields));
+                        
+                        $newSecurities = SecuritiesManagement::create($securitiesData);
+                        Log::info("Created new SecuritiesManagement: SID=$sid, Registration=$registrationNumber");
+                        
+                        // Tạo bản ghi DividendRecord cho investor mới
+                        $dividendData = [
+                            'securities_management_id' => $newSecurities->id,
+                            'non_deposited_shares_quantity' => isset($rowData['not_deposited_quantity']) ? $rowData['not_deposited_quantity'] : 0,
+                            'deposited_shares_quantity' => isset($rowData['deposited_quantity']) ? $rowData['deposited_quantity'] : 0,
+                            'non_deposited_amount_before_tax' => isset($rowData['pre_tax_payment_not_deposited']) ? $rowData['pre_tax_payment_not_deposited'] : 0,
+                            'deposited_amount_before_tax' => isset($rowData['pre_tax_payment_deposited']) ? $rowData['pre_tax_payment_deposited'] : 0,
+                            'non_deposited_personal_income_tax' => isset($rowData['pit_tax_not_deposited']) ? $rowData['pit_tax_not_deposited'] : 0,
+                            'deposited_personal_income_tax' => isset($rowData['pit_tax_deposited']) ? $rowData['pit_tax_deposited'] : 0,
+                            'payment_status' => 'unpaid'
+                        ];
+                        
+                        Log::info("===== CHUẨN BỊ DỮ LIỆU DIVIDEND (INSERT MỚI) =====");
+                        Log::info("SID: " . $sid . ", Dòng: " . ($rowIdx + 1));
+                        Log::info("Dữ liệu dividend từ Excel:");
+                        Log::info("  - Số cổ phiếu chưa lưu ký: " . $dividendData['non_deposited_shares_quantity']);
+                        Log::info("  - Số cổ phiếu đã lưu ký: " . $dividendData['deposited_shares_quantity']);
+                        Log::info("  - Tiền chưa lưu ký: " . $dividendData['non_deposited_amount_before_tax']);
+                        Log::info("  - Tiền đã lưu ký: " . $dividendData['deposited_amount_before_tax']);
+                        
+                        // Add payment_date and dividend_price_per_share from parameters
+                        if ($paymentDate) {
+                            $dividendData['payment_date'] = $paymentDate;
+                            Log::info("  - Ngày thanh toán: " . $paymentDate);
+                        }
+                        if ($dividendPricePerShare !== null) {
+                            $dividendData['dividend_price_per_share'] = $dividendPricePerShare;
+                            Log::info("  - Giá cổ tức: " . $dividendPricePerShare);
+                            
+                            // Tính phần trăm cổ tức (dividend_percentage)
+                            // Công thức: (tiền / số cổ phiếu) / giá cổ tức * 100
+                            $nonDepositedAmount = (float)($dividendData['non_deposited_amount_before_tax'] ?? 0);
+                            $nonDepositedShares = (float)($dividendData['non_deposited_shares_quantity'] ?? 0);
+                            $depositedAmount = (float)($dividendData['deposited_amount_before_tax'] ?? 0);
+                            $depositedShares = (float)($dividendData['deposited_shares_quantity'] ?? 0);
+                            $pricePerShare = (float)$dividendPricePerShare;
+                            
+                            Log::info("Dữ liệu tính toán:");
+                            Log::info("  - Giá cổ tức (pricePerShare): " . $pricePerShare);
+                            Log::info("  - Tiền chưa lưu ký (nonDepositedAmount): " . $nonDepositedAmount);
+                            Log::info("  - Số cổ phiếu chưa lưu ký (nonDepositedShares): " . $nonDepositedShares);
+                            Log::info("  - Tiền đã lưu ký (depositedAmount): " . $depositedAmount);
+                            Log::info("  - Số cổ phiếu đã lưu ký (depositedShares): " . $depositedShares);
+                            
+                            // Tính phần trăm cho cổ phiếu chưa lưu ký
+                            if ($nonDepositedShares > 0 && $nonDepositedAmount > 0) {
+                                $pricePerShareCalc = $nonDepositedAmount / $nonDepositedShares;
+                                $percentage = ($pricePerShareCalc / $pricePerShare) * 100;
+                                
+                                Log::info("Trường hợp: CHƯA LƯU KÝ");
+                                Log::info("  - Tiền/Cổ phiếu = " . $nonDepositedAmount . " / " . $nonDepositedShares . " = " . $pricePerShareCalc);
+                                Log::info("  - Công thức: (" . $pricePerShareCalc . " / " . $pricePerShare . ") * 100 = " . $percentage);
+                                
+                                $dividendData['dividend_percentage'] = round($percentage, 4);
+                                Log::info("  - Kết quả (làm tròn 4 chữ số): " . $dividendData['dividend_percentage']);
+                            } elseif ($depositedShares > 0 && $depositedAmount > 0) {
+                                // Nếu không có cổ phiếu chưa lưu ký, dùng cổ phiếu đã lưu ký
+                                $pricePerShareCalc = $depositedAmount / $depositedShares;
+                                $percentage = ($pricePerShareCalc / $pricePerShare) * 100;
+                                
+                                Log::info("Trường hợp: ĐÃ LƯU KÝ");
+                                Log::info("  - Tiền/Cổ phiếu = " . $depositedAmount . " / " . $depositedShares . " = " . $pricePerShareCalc);
+                                Log::info("  - Công thức: (" . $pricePerShareCalc . " / " . $pricePerShare . ") * 100 = " . $percentage);
+                                
+                                $dividendData['dividend_percentage'] = round($percentage, 4);
+                                Log::info("  - Kết quả (làm tròn 4 chữ số): " . $dividendData['dividend_percentage']);
+                            } else {
+                                Log::info("Không thể tính toán: Thiếu dữ liệu");
+                            }
+                        } else {
+                            Log::info("  - Giá cổ tức: KHÔNG CÓ (null)");
+                        }
+                        Log::info("=================================================");
+                        
+                        DividendRecord::create($dividendData);
+                        Log::info("Created dividend record for new investor: SID=$sid, Registration=$registrationNumber");
+                        
                         $processedRows['inserted']++;
-                        Log::info("Inserted investor: SID=$sid, Registration=$registrationNumber");
                     }
                 } catch (\Exception $e) {
                     $processedRows['failed']++;

@@ -88,15 +88,33 @@ class CoDongImport implements ToModel, WithHeadingRow
 
             if ($existingRecord) {
                 // Update existing record
+                $changes = [];
+                foreach ($data as $key => $value) {
+                    $oldValue = $existingRecord->$key;
+                    if ($oldValue !== $value) {
+                        $changes[$key] = [
+                            'old' => $oldValue,
+                            'new' => $value
+                        ];
+                    }
+                }
+                
                 $existingRecord->update($data);
-                Log::info("Updated securities management", [
-                    'id' => $existingRecord->id,
-                    'full_name' => $data['full_name']
-                ]);
+                // Log::info("Updated securities management", [
+                //     'id' => $existingRecord->id,
+                //     'full_name' => $data['full_name'],
+                //     'changes' => $changes
+                // ]);
                 return $existingRecord;
             } else {
                 // Create new record
-                print_r($data);
+                // Log::info("Creating new securities management", [
+                //     'full_name' => $data['full_name'],
+                //     'registration_number' => $data['registration_number'] ?? null,
+                //     'not_deposited_quantity' => $data['not_deposited_quantity'] ?? null,
+                //     'deposited_quantity' => $data['deposited_quantity'] ?? null,
+                //     'all_data' => $data
+                // ]);
                 return new SecuritiesManagement($data);
             }
 
@@ -123,8 +141,11 @@ class CoDongImport implements ToModel, WithHeadingRow
         foreach ($this->columnMappings as $field => $mapping) {
             $value = $row[$mapping['header']] ?? null;
             
-            // Skip if value is empty and not required
-            if (empty($value) && !$mapping['required']) {
+            // Check if value is truly empty (null or empty string, but allow 0, "0", false)
+            $isEmpty = $value === null || $value === '';
+            
+            // Skip if value is truly empty and not required
+            if ($isEmpty && !$mapping['required']) {
                 // Set default value if specified
                 if ($mapping['default'] !== null) {
                     $data[$field] = $mapping['default'];
@@ -132,13 +153,18 @@ class CoDongImport implements ToModel, WithHeadingRow
                 continue;
             }
 
-            // Type conversion
-            $value = $this->convertType($value, $mapping['type']);
-            
-            if ($value !== null) {
-                $data[$field] = $value;
+            // Type conversion - always attempt conversion if we have a value
+            if (!$isEmpty) {
+                $value = $this->convertType($value, $mapping['type']);
+                
+                if ($value !== null) {
+                    $data[$field] = $value;
+                } elseif ($mapping['default'] !== null) {
+                    // Use default if conversion failed
+                    $data[$field] = $mapping['default'];
+                }
             } elseif ($mapping['default'] !== null) {
-                // Use default if conversion failed
+                // Use default for required fields that are empty
                 $data[$field] = $mapping['default'];
             }
         }
@@ -356,6 +382,12 @@ class CoDongImport implements ToModel, WithHeadingRow
                 }
 
                 if (!empty($changesList)) {
+                    Log::info("Preview UPDATE row", [
+                        'full_name' => $fullName,
+                        'registration_number' => $regNum,
+                        'id' => $existing->id,
+                        'changes' => $changesList
+                    ]);
                     $changes[] = [
                         'type' => 'update',
                         'full_name' => $fullName,
@@ -370,9 +402,25 @@ class CoDongImport implements ToModel, WithHeadingRow
                 $newData = [];
                 foreach ($this->columnMappings as $dbField => $mapping) {
                     if (isset($rowData[$mapping['header']])) {
-                        $newData[$dbField] = trim($rowData[$mapping['header']]);
+                        $value = trim($rowData[$mapping['header']]);
+                        // Convert type for numeric fields
+                        if ($mapping['type'] === 'integer' && !empty($value)) {
+                            $value = intval($value);
+                        }
+                        $newData[$dbField] = $value;
+                    } elseif ($mapping['type'] === 'integer' && isset($mapping['default'])) {
+                        // Include default values for integer fields
+                        $newData[$dbField] = $mapping['default'];
                     }
                 }
+                
+                Log::info("Preview INSERT row", [
+                    'full_name' => $fullName,
+                    'registration_number' => $regNum,
+                    'not_deposited_quantity' => $newData['not_deposited_quantity'] ?? null,
+                    'deposited_quantity' => $newData['deposited_quantity'] ?? null,
+                    'all_data' => $newData
+                ]);
                 
                 $changes[] = [
                     'type' => 'insert',

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DividendController;
+use App\Http\Controllers\Admin\DividendRecordController;
 use App\Http\Controllers\Admin\SecuritiesManagementController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -72,6 +73,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/', [DividendController::class, 'index'])->name('index');
                 Route::put('/{securitiesManagement}/update-bank', [DividendController::class, 'updateBank'])->name('update-bank');
                 Route::delete('/{dividend}', [DividendController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::prefix('dividend-record')->name('dividend-record.')->group(function () {
+                Route::get('/', [DividendRecordController::class, 'index'])->name('index');
+                Route::get('/detail/{paymentDate}', [DividendRecordController::class, 'detail'])->name('detail');
+                Route::delete('/{paymentDate}', [DividendRecordController::class, 'destroy'])->name('destroy');
+                Route::get('/export', [DividendRecordController::class, 'export'])->name('export');
             });
         });
 

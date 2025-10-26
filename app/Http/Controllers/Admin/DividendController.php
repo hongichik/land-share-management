@@ -384,7 +384,12 @@ class DividendController extends Controller
 
             $importer = new InvestorsImport();
             $blockPositions = $importer->getInvestorBlockPositions($rows);
-            $result = $importer->executeImport($rows, $blockPositions);
+            
+            // Get dividend parameters from request
+            $paymentDate = $request->input('payment_date');
+            $dividendPricePerShare = $request->input('dividend_price_per_share');
+            
+            $result = $importer->executeImport($rows, $blockPositions, $paymentDate, $dividendPricePerShare);
 
             return response()->json([
                 'success' => true,
