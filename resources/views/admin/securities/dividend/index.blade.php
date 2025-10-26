@@ -91,6 +91,7 @@
                                 <th>Thông tin cá nhân</th>
                                 <th>Thông tin đầu tư</th>
                                 <th>Số lượng lưu ký</th>
+                                <th>Cổ tức chưa nhận</th>
                                 <th>Phân loại</th>
                                 <th>Ngân hàng</th>
                                 <th>Ghi chú</th>
@@ -319,6 +320,7 @@ $(document).ready(function() {
             {data: 'group1_personal', name: 'group1_personal', orderable: false, searchable: false},
             {data: 'group2_investor', name: 'group2_investor', orderable: false, searchable: false},
             {data: 'group3_deposited', name: 'group3_deposited', orderable: false, searchable: false},
+            {data: 'group4_unpaid_dividend', name: 'group4_unpaid_dividend', orderable: false, searchable: false},
             {data: 'group5_classification', name: 'group5_classification', orderable: false, searchable: false},
             {data: 'group6_bank', name: 'group6_bank', orderable: false, searchable: false},
             {data: 'group7_notes', name: 'group7_notes', orderable: false, searchable: false},
@@ -573,6 +575,10 @@ $('#confirmDelete').click(function() {
 
 // Bank edit functions
 let currentBankEditId = null;
+
+function viewDividendDetails(investorId, investorName) {
+    window.location.href = `/admin/securities/dividend/${investorId}/dividend-details`;
+}
 
 function editBankInfo(id, fullName, bankName, bankAccount) {
     currentBankEditId = id;

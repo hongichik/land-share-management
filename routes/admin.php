@@ -71,6 +71,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 // Individual resource routes
                 Route::get('summary-stats', [DividendController::class, 'getSummaryStats'])->name('summary-stats');
                 Route::get('/', [DividendController::class, 'index'])->name('index');
+                Route::get('/{securitiesManagement}/dividend-details', [DividendController::class, 'dividendDetails'])
+                    ->name('dividend-details');
                 Route::put('/{securitiesManagement}/update-bank', [DividendController::class, 'updateBank'])->name('update-bank');
                 Route::delete('/{dividend}', [DividendController::class, 'destroy'])->name('destroy');
             });

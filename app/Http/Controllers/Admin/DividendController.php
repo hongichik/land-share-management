@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Imports\InvestorsImport;
+use App\Models\DividendRecord;
 use App\Models\SecuritiesManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -191,6 +192,19 @@ class DividendController extends Controller
                         '<strong style="color: #28a745;">Tổng:</strong> ' . number_format($total) . 
                         '</div>';
                 })
+                // Cột 4: Cổ tức chưa nhận
+                ->addColumn('group4_unpaid_dividend', function ($row) {
+                    // Tính tổng tiền cổ tức chưa nhận
+                    $unpaidDividend = DividendRecord::where('securities_management_id', $row->id)
+                        ->where('payment_status', 'unpaid')
+                        ->selectRaw('SUM(COALESCE(non_deposited_amount_before_tax, 0) + COALESCE(deposited_amount_before_tax, 0)) as total_unpaid')
+                        ->value('total_unpaid') ?? 0;
+                    
+                    return '<div class="group-header group-dividend" style="margin-bottom: 5px;">💰 Cổ tức chưa nhận</div>' .
+                        '<div class="group-content">' .
+                        '<strong style="color: #dc3545; font-size: 14px;">' . number_format((float)$unpaidDividend, 0, ',', '.') . ' đ</strong>' .
+                        '</div>';
+                })
                 // Cột 5: Phân loại
                 ->addColumn('group5_classification', function ($row) {
                     return '<div class="group-header group-classification" style="margin-bottom: 5px;">🏷️ Phân loại</div>' .
@@ -218,6 +232,8 @@ class DividendController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group" role="group">';
+                    $btn .= '<button type="button" class="btn btn-primary btn-sm" onclick="viewDividendDetails(' . $row->id . ', \'' . addslashes($row->full_name) . '\')" title="Chi tiết cổ tức">';
+                    $btn .= '<i class="fas fa-file-invoice-dollar"></i></button>';
                     $btn .= '<button type="button" class="btn btn-info btn-sm" onclick="editBankInfo(' . $row->id . ', \'' . addslashes($row->full_name) . '\', \'' . addslashes($row->bank_name ?? '') . '\', \'' . addslashes($row->bank_account ?? '') . '\')" title="Sửa ngân hàng">';
                     $btn .= '<i class="fas fa-edit"></i></button>';
                     $btn .= '<button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(' . $row->id . ')" title="Xóa">';
@@ -225,13 +241,28 @@ class DividendController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['group1_personal', 'group2_investor', 'group3_deposited', 'group4_options', 'group5_classification', 'group6_bank', 'group7_notes', 'action'])
+                ->rawColumns(['group1_personal', 'group2_investor', 'group3_deposited', 'group4_unpaid_dividend', 'group5_classification', 'group6_bank', 'group7_notes', 'action'])
                 ->make(true);
         }
 
         return view('admin.securities.dividend.index');
     }
 
+
+    /**
+     * Get dividend details for a specific investor
+     */
+    public function dividendDetails(SecuritiesManagement $securitiesManagement)
+    {
+        $dividendRecords = DividendRecord::where('securities_management_id', $securitiesManagement->id)
+            ->orderBy('payment_date', 'desc')
+            ->get();
+
+        return view('admin.securities.dividend.details', [
+            'investor' => $securitiesManagement,
+            'dividendRecords' => $dividendRecords
+        ]);
+    }
 
     /**
      * Remove the specified resource from storage.
