@@ -52,22 +52,16 @@ return [
                 'active' => 'admin/securities/*',
                 'submenu' => [
                     [
-                        'text' => 'Thông tin quản lý chứng khoán',
+                        'text' => 'Cổ đông',
                         'icon' => 'bi bi-file-earmark-text',
                         'route' => 'admin.securities.management.index',
                         'active' => 'admin/securities/management*',
                     ],
                     [
-                        'text' => 'Lịch sử thanh toán cổ tức',
-                        'icon' => 'bi bi-cash-coin',
-                        'route' => 'admin.securities.history.index',
-                        'active' => 'admin/securities/history*',
-                    ],
-                    [
-                        'text' => 'Tạo thanh toán cổ tức',
-                        'icon' => 'bi bi-plus-circle',
-                        'route' => 'admin.securities.history.create',
-                        'active' => 'admin/securities/history/create',
+                        'text' => 'Quản lý cổ tức',
+                        'icon' => 'bi bi-bar-chart',
+                        'route' => 'admin.securities.dividend.index',
+                        'active' => 'admin/securities/dividend*',
                     ],
                 ],
             ],

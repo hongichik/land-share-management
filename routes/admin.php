@@ -3,9 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DividendController;
 use App\Http\Controllers\Admin\SecuritiesManagementController;
-use App\Http\Controllers\Admin\DividendHistoryController;
-use App\Http\Controllers\Admin\DividendPaymentController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
@@ -35,13 +34,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::prefix('securities')->name('securities.')->group(function () {
             // Securities Management routes
             Route::prefix('management')->name('management.')->group(function () {
-                // Add route to view dividend histories for a specific investor
-                Route::get('{securitiesManagement}/dividend-histories', [DividendHistoryController::class, 'getInvestorDividendHistories'])
-                    ->name('dividend-histories');
-                    
                 // Get list of investors for Select2 dropdown
                 Route::get('get-investors-list', [SecuritiesManagementController::class, 'getInvestorsList'])
                     ->name('get-investors-list');
+
+                // Import routes
+                Route::post('import-preview', [SecuritiesManagementController::class, 'importPreview'])
+                    ->name('import-preview');
+                Route::post('import-confirm', [SecuritiesManagementController::class, 'importConfirm'])
+                    ->name('import-confirm');
 
                 // Individual resource routes
                 Route::get('summary-stats', [SecuritiesManagementController::class, 'getSummaryStats'])->name('summary-stats');
@@ -54,15 +55,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::delete('/{securitiesManagement}', [SecuritiesManagementController::class, 'destroy'])->name('destroy');
             });
 
+            Route::prefix('dividend')->name('dividend.')->group(function () {
+                Route::get('get-investors-list', [DividendController::class, 'getInvestorsList'])
+                    ->name('get-investors-list');
 
-            // Dividend History routes
-            Route::prefix('history')->name('history.')->group(function () {
-                Route::get('investor-details', [DividendHistoryController::class, 'getInvestorDetails'])->name('investor-details');
-                Route::get('check-existing-payments', [DividendHistoryController::class, 'checkExistingPayments'])->name('check-existing-payments');
-                Route::get('all-investors', [DividendHistoryController::class, 'getAllInvestors'])->name('all-investors');
+                // Import routes
+                Route::post('import-preview', [DividendController::class, 'importPreview'])
+                    ->name('import-preview');
+                Route::post('import-confirm', [DividendController::class, 'importConfirm'])
+                    ->name('import-confirm');
+
+                // Individual resource routes
+                Route::get('summary-stats', [DividendController::class, 'getSummaryStats'])->name('summary-stats');
+                Route::get('/', [DividendController::class, 'index'])->name('index');
+                Route::get('/create', [DividendController::class, 'create'])->name('create');
+                Route::post('/', [DividendController::class, 'store'])->name('store');
+                Route::get('/{dividend}', [DividendController::class, 'show'])->name('show');
+                Route::get('/{dividend}/edit', [DividendController::class, 'edit'])->name('edit');
+                Route::put('/{dividend}', [DividendController::class, 'update'])->name('update');
+                Route::delete('/{dividend}', [DividendController::class, 'destroy'])->name('destroy');
             });
-            Route::resource('history', DividendHistoryController::class);
         });
+
 
         // Land Rental Contracts routes
         Route::get('land-rental-contracts/export', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'export'])->name('land-rental-contracts.export');

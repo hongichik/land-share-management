@@ -1,0 +1,143 @@
+{
+  "column_mappings": [
+    {
+      "header_text": "STT",
+      "internal_field": null,
+      "type": "skip",
+      "description": "Số thứ tự (bỏ qua)"
+    },
+    {
+      "header_text": "HO_TEN",
+      "internal_field": "full_name",
+      "type": "string",
+      "required": true,
+      "description": "Họ và tên"
+    },
+    {
+      "header_text": "SO_DKSH",
+      "internal_field": "registration_number",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Số ĐKSH / CMND / Hộ chiếu"
+    },
+    {
+      "header_text": "NGAY_CAP",
+      "internal_field": "issue_date",
+      "type": "date",
+      "format": "d/m/Y|Y-m-d",
+      "required": false,
+      "default": null,
+      "description": "Ngày cấp"
+    },
+    {
+      "header_text": "DIA_CHI_LIEN_HE",
+      "internal_field": "address",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Địa chỉ liên hệ"
+    },
+    {
+      "header_text": "EMAIL",
+      "internal_field": "email",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Email"
+    },
+    {
+      "header_text": "DIEN_THOAI",
+      "internal_field": "phone",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Điện thoại"
+    },
+    {
+      "header_text": "QUOC_TICH",
+      "internal_field": "nationality",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Quốc tịch"
+    },
+    {
+      "header_text": "SLCKNG_CHUALK",
+      "internal_field": "not_deposited_quantity",
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "Số lượng chứng khoán chưa lưu ký"
+    },
+    {
+      "header_text": "SLCKNG_DALK",
+      "internal_field": "deposited_quantity",
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "Số lượng chứng khoán đã lưu ký"
+    },
+    {
+      "header_text": "SLCKNG_CONG",
+      "internal_field": null,
+      "type": "skip",
+      "description": "Số lượng chứng khoán cộng (tính toán)"
+    },
+    {
+      "header_text": "SLQMPB_CHUALK",
+      "internal_field": "slqmpb_chualk",
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "Số lượng quyền mua chưa lưu ký"
+    },
+    {
+      "header_text": "SLQMPB_DALK",
+      "internal_field": "slqmpb_dalk",
+      "type": "integer",
+      "required": false,
+      "default": 0,
+      "description": "Số lượng quyền mua đã lưu ký"
+    },
+    {
+      "header_text": "SLQMPB_CONG",
+      "internal_field": null,
+      "type": "skip",
+      "description": "Số lượng quyền mua cộng (tính toán)"
+    },
+    {
+      "header_text": "GHI_CHU",
+      "internal_field": "notes",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Ghi chú"
+    },
+    {
+      "header_text": "CNTC",
+      "internal_field": "cntc",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Phân loại Cá nhân/Tổ chức"
+    },
+    {
+      "header_text": "TXNUM",
+      "internal_field": "txnum",
+      "type": "string",
+      "required": false,
+      "default": "",
+      "description": "Mã giao dịch"
+    }
+  ],
+  "validation_rules": {
+    "full_name": "required|string|max:255",
+    "email": "nullable|string",
+    "phone": "nullable|string|max:20",
+    "not_deposited_quantity": "nullable|integer|min:0",
+    "deposited_quantity": "nullable|integer|min:0",
+    "slqmpb_chualk": "nullable|integer|min:0",
+    "slqmpb_dalk": "nullable|integer|min:0"
+  }
+}

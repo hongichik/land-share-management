@@ -36,12 +36,10 @@ class SecuritiesManagement extends Model
     'deposited_quantity',
     'slqmpb_chualk', // Số lượng quyền mua chưa lưu ký (SLQMPB_CHUALK)
     'slqmpb_dalk',   // Số lượng quyền mua đã lưu ký (SLQMPB_DALK)
-    'type',          // Loại cổ đông (TYPE)
     'cntc',          // Phân loại Cá nhân/Tổ chức (CNTC)
     'txnum',         // Mã giao dịch (TXNUM)
     'bank_account',
     'bank_name',
-    'bank_branch',
     'notes',
     ];
 

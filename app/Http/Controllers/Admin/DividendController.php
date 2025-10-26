@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\InvestorsImport;
 use App\Models\SecuritiesManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
-class SecuritiesManagementController extends Controller
+class DividendController extends Controller
 {
     /**
      * Get summary statistics for dashboard
@@ -143,22 +144,20 @@ class SecuritiesManagementController extends Controller
                         '<strong style="color: #28a745;">Tổng:</strong> ' . number_format($total) . 
                         '</div>';
                 })
-                // Cột 4: Quyền mua chứng chỉ
-                ->addColumn('group4_options', function ($row) {
-                    $total = ($row->slqmpb_chualk ?? 0) + ($row->slqmpb_dalk ?? 0);
-                    return '<div class="group-header group-options" style="margin-bottom: 5px; color: #000;">💳 Quyền mua CC</div>' .
-                        '<div class="group-content">' .
-                        '<strong>Chưa LK:</strong> ' . number_format($row->slqmpb_chualk ?? 0) . '<br>' .
-                        '<strong>Đã LK:</strong> ' . number_format($row->slqmpb_dalk ?? 0) . '<br>' .
-                        '<strong style="color: #ff9800;">Tổng:</strong> ' . number_format($total) . 
-                        '</div>';
-                })
                 // Cột 5: Phân loại
                 ->addColumn('group5_classification', function ($row) {
                     return '<div class="group-header group-classification" style="margin-bottom: 5px;">🏷️ Phân loại</div>' .
                         '<div class="group-content">' .
                         '<strong>CNTC:</strong> ' . ($row->cntc == '1' ? 'Cá nhân (CN)' : ($row->cntc == '2' ? 'Tổ chức (TC)' : ($row->cntc ?? 'N/A'))) . '<br>' .
                         '<strong>TXNUM:</strong> ' . ($row->txnum ?? 'N/A') . 
+                        '</div>';
+                })
+                // Cột 6: Thông tin ngân hàng
+                ->addColumn('group6_bank', function ($row) {
+                    return '<div class="group-header group-bank" style="margin-bottom: 5px;">🏦 Ngân hàng</div>' .
+                        '<div class="group-content">' .
+                        '<strong>Tài khoản:</strong> ' . ($row->bank_account ?? 'N/A') . '<br>' .
+                        '<strong>Ngân hàng:</strong> ' . ($row->bank_name ?? 'N/A') . '<br>' .
                         '</div>';
                 })
                 // Cột 7: Ghi chú
@@ -172,9 +171,9 @@ class SecuritiesManagementController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group" role="group">';
-                    $btn .= '<a href="' . route('admin.securities.management.show', $row->id) . '" class="btn btn-info btn-sm" title="Xem chi tiết">';
+                    $btn .= '<a href="' . route('admin.securities.dividend.show', $row->id) . '" class="btn btn-info btn-sm" title="Xem chi tiết">';
                     $btn .= '<i class="fas fa-eye"></i></a>';
-                    $btn .= '<a href="' . route('admin.securities.management.edit', $row->id) . '" class="btn btn-warning btn-sm" title="Sửa">';
+                    $btn .= '<a href="' . route('admin.securities.dividend.edit', $row->id) . '" class="btn btn-warning btn-sm" title="Sửa">';
                     $btn .= '<i class="fas fa-edit"></i></a>';
                     $btn .= '<button type="button" class="btn btn-danger btn-sm" onclick="deleteRecord(' . $row->id . ')" title="Xóa">';
                     $btn .= '<i class="fas fa-trash"></i></button>';
@@ -185,7 +184,7 @@ class SecuritiesManagementController extends Controller
                 ->make(true);
         }
 
-        return view('admin.securities.management.index');
+        return view('admin.securities.dividend.index');
     }
 
     /**
@@ -193,7 +192,7 @@ class SecuritiesManagementController extends Controller
      */
     public function create()
     {
-        return view('admin.securities.management.create');
+        return view('admin.securities.dividend.create');
     }
 
     /**
@@ -234,7 +233,7 @@ class SecuritiesManagementController extends Controller
 
         SecuritiesManagement::create($request->all());
 
-        return redirect()->route('admin.securities.management.index')
+        return redirect()->route('admin.securities.dividend.index')
             ->with('success', 'Thêm thông tin quản lý chứng khoán thành công!');
     }
 
@@ -243,7 +242,7 @@ class SecuritiesManagementController extends Controller
      */
     public function show(SecuritiesManagement $securitiesManagement)
     {
-        return view('admin.securities.management.show', compact('securitiesManagement'));
+        return view('admin.securities.dividend.show', compact('securitiesManagement'));
     }
 
     /**
@@ -251,7 +250,7 @@ class SecuritiesManagementController extends Controller
      */
     public function edit(SecuritiesManagement $securitiesManagement)
     {
-        return view('admin.securities.management.edit', compact('securitiesManagement'));
+        return view('admin.securities.dividend.edit', compact('securitiesManagement'));
     }
 
     /**
@@ -292,7 +291,7 @@ class SecuritiesManagementController extends Controller
 
         $securitiesManagement->update($request->all());
 
-        return redirect()->route('admin.securities.management.index')
+        return redirect()->route('admin.securities.dividend.index')
             ->with('success', 'Cập nhật thông tin quản lý chứng khoán thành công!');
     }
 
@@ -345,6 +344,7 @@ class SecuritiesManagementController extends Controller
         ]);
     }
 
+
     /**
      * Preview import data from Excel file
      */
@@ -362,23 +362,25 @@ class SecuritiesManagementController extends Controller
                 return response()->json(['success' => false, 'error' => 'File phải có định dạng .xlsx, .xls hoặc .csv'], 400);
             }
 
-            // Read Excel file
-            $rows = \Maatwebsite\Excel\Facades\Excel::toArray(new \App\Imports\CoDongImport(), $file)[0] ?? [];
+            // Lấy dữ liệu từ file Excel
+            $allSheets = \Maatwebsite\Excel\Facades\Excel::toArray(new \App\Imports\InvestorsImport(), $file) ?? [];
             
-            Log::info('Import preview - Total rows read:', ['count' => count($rows)]);
-            
-            // Get preview data from CoDongImport
-            $importer = new \App\Imports\CoDongImport();
-            $result = $importer->getPreviewData($rows);
+            // Lấy sheet đầu tiên
+            $rows = reset($allSheets) ?: [];
 
-            return response()->json([
+            $importer = new InvestorsImport();
+            $blockPositions = $importer->getInvestorBlockPositions($rows);
+            $checkResults = $importer->getPreviewData($rows, $blockPositions);
+
+           return response()->json([
                 'success' => true,
-                'preview' => $result['preview'],
-                'insertCount' => $result['insertCount'],
-                'updateCount' => $result['updateCount'],
-                'totalRows' => $result['totalRows'],
-                'message' => 'Tìm thấy ' . $result['insertCount'] . ' nhà đầu tư mới và ' . $result['updateCount'] . ' nhà đầu tư cần cập nhật'
+                'preview' => $checkResults['preview'],
+                'insertCount' => $checkResults['insertCount'],
+                'updateCount' => $checkResults['updateCount'],
+                'totalRows' => $checkResults['totalRows'],
+                'message' => 'Tìm thấy ' . $checkResults['insertCount'] . ' nhà đầu tư mới và ' . $checkResults['updateCount'] . ' nhà đầu tư cần cập nhật'
             ]);
+
 
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Import preview error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
@@ -398,14 +400,26 @@ class SecuritiesManagementController extends Controller
 
             $file = $request->file('file');
             
-            $import = new \App\Imports\CoDongImport();
-            \Maatwebsite\Excel\Facades\Excel::import($import, $file);
+            // Validate file type
+            if (!in_array($file->getClientOriginalExtension(), ['xlsx', 'xls', 'csv'])) {
+                return response()->json(['success' => false, 'error' => 'File phải có định dạng .xlsx, .xls hoặc .csv'], 400);
+            }
+
+            // Lấy dữ liệu từ file Excel
+            $allSheets = \Maatwebsite\Excel\Facades\Excel::toArray(new InvestorsImport(), $file) ?? [];
+            
+            // Lấy sheet đầu tiên
+            $rows = reset($allSheets) ?: [];
+
+            $importer = new InvestorsImport();
+            $blockPositions = $importer->getInvestorBlockPositions($rows);
+            $result = $importer->executeImport($rows, $blockPositions);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Import dữ liệu thành công!',
-                'processedRows' => $import->getProcessedRows(),
-                'errors' => $import->getErrors()
+                'processedRows' => $result['processedRows'],
+                'errors' => $result['errors']
             ]);
 
         } catch (\Exception $e) {

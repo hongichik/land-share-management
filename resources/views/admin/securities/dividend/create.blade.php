@@ -29,17 +29,17 @@
             <div class="card-header">
                 <h3 class="card-title">Thêm nhà đầu tư mới</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.securities.dividend.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
                 </div>
             </div>
-            <form action="{{ route('admin.securities.management.store') }}" method="POST">
+            <form action="{{ route('admin.securities.dividend.store') }}" method="POST">
                 @csrf
                 <div class="card-body">
                     <!-- CỘT 1: THÔNG TIN CÁ NHÂN -->
                     <div class="section-header bg-info text-white">
-                        <i class="fas fa-user"></i>Thông tin cá nhân
+                        <i class="fas fa-user"></i> Thông tin cá nhân
                     </div>
                     
                     <div class="row">
@@ -103,7 +103,7 @@
 
                     <!-- CỘT 2: THÔNG TIN ĐẦU TƯ -->
                     <div class="section-header bg-primary text-white">
-                        <i class="fas fa-info-circle"></i>Thông tin đầu tư
+                        <i class="fas fa-info-circle"></i> Thông tin đầu tư
                     </div>
 
                     <div class="row">
@@ -154,7 +154,7 @@
 
                     <!-- CỘT 3: SỐ LƯỢNG LƯU KÝ -->
                     <div class="section-header bg-warning text-dark">
-                        <i class="fas fa-chart-bar"></i>Số lượng lưu ký
+                        <i class="fas fa-chart-bar"></i> Số lượng lưu ký
                     </div>
 
                     <div class="row">
@@ -162,7 +162,7 @@
                             <div class="form-group">
                                 <label for="not_deposited_quantity">Số lượng chưa lưu ký</label>
                                 <input type="number" class="form-control @error('not_deposited_quantity') is-invalid @enderror" 
-                                       id="not_deposited_quantity" name="not_deposited_quantity" value="{{ old('not_deposited_quantity', 0) }}" min="0">
+                                       id="not_deposited_quantity" name="not_deposited_quantity" value="{{ old('not_deposited_quantity', 0) }}">
                                 @error('not_deposited_quantity')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -172,7 +172,7 @@
                             <div class="form-group">
                                 <label for="deposited_quantity">Số lượng đã lưu ký</label>
                                 <input type="number" class="form-control @error('deposited_quantity') is-invalid @enderror" 
-                                       id="deposited_quantity" name="deposited_quantity" value="{{ old('deposited_quantity', 0) }}" min="0">
+                                       id="deposited_quantity" name="deposited_quantity" value="{{ old('deposited_quantity', 0) }}">
                                 @error('deposited_quantity')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -182,15 +182,15 @@
 
                     <!-- CỘT 4: QUYỀN MUA CHỨNG CHỈ -->
                     <div class="section-header bg-success text-white">
-                        <i class="fas fa-money-bill"></i>Quyền mua chứng chỉ
+                        <i class="fas fa-money-bill"></i> Quyền mua chứng chỉ
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="slqmpb_chualk">SL quyền mua chưa lưu ký</label>
+                                <label for="slqmpb_chualk">Số lượng quyền mua chưa LK</label>
                                 <input type="number" class="form-control @error('slqmpb_chualk') is-invalid @enderror" 
-                                       id="slqmpb_chualk" name="slqmpb_chualk" value="{{ old('slqmpb_chualk', 0) }}" min="0">
+                                       id="slqmpb_chualk" name="slqmpb_chualk" value="{{ old('slqmpb_chualk', 0) }}">
                                 @error('slqmpb_chualk')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -198,9 +198,9 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="slqmpb_dalk">SL quyền mua đã lưu ký</label>
+                                <label for="slqmpb_dalk">Số lượng quyền mua đã LK</label>
                                 <input type="number" class="form-control @error('slqmpb_dalk') is-invalid @enderror" 
-                                       id="slqmpb_dalk" name="slqmpb_dalk" value="{{ old('slqmpb_dalk', 0) }}" min="0">
+                                       id="slqmpb_dalk" name="slqmpb_dalk" value="{{ old('slqmpb_dalk', 0) }}">
                                 @error('slqmpb_dalk')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -210,15 +210,15 @@
 
                     <!-- CỘT 5: PHÂN LOẠI -->
                     <div class="section-header bg-secondary text-white">
-                        <i class="fas fa-tags"></i>Phân loại
+                        <i class="fas fa-tags"></i> Phân loại
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="cntc">Phân loại (CNTC)</label>
+                                <label for="cntc">Cá nhân / Tổ chức</label>
                                 <select class="form-control @error('cntc') is-invalid @enderror" id="cntc" name="cntc">
-                                    <option value="">-- Chọn phân loại --</option>
+                                    <option value="">-- Chọn --</option>
                                     <option value="1" {{ old('cntc') == '1' ? 'selected' : '' }}>Cá nhân (CN)</option>
                                     <option value="2" {{ old('cntc') == '2' ? 'selected' : '' }}>Tổ chức (TC)</option>
                                 </select>
@@ -229,7 +229,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="txnum">Mã giao dịch (TXNUM)</label>
+                                <label for="txnum">Người thành lập / Nhà phát hành</label>
                                 <input type="text" class="form-control @error('txnum') is-invalid @enderror" 
                                        id="txnum" name="txnum" value="{{ old('txnum') }}">
                                 @error('txnum')
@@ -241,7 +241,7 @@
 
                     <!-- CỘT 6: THÔNG TIN NGÂN HÀNG -->
                     <div class="section-header bg-dark text-white">
-                        <i class="fas fa-university"></i>Thông tin ngân hàng
+                        <i class="fas fa-university"></i> Thông tin ngân hàng
                     </div>
 
                     <div class="row">
@@ -258,59 +258,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="bank_name">Tên ngân hàng</label>
-                                <select class="form-control select2-bank @error('bank_name') is-invalid @enderror" 
-                                       id="bank_name" name="bank_name">
-                                    <option value="">-- Chọn ngân hàng --</option>
-                                    <option value="VPBank" {{ old('bank_name') == 'VPBank' ? 'selected' : '' }}>VPBank</option>
-                                    <option value="BIDV" {{ old('bank_name') == 'BIDV' ? 'selected' : '' }}>BIDV</option>
-                                    <option value="Vietcombank" {{ old('bank_name') == 'Vietcombank' ? 'selected' : '' }}>Vietcombank</option>
-                                    <option value="VietinBank" {{ old('bank_name') == 'VietinBank' ? 'selected' : '' }}>VietinBank</option>
-                                    <option value="MBBANK" {{ old('bank_name') == 'MBBANK' ? 'selected' : '' }}>MBBANK</option>
-                                    <option value="ACB" {{ old('bank_name') == 'ACB' ? 'selected' : '' }}>ACB</option>
-                                    <option value="SHB" {{ old('bank_name') == 'SHB' ? 'selected' : '' }}>SHB</option>
-                                    <option value="Techcombank" {{ old('bank_name') == 'Techcombank' ? 'selected' : '' }}>Techcombank</option>
-                                    <option value="Agribank" {{ old('bank_name') == 'Agribank' ? 'selected' : '' }}>Agribank</option>
-                                    <option value="HDBank" {{ old('bank_name') == 'HDBank' ? 'selected' : '' }}>HDBank</option>
-                                    <option value="LienVietPostBank" {{ old('bank_name') == 'LienVietPostBank' ? 'selected' : '' }}>LienVietPostBank</option>
-                                    <option value="VIB" {{ old('bank_name') == 'VIB' ? 'selected' : '' }}>VIB</option>
-                                    <option value="SeABank" {{ old('bank_name') == 'SeABank' ? 'selected' : '' }}>SeABank</option>
-                                    <option value="VBSP" {{ old('bank_name') == 'VBSP' ? 'selected' : '' }}>VBSP</option>
-                                    <option value="TPBank" {{ old('bank_name') == 'TPBank' ? 'selected' : '' }}>TPBank</option>
-                                    <option value="OCB" {{ old('bank_name') == 'OCB' ? 'selected' : '' }}>OCB</option>
-                                    <option value="MSB" {{ old('bank_name') == 'MSB' ? 'selected' : '' }}>MSB</option>
-                                    <option value="Sacombank" {{ old('bank_name') == 'Sacombank' ? 'selected' : '' }}>Sacombank</option>
-                                    <option value="Eximbank" {{ old('bank_name') == 'Eximbank' ? 'selected' : '' }}>Eximbank</option>
-                                    <option value="SCB" {{ old('bank_name') == 'SCB' ? 'selected' : '' }}>SCB</option>
-                                    <option value="VDB" {{ old('bank_name') == 'VDB' ? 'selected' : '' }}>VDB</option>
-                                    <option value="Nam A Bank" {{ old('bank_name') == 'Nam A Bank' ? 'selected' : '' }}>Nam A Bank</option>
-                                    <option value="ABBANK" {{ old('bank_name') == 'ABBANK' ? 'selected' : '' }}>ABBANK</option>
-                                    <option value="PVcomBank" {{ old('bank_name') == 'PVcomBank' ? 'selected' : '' }}>PVcomBank</option>
-                                    <option value="Bac A Bank" {{ old('bank_name') == 'Bac A Bank' ? 'selected' : '' }}>Bac A Bank</option>
-                                    <option value="UOB" {{ old('bank_name') == 'UOB' ? 'selected' : '' }}>UOB</option>
-                                    <option value="Woori" {{ old('bank_name') == 'Woori' ? 'selected' : '' }}>Woori</option>
-                                    <option value="HSBC" {{ old('bank_name') == 'HSBC' ? 'selected' : '' }}>HSBC</option>
-                                    <option value="SCBVL" {{ old('bank_name') == 'SCBVL' ? 'selected' : '' }}>SCBVL</option>
-                                    <option value="PBVN" {{ old('bank_name') == 'PBVN' ? 'selected' : '' }}>PBVN</option>
-                                    <option value="SHBVN" {{ old('bank_name') == 'SHBVN' ? 'selected' : '' }}>SHBVN</option>
-                                    <option value="NCB" {{ old('bank_name') == 'NCB' ? 'selected' : '' }}>NCB</option>
-                                    <option value="VietABank" {{ old('bank_name') == 'VietABank' ? 'selected' : '' }}>VietABank</option>
-                                    <option value="BVBank" {{ old('bank_name') == 'BVBank' ? 'selected' : '' }}>BVBank</option>
-                                    <option value="Vikki Bank" {{ old('bank_name') == 'Vikki Bank' ? 'selected' : '' }}>Vikki Bank</option>
-                                    <option value="Vietbank" {{ old('bank_name') == 'Vietbank' ? 'selected' : '' }}>Vietbank</option>
-                                    <option value="ANZVL" {{ old('bank_name') == 'ANZVL' ? 'selected' : '' }}>ANZVL</option>
-                                    <option value="MBV" {{ old('bank_name') == 'MBV' ? 'selected' : '' }}>MBV</option>
-                                    <option value="CIMB" {{ old('bank_name') == 'CIMB' ? 'selected' : '' }}>CIMB</option>
-                                    <option value="Kienlongbank" {{ old('bank_name') == 'Kienlongbank' ? 'selected' : '' }}>Kienlongbank</option>
-                                    <option value="IVB" {{ old('bank_name') == 'IVB' ? 'selected' : '' }}>IVB</option>
-                                    <option value="BAOVIET Bank" {{ old('bank_name') == 'BAOVIET Bank' ? 'selected' : '' }}>BAOVIET Bank</option>
-                                    <option value="SAIGONBANK" {{ old('bank_name') == 'SAIGONBANK' ? 'selected' : '' }}>SAIGONBANK</option>
-                                    <option value="Co-opBank" {{ old('bank_name') == 'Co-opBank' ? 'selected' : '' }}>Co-opBank</option>
-                                    <option value="GPBank" {{ old('bank_name') == 'GPBank' ? 'selected' : '' }}>GPBank</option>
-                                    <option value="VRB" {{ old('bank_name') == 'VRB' ? 'selected' : '' }}>VRB</option>
-                                    <option value="VCBNeo" {{ old('bank_name') == 'VCBNeo' ? 'selected' : '' }}>VCBNeo</option>
-                                    <option value="HLBVN" {{ old('bank_name') == 'HLBVN' ? 'selected' : '' }}>HLBVN</option>
-                                    <option value="PGBank" {{ old('bank_name') == 'PGBank' ? 'selected' : '' }}>PGBank</option>
-                                </select>
+                                <input type="text" class="form-control @error('bank_name') is-invalid @enderror" 
+                                       id="bank_name" name="bank_name" value="{{ old('bank_name') }}">
                                 @error('bank_name')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -320,7 +269,7 @@
 
                     <!-- CỘT 7: GHI CHÚ -->
                     <div class="section-header bg-danger text-white">
-                        <i class="fas fa-sticky-note"></i>Ghi chú
+                        <i class="fas fa-sticky-note"></i> Ghi chú
                     </div>
 
                     <div class="form-group">
@@ -337,7 +286,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Lưu nhà đầu tư
                     </button>
-                    <a href="{{ route('admin.securities.management.index') }}" class="btn btn-secondary">
+                    <a href="{{ route('admin.securities.dividend.index') }}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Hủy
                     </a>
                 </div>
@@ -349,14 +298,4 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('.select2-bank').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Chọn ngân hàng --',
-            allowClear: true,
-            width: '100%'
-        });
-    });
-</script>
 @endpush
