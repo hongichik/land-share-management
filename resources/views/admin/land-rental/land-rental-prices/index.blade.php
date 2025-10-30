@@ -10,10 +10,10 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách Giá thuê đất - Hợp đồng: {{ $landRentalContract->contract_number }}</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.land-rental-contracts.index') }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.land-rental.contracts.index') }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
-                    <a href="{{ route('admin.land-rental-prices.create', $landRentalContract) }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.land-rental.prices.create', $landRentalContract) }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus"></i> Thêm Giá thuê đất
                     </a>
                 </div>
@@ -58,7 +58,7 @@ $(document).ready(function() {
         columnDefs: [
             { responsivePriority: 1, targets: -1 },
         ],
-        ajax: "{{ route('admin.land-rental-prices.index', $landRentalContract) }}",
+        ajax: "{{ route('admin.land-rental.prices.index', $landRentalContract) }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'price_decision', name: 'price_decision'},

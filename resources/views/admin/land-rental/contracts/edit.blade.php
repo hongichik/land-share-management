@@ -10,12 +10,12 @@
                 <div class="card-header">
                     <h3 class="card-title">Sửa Hợp đồng thuê đất</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.land-rental-contracts.index') }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ route('admin.land-rental.contracts.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
                     </div>
                 </div>
-                <form action="{{ route('admin.land-rental-contracts.update', $landRentalContract) }}" method="POST"
+                <form action="{{ route('admin.land-rental.contracts.update', $landRentalContract) }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -278,7 +278,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Cập nhật Hợp đồng
                         </button>
-                        <a href="{{ route('admin.land-rental-contracts.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.land-rental.contracts.index') }}" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Hủy
                         </a>
                     </div>

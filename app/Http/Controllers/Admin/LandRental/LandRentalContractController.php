@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\LandRental;
 
 use App\Http\Controllers\Controller;
 use App\Models\LandRentalContract;
@@ -519,7 +519,7 @@ class LandRentalContractController extends Controller
                 ->make(true);
         }
 
-        return view('admin.land-rental-contracts.index');
+        return view('admin.land-rental.contracts.index');
     }
 
     /**
@@ -527,7 +527,7 @@ class LandRentalContractController extends Controller
      */
     public function create()
     {
-        return view('admin.land-rental-contracts.create');
+        return view('admin.land-rental.contracts.create');
     }
 
     /**
@@ -611,7 +611,7 @@ class LandRentalContractController extends Controller
      */
     public function show(LandRentalContract $landRentalContract)
     {
-        return view('admin.land-rental-contracts.show', compact('landRentalContract'));
+        return view('admin.land-rental.contracts.show', compact('landRentalContract'));
     }
 
     /**
@@ -619,7 +619,7 @@ class LandRentalContractController extends Controller
      */
     public function edit(LandRentalContract $landRentalContract)
     {
-        return view('admin.land-rental-contracts.edit', compact('landRentalContract'));
+        return view('admin.land-rental.contracts.edit', compact('landRentalContract'));
     }
 
     /**

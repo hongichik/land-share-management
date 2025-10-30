@@ -10,11 +10,11 @@
                 <div class="card-header">
                     <h3 class="card-title">Chi tiết thanh toán</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.land-rental-payment-histories.edit', [$landRentalContract, $landRentalPaymentHistory]) }}"
+                        <a href="{{ route('admin.land-rental.payment-histories.edit', [$landRentalContract, $landRentalPaymentHistory]) }}"
                             class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Sửa
                         </a>
-                        <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
                     </div>
@@ -141,10 +141,10 @@
                             
                             <div class="btn-group" role="group">
                                 @if($isLatest)
-                                    <a href="{{ route('admin.land-rental-payment-histories.edit', [$landRentalContract, $landRentalPaymentHistory]) }}" class="btn btn-warning">
+                                    <a href="{{ route('admin.land-rental.payment-histories.edit', [$landRentalContract, $landRentalPaymentHistory]) }}" class="btn btn-warning">
                                         <i class="fas fa-edit"></i> Sửa thanh toán
                                     </a>
-                                    <form method="POST" action="{{ route('admin.land-rental-payment-histories.destroy', [$landRentalContract, $landRentalPaymentHistory]) }}" 
+                                    <form method="POST" action="{{ route('admin.land-rental.payment-histories.destroy', [$landRentalContract, $landRentalPaymentHistory]) }}" 
                                           style="display:inline-block;" 
                                           onsubmit="return confirm('Bạn có chắc chắn muốn xóa lịch sử thanh toán này?')">
                                         @csrf

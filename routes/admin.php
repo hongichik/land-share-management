@@ -3,9 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\DividendController;
-use App\Http\Controllers\Admin\DividendRecordController;
-use App\Http\Controllers\Admin\SecuritiesManagementController;
+use App\Http\Controllers\Admin\Securities\DividendController;
+use App\Http\Controllers\Admin\Securities\DividendRecordController;
+use App\Http\Controllers\Admin\Securities\SecuritiesManagementController;
+use App\Http\Controllers\Admin\LandRental\LandRentalContractController;
+use App\Http\Controllers\Admin\LandRental\LandRentalPriceController;
+use App\Http\Controllers\Admin\LandRental\LandRentalPaymentHistoryController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {
@@ -97,35 +100,35 @@ Route::prefix('admin')->name('admin.')->group(function () {
             });
         });
 
+        Route::prefix('land-rental')->name('land-rental.')->group(function () {
+            // Land Rental Contracts routes - export routes first
+            Route::get('contracts/export', [LandRentalContractController::class, 'export'])->name('contracts.export');
+            Route::get('contracts/export-tax-calculation', [LandRentalContractController::class, 'exportTaxCalculation'])->name('contracts.export-tax-calculation');
+            Route::get('contracts/export-rental-plan', [LandRentalContractController::class, 'exportRentalPlan'])->name('contracts.export-rental-plan');
+            Route::get('contracts/export-tax-plan', [LandRentalContractController::class, 'exportTaxPlan'])->name('contracts.export-tax-plan');
+            Route::get('contracts/export-non-agri-tax', [LandRentalContractController::class, 'exportNonAgriTax'])->name('contracts.export-non-agri-tax');
+            Route::resource('contracts', LandRentalContractController::class);
 
-        // Land Rental Contracts routes
-        Route::get('land-rental-contracts/export', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'export'])->name('land-rental-contracts.export');
-        Route::get('land-rental-contracts/export-tax-calculation', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportTaxCalculation'])->name('land-rental-contracts.export-tax-calculation');
-        Route::get('land-rental-contracts/export-rental-plan', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportRentalPlan'])->name('land-rental-contracts.export-rental-plan');
-        Route::get('land-rental-contracts/export-tax-plan', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportTaxPlan'])->name('land-rental-contracts.export-tax-plan');
-        Route::get('land-rental-contracts/export-non-agri-tax', [\App\Http\Controllers\Admin\LandRentalContractController::class, 'exportNonAgriTax'])->name('land-rental-contracts.export-non-agri-tax');
-        Route::resource('land-rental-contracts', \App\Http\Controllers\Admin\LandRentalContractController::class);
+            // Land Rental Prices routes
+            Route::prefix('contracts/{landRentalContract}/prices')->name('prices.')->group(function () {
+                Route::get('/', [LandRentalPriceController::class, 'index'])->name('index');
+                Route::get('create', [LandRentalPriceController::class, 'create'])->name('create');
+                Route::post('/', [LandRentalPriceController::class, 'store'])->name('store');
+                Route::get('{landRentalPrice}/edit', [LandRentalPriceController::class, 'edit'])->name('edit');
+                Route::put('{landRentalPrice}', [LandRentalPriceController::class, 'update'])->name('update');
+                Route::delete('{landRentalPrice}', [LandRentalPriceController::class, 'destroy'])->name('destroy');
+            });
 
-
-        // Land Rental Prices routes
-        Route::prefix('land-rental-contracts/{landRentalContract}/prices')->name('land-rental-prices.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'index'])->name('index');
-            Route::get('create', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'create'])->name('create');
-            Route::post('/', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'store'])->name('store');
-            Route::get('{landRentalPrice}/edit', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'edit'])->name('edit');
-            Route::put('{landRentalPrice}', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'update'])->name('update');
-            Route::delete('{landRentalPrice}', [\App\Http\Controllers\Admin\LandRentalPriceController::class, 'destroy'])->name('destroy');
-        });
-
-        // Land Rental Payment Histories routes
-        Route::prefix('land-rental-contracts/{landRentalContract}/payment-histories')->name('land-rental-payment-histories.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'index'])->name('index');
-            Route::get('create', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'create'])->name('create');
-            Route::post('/', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'store'])->name('store');
-            Route::get('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'show'])->name('show');
-            Route::get('{landRentalPaymentHistory}/edit', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'edit'])->name('edit');
-            Route::put('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'update'])->name('update');
-            Route::delete('{landRentalPaymentHistory}', [\App\Http\Controllers\Admin\LandRentalPaymentHistoryController::class, 'destroy'])->name('destroy');
+            // Land Rental Payment Histories routes
+            Route::prefix('contracts/{landRentalContract}/payment-histories')->name('payment-histories.')->group(function () {
+                Route::get('/', [LandRentalPaymentHistoryController::class, 'index'])->name('index');
+                Route::get('create', [LandRentalPaymentHistoryController::class, 'create'])->name('create');
+                Route::post('/', [LandRentalPaymentHistoryController::class, 'store'])->name('store');
+                Route::get('{landRentalPaymentHistory}', [LandRentalPaymentHistoryController::class, 'show'])->name('show');
+                Route::get('{landRentalPaymentHistory}/edit', [LandRentalPaymentHistoryController::class, 'edit'])->name('edit');
+                Route::put('{landRentalPaymentHistory}', [LandRentalPaymentHistoryController::class, 'update'])->name('update');
+                Route::delete('{landRentalPaymentHistory}', [LandRentalPaymentHistoryController::class, 'destroy'])->name('destroy');
+            });
         });
     });
 });

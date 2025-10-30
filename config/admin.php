@@ -30,13 +30,13 @@ return [
             [
                 'text' => 'Quản lý đất đai',
                 'icon' => 'bi bi-house',
-                'active' => 'admin/land-rental-contracts*',
+                'active' => 'admin/land-rental*',
                 'submenu' => [
                     [
                         'text' => 'Hợp đồng thuê đất',
                         'icon' => 'bi bi-file-earmark-text',
-                        'route' => 'admin.land-rental-contracts.index',
-                        'active' => 'admin/land-rental-contracts*',
+                        'route' => 'admin.land-rental.contracts.index',
+                        'active' => 'admin/land-rental*',
                     ],
                 ],
             ],

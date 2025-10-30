@@ -139,7 +139,7 @@
                             <i class="fas fa-file-excel"></i> Xuất Excel
                         </button>
                         <div class="dropdown-menu dropdown-menu-right">
-                            <a href="{{ route('admin.land-rental-contracts.export') }}" class="dropdown-item">
+                            <a href="{{ route('admin.land-rental.contracts.export') }}" class="dropdown-item">
                                 <i class="fas fa-list mr-2"></i> Danh sách hợp đồng
                             </a>
                             
@@ -162,7 +162,7 @@
                             </a>
                         </div>
                     </div>
-                    <a href="{{ route('admin.land-rental-contracts.create') }}" class="btn btn-primary btn-sm ml-1">
+                    <a href="{{ route('admin.land-rental.contracts.create') }}" class="btn btn-primary btn-sm ml-1">
                         <i class="bi bi-plus"></i> Thêm Hợp đồng
                     </a>
                 </div>
@@ -235,7 +235,7 @@
                             <div class="card-body">
                                 <h6 class="card-title"><i class="fas fa-list mr-2"></i>Danh sách hợp đồng</h6>
                                 <p class="text-muted small">Xuất tất cả danh sách hợp đồng hiện có</p>
-                                <a href="{{ route('admin.land-rental-contracts.export') }}" class="btn btn-outline-success btn-sm btn-block">
+                                <a href="{{ route('admin.land-rental.contracts.export') }}" class="btn btn-outline-success btn-sm btn-block">
                                     <i class="fas fa-download mr-1"></i> Xuất danh sách
                                 </a>
                             </div>
@@ -247,7 +247,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h6 class="card-title"><i class="fas fa-calculator mr-2"></i>Bảng tính tiền thuê đất</h6>
-                                <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get">
+                                <form action="{{ route('admin.land-rental.contracts.export-tax-calculation') }}" method="get">
                                     <div class="form-group">
                                         <label>Kỳ thanh toán</label>
                                         <select name="period" class="form-control">
@@ -295,7 +295,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.land-rental-contracts.export-rental-plan') }}" method="get">
+                <form action="{{ route('admin.land-rental.contracts.export-rental-plan') }}" method="get">
                     <div class="form-group">
                         <label>Năm kế hoạch</label>
                         <select name="year" class="form-control">
@@ -332,7 +332,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.land-rental-contracts.export-tax-plan') }}" method="get">
+                <form action="{{ route('admin.land-rental.contracts.export-tax-plan') }}" method="get">
                     <div class="form-group">
                         <label>Năm kế hoạch</label>
                         <select name="year" class="form-control">
@@ -369,7 +369,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.land-rental-contracts.export-non-agri-tax') }}" method="get">
+                <form action="{{ route('admin.land-rental.contracts.export-non-agri-tax') }}" method="get">
                     <div class="form-group">
                         <label>Năm tính thuế</label>
                         <select name="year" class="form-control">
@@ -406,7 +406,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.land-rental-contracts.export-tax-calculation') }}" method="get">
+                <form action="{{ route('admin.land-rental.contracts.export-tax-calculation') }}" method="get">
                     <div class="form-group">
                         <label>Kỳ thanh toán</label>
                         <select name="period" class="form-control">
@@ -471,7 +471,7 @@ $(document).ready(function() {
         columnDefs: [
             { responsivePriority: 1, targets: -1 },  
         ],
-        ajax: "{{ route('admin.land-rental-contracts.index') }}",
+        ajax: "{{ route('admin.land-rental.contracts.index') }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'contract_and_decision', name: 'contract_number'},

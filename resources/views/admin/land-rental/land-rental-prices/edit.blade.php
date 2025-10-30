@@ -10,13 +10,13 @@
                 <div class="card-header">
                     <h3 class="card-title">Sửa Giá thuê đất</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.land-rental-prices.index', $landRentalContract) }}"
+                        <a href="{{ route('admin.land-rental.prices.index', $landRentalContract) }}"
                             class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
                     </div>
                 </div>
-                <form action="{{ route('admin.land-rental-prices.update', [$landRentalContract, $landRentalPrice]) }}"
+                <form action="{{ route('admin.land-rental.prices.update', [$landRentalContract, $landRentalPrice]) }}"
                     method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
@@ -111,7 +111,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Cập nhật Giá thuê đất
                         </button>
-                        <a href="{{ route('admin.land-rental-prices.index', $landRentalContract) }}"
+                        <a href="{{ route('admin.land-rental.prices.index', $landRentalContract) }}"
                             class="btn btn-secondary">
                             <i class="fas fa-times"></i> Hủy
                         </a>

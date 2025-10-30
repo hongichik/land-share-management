@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\LandRental;
 
 use App\Http\Controllers\Controller;
 use App\Models\LandRentalContract;
@@ -107,7 +107,7 @@ class LandRentalPaymentHistoryController extends Controller
                 ->make(true);
         }
 
-        return view('admin.land-rental-payment-histories.index', compact('landRentalContract'));
+        return view('admin.land-rental.payment-histories.index', compact('landRentalContract'));
     }
 
     /**
@@ -115,7 +115,7 @@ class LandRentalPaymentHistoryController extends Controller
      */
     public function create(LandRentalContract $landRentalContract)
     {
-        return view('admin.land-rental-payment-histories.create', compact('landRentalContract'));
+        return view('admin.land-rental.payment-histories.create', compact('landRentalContract'));
     }
 
     /**
@@ -149,7 +149,7 @@ class LandRentalPaymentHistoryController extends Controller
      */
     public function show(LandRentalContract $landRentalContract, LandRentalPaymentHistory $landRentalPaymentHistory)
     {
-        return view('admin.land-rental-payment-histories.show', compact('landRentalContract', 'landRentalPaymentHistory'));
+        return view('admin.land-rental.payment-histories.show', compact('landRentalContract', 'landRentalPaymentHistory'));
     }
 
     /**
@@ -166,7 +166,7 @@ class LandRentalPaymentHistoryController extends Controller
                 ->with('error', 'Chỉ được phép sửa thanh toán mới nhất!');
         }
         
-        return view('admin.land-rental-payment-histories.edit', compact('landRentalContract', 'landRentalPaymentHistory'));
+        return view('admin.land-rental.payment-histories.edit', compact('landRentalContract', 'landRentalPaymentHistory'));
     }
 
     /**

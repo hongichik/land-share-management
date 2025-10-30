@@ -10,15 +10,15 @@
                 <div class="card-header">
                     <h3 class="card-title">Chi tiết Hợp đồng thuê đất: {{ $landRentalContract->contract_number }}</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}"
+                        <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}"
                             class="btn btn-info btn-sm">
                             <i class="fas fa-money-bill-wave"></i> Lịch sử thanh toán
                         </a>
-                        <a href="{{ route('admin.land-rental-contracts.edit', $landRentalContract) }}"
+                        <a href="{{ route('admin.land-rental.contracts.edit', $landRentalContract) }}"
                             class="btn btn-warning btn-sm">
                             <i class="fas fa-edit"></i> Sửa
                         </a>
-                        <a href="{{ route('admin.land-rental-contracts.index') }}" class="btn btn-secondary btn-sm">
+                        <a href="{{ route('admin.land-rental.contracts.index') }}" class="btn btn-secondary btn-sm">
                             <i class="fas fa-arrow-left"></i> Quay lại
                         </a>
                     </div>
@@ -180,7 +180,7 @@
                                             <span class="info-box-text">Tổng số lần</span>
                                             <span class="info-box-number">{{ $paymentHistories->count() }}</span>
                                             <span class="progress-description">
-                                                <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}" class="text-primary">
+                                                <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}" class="text-primary">
                                                     Xem chi tiết
                                                 </a>
                                             </span>

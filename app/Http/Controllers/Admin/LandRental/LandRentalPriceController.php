@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Admin\LandRental;
 
 use App\Http\Controllers\Controller;
 use App\Models\LandRentalContract;
@@ -95,7 +95,7 @@ class LandRentalPriceController extends Controller
                 ->make(true);
         }
 
-        return view('admin.land-rental-prices.index', compact('landRentalContract'));
+        return view('admin.land-rental.prices.index', compact('landRentalContract'));
     }
 
     /**
@@ -115,7 +115,7 @@ class LandRentalPriceController extends Controller
             $defaultStartDate = $landRentalContract->rental_period['start_date'];
         }
         
-        return view('admin.land-rental-prices.create', compact('landRentalContract', 'defaultStartDate'));
+        return view('admin.land-rental.prices.create', compact('landRentalContract', 'defaultStartDate'));
     }
 
     /**
@@ -185,7 +185,7 @@ class LandRentalPriceController extends Controller
                 ->with('error', 'Chỉ được phép sửa giá thuê mới nhất để tránh thay đổi lịch sử!');
         }
         
-        return view('admin.land-rental-prices.edit', compact('landRentalContract', 'landRentalPrice'));
+        return view('admin.land-rental.prices.edit', compact('landRentalContract', 'landRentalPrice'));
     }
 
     /**

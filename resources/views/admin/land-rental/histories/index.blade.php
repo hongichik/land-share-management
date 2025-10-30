@@ -12,10 +12,10 @@
                     Lịch sử thanh toán - Hợp đồng: {{ $landRentalContract->contract_number }}
                 </h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.land-rental-payment-histories.create', $landRentalContract) }}" class="btn btn-primary btn-sm">
+                    <a href="{{ route('admin.land-rental.payment-histories.create', $landRentalContract) }}" class="btn btn-primary btn-sm">
                         <i class="bi bi-plus"></i> Thêm thanh toán
                     </a>
-                    <a href="{{ route('admin.land-rental-contracts.show', $landRentalContract) }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.land-rental.contracts.show', $landRentalContract) }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại hợp đồng
                     </a>
                 </div>
@@ -96,7 +96,7 @@ $(document).ready(function() {
         columnDefs: [
             { responsivePriority: 1, targets: -1 },  // Cột cuối luôn ưu tiên hiển thị
         ],
-        ajax: "{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}",
+        ajax: "{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}",
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'period', name: 'period'},

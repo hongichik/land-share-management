@@ -1,16 +1,16 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Thêm thanh toán')
-@section('page_title', 'Thêm thanh toán')
+@section('title', 'Sửa thanh toán')
+@section('page_title', 'Sửa thanh toán')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Thêm thanh toán mới</h3>
+                <h3 class="card-title">Sửa thanh toán</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}" class="btn btn-secondary btn-sm">
+                    <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}" class="btn btn-secondary btn-sm">
                         <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
                 </div>
@@ -46,8 +46,9 @@
                     </div>
                 </div>
 
-                <form action="{{ route('admin.land-rental-payment-histories.store', $landRentalContract) }}" method="POST">
+                <form action="{{ route('admin.land-rental.payment-histories.update', [$landRentalContract, $landRentalPaymentHistory]) }}" method="POST">
                     @csrf
+                    @method('PUT')
                     <div class="row">
                         <!-- Kỳ nộp -->
                         <div class="col-md-6">
@@ -55,8 +56,8 @@
                                 <label for="period">Kỳ nộp <span class="text-danger">*</span></label>
                                 <select class="form-control @error('period') is-invalid @enderror" id="period" name="period" required>
                                     <option value="">Chọn kỳ nộp</option>
-                                    <option value="1" {{ old('period') == '1' ? 'selected' : '' }}>Kỳ 1 (Tháng 1-6)</option>
-                                    <option value="2" {{ old('period') == '2' ? 'selected' : '' }}>Kỳ 2 (Tháng 7-12)</option>
+                                    <option value="1" {{ old('period', $landRentalPaymentHistory->period) == '1' ? 'selected' : '' }}>Kỳ 1 (Tháng 1-6)</option>
+                                    <option value="2" {{ old('period', $landRentalPaymentHistory->period) == '2' ? 'selected' : '' }}>Kỳ 2 (Tháng 7-12)</option>
                                 </select>
                                 @error('period')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -70,9 +71,9 @@
                                 <label for="payment_type">Loại nộp <span class="text-danger">*</span></label>
                                 <select class="form-control @error('payment_type') is-invalid @enderror" id="payment_type" name="payment_type" required>
                                     <option value="">Chọn loại nộp</option>
-                                    <option value="1" {{ old('payment_type') == '1' ? 'selected' : '' }}>Nộp trước</option>
-                                    <option value="2" {{ old('payment_type') == '2' ? 'selected' : '' }}>Nộp đúng hạn</option>
-                                    <option value="3" {{ old('payment_type') == '3' ? 'selected' : '' }}>Miễn giảm</option>
+                                    <option value="1" {{ old('payment_type', $landRentalPaymentHistory->payment_type) == '1' ? 'selected' : '' }}>Nộp trước</option>
+                                    <option value="2" {{ old('payment_type', $landRentalPaymentHistory->payment_type) == '2' ? 'selected' : '' }}>Nộp đúng hạn</option>
+                                    <option value="3" {{ old('payment_type', $landRentalPaymentHistory->payment_type) == '3' ? 'selected' : '' }}>Miễn giảm</option>
                                 </select>
                                 @error('payment_type')
                                     <span class="invalid-feedback">{{ $message }}</span>
@@ -87,7 +88,7 @@
                             <div class="form-group">
                                 <label for="amount">Số tiền (VND) <span class="text-danger">*</span></label>
                                 <input type="number" min="0" class="form-control @error('amount') is-invalid @enderror" 
-                                       id="amount" name="amount" value="{{ old('amount') }}" required>
+                                       id="amount" name="amount" value="{{ old('amount', $landRentalPaymentHistory->amount) }}" required>
                                 @error('amount')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -99,7 +100,7 @@
                             <div class="form-group">
                                 <label for="payment_date">Ngày nộp <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('payment_date') is-invalid @enderror" 
-                                       id="payment_date" name="payment_date" value="{{ old('payment_date', date('Y-m-d')) }}" required>
+                                       id="payment_date" name="payment_date" value="{{ old('payment_date', $landRentalPaymentHistory->payment_date->format('Y-m-d')) }}" required>
                                 @error('payment_date')
                                     <span class="invalid-feedback">{{ $message }}</span>
                                 @enderror
@@ -111,7 +112,7 @@
                     <div class="form-group">
                         <label for="notes">Ghi chú</label>
                         <textarea class="form-control @error('notes') is-invalid @enderror" 
-                                  id="notes" name="notes" rows="4">{{ old('notes') }}</textarea>
+                                  id="notes" name="notes" rows="4">{{ old('notes', $landRentalPaymentHistory->notes) }}</textarea>
                         @error('notes')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
@@ -119,9 +120,9 @@
 
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Lưu thanh toán
+                            <i class="fas fa-save"></i> Cập nhật thanh toán
                         </button>
-                        <a href="{{ route('admin.land-rental-payment-histories.index', $landRentalContract) }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}" class="btn btn-secondary">
                             <i class="fas fa-times"></i> Hủy
                         </a>
                     </div>
@@ -135,7 +136,6 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-
     // Remove formatting before submit
     $('form').on('submit', function() {
         let amount = $('#amount').val();
