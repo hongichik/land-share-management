@@ -68,6 +68,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('import-confirm', [DividendController::class, 'importConfirm'])
                     ->name('import-confirm');
 
+                // Payment routes
+                Route::get('payment', [DividendController::class, 'paymentPage'])
+                    ->name('payment');
+                Route::post('payment/search', [DividendController::class, 'searchInvestors'])
+                    ->name('payment.search');
+                Route::post('payment/process', [DividendController::class, 'processPayment'])
+                    ->name('payment.process');
+
                 // Individual resource routes
                 Route::get('summary-stats', [DividendController::class, 'getSummaryStats'])->name('summary-stats');
                 Route::get('/', [DividendController::class, 'index'])->name('index');
@@ -79,9 +87,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             Route::prefix('dividend-record')->name('dividend-record.')->group(function () {
                 Route::get('/', [DividendRecordController::class, 'index'])->name('index');
+                Route::get('/export', [DividendRecordController::class, 'export'])->name('export');
+                Route::get('/paid', [DividendRecordController::class, 'paid'])->name('paid');
+                Route::get('/paid/detail/{transferDate}', [DividendRecordController::class, 'paidDetail'])->name('paid.detail');
+                Route::get('/unpaid', [DividendRecordController::class, 'unpaid'])->name('unpaid');
+                Route::get('/unpaid/detail/{investorId}', [DividendRecordController::class, 'unpaidDetail'])->name('unpaid.detail');
                 Route::get('/detail/{paymentDate}', [DividendRecordController::class, 'detail'])->name('detail');
                 Route::delete('/{paymentDate}', [DividendRecordController::class, 'destroy'])->name('destroy');
-                Route::get('/export', [DividendRecordController::class, 'export'])->name('export');
             });
         });
 

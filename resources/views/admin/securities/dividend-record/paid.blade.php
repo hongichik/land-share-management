@@ -1,22 +1,22 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý Cổ tức - Danh sách Lần trả')
-@section('page_title', 'Quản lý Cổ tức - Danh sách Lần trả')
+@section('title', 'Quản lý Cổ tức - Danh sách Đã Trả')
+@section('page_title', 'Quản lý Cổ tức - Danh sách Đã Trả')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách các lần trả cổ tức</h3>
+                <h3 class="card-title">Danh sách các lần trả cổ tức - Đã Trả</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities.dividend-record.paid') }}" class="btn btn-sm btn-success" title="Xem đã trả">
-                        <i class="fas fa-check-circle"></i> Đã trả
+                    <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-sm btn-secondary" title="Xem tất cả">
+                        <i class="fas fa-list"></i> Tất cả
                     </a>
                     <a href="{{ route('admin.securities.dividend-record.unpaid') }}" class="btn btn-sm btn-warning" title="Xem chưa trả">
                         <i class="fas fa-clock"></i> Chưa trả
                     </a>
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exportModal" title="Xuất Excel">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="exportRecords()" title="Xuất Excel">
                         <i class="fas fa-download"></i> Xuất Excel
                     </button>
                 </div>
@@ -27,7 +27,8 @@
                     <thead>
                         <tr>
                             <th style="width: 10px">#</th>
-                            <th>Thời gian trả</th>
+                            <th>Thời gian trả tiền</th>
+                            <th>Thời gian tạo</th>
                             <th>Số lượng cổ phiếu</th>
                             <th>Tỷ lệ cổ tức</th>
                             <th>Tổng thuế TNCT</th>
@@ -60,44 +61,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Export Modal -->
-<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Danh sách Cổ đông</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="exportForm" action="{{ route('admin.securities.dividend-record.export') }}" method="get">
-                    <div class="form-group">
-                        <label>Năm</label>
-                        <select name="year" class="form-control" id="exportYear" required>
-                            <option value="">-- Chọn năm --</option>
-                            @php
-                                $currentYear = (int)date('Y');
-                                $startYear = $currentYear - 5;
-                                $endYear = $currentYear + 5;
-                            @endphp
-                            @for($year = $startYear; $year <= $endYear; $year++)
-                                <option value="{{ $year }}" @if($year == $currentYear) selected @endif>
-                                    {{ $year }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="exportBtn">Xuất Excel</button>
             </div>
         </div>
     </div>
@@ -155,11 +118,12 @@ $(document).ready(function() {
             { responsivePriority: 1, targets: -1 },
         ],
         ajax: {
-            url: "{{ route('admin.securities.dividend-record.index') }}",
+            url: "{{ route('admin.securities.dividend-record.paid') }}",
             type: 'GET'
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+            {data: 'transfer_date_formatted', name: 'transfer_date', orderable: true},
             {data: 'payment_date_formatted', name: 'payment_date', orderable: true},
             {data: 'total_shares_formatted', name: 'total_shares', orderable: true, className: 'text-right'},
             {data: 'dividend_percentage_formatted', name: 'dividend_percentage', orderable: true, className: 'text-center'},
@@ -233,16 +197,5 @@ $('#confirmDelete').click(function() {
 function exportRecords() {
     toastr.info('Chức năng xuất Excel sẽ được cập nhật');
 }
-
-$('#exportBtn').click(function() {
-    const year = $('#exportYear').val();
-    if (!year) {
-        toastr.error('Vui lòng chọn năm');
-        return;
-    }
-    
-    $('#exportForm').submit();
-    $('#exportModal').modal('hide');
-});
 </script>
 @endpush

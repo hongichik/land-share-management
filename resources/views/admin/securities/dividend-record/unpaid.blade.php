@@ -1,22 +1,22 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý Cổ tức - Danh sách Lần trả')
-@section('page_title', 'Quản lý Cổ tức - Danh sách Lần trả')
+@section('title', 'Quản lý Cổ tức - Danh sách Chưa Trả')
+@section('page_title', 'Quản lý Cổ tức - Danh sách Chưa Trả')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách các lần trả cổ tức</h3>
+                <h3 class="card-title">Danh sách cổ đông chưa nhận tiền cổ tức</h3>
                 <div class="card-tools">
+                    <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-sm btn-secondary" title="Xem tất cả">
+                        <i class="fas fa-list"></i> Tất cả
+                    </a>
                     <a href="{{ route('admin.securities.dividend-record.paid') }}" class="btn btn-sm btn-success" title="Xem đã trả">
                         <i class="fas fa-check-circle"></i> Đã trả
                     </a>
-                    <a href="{{ route('admin.securities.dividend-record.unpaid') }}" class="btn btn-sm btn-warning" title="Xem chưa trả">
-                        <i class="fas fa-clock"></i> Chưa trả
-                    </a>
-                    <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exportModal" title="Xuất Excel">
+                    <button type="button" class="btn btn-sm btn-primary" onclick="exportRecords()" title="Xuất Excel">
                         <i class="fas fa-download"></i> Xuất Excel
                     </button>
                 </div>
@@ -27,13 +27,14 @@
                     <thead>
                         <tr>
                             <th style="width: 10px">#</th>
-                            <th>Thời gian trả</th>
-                            <th>Số lượng cổ phiếu</th>
+                            <th>Tên cổ đông</th>
+                            <th>Mã cổ đông</th>
+                            <th>Tổng cổ phiếu</th>
+                            <th>Số lần trả</th>
                             <th>Tỷ lệ cổ tức</th>
                             <th>Tổng thuế TNCT</th>
-                            <th>Tổng tiền (Trước thuế)</th>
-                            <th>Số nhà đầu tư</th>
-                            <th style="width: 120px">Hành động</th>
+                            <th>Tổng tiền chưa nhận (Sau thuế)</th>
+                            <th style="width: 100px">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -55,49 +56,11 @@
                 </button>
             </div>
             <div class="modal-body">
-                Bạn có chắc chắn muốn xóa tất cả dữ liệu cổ tức cho lần trả này?
+                Bạn có chắc chắn muốn xóa dữ liệu cổ tức của cổ đông này?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Export Modal -->
-<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exportModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Danh sách Cổ đông</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="exportForm" action="{{ route('admin.securities.dividend-record.export') }}" method="get">
-                    <div class="form-group">
-                        <label>Năm</label>
-                        <select name="year" class="form-control" id="exportYear" required>
-                            <option value="">-- Chọn năm --</option>
-                            @php
-                                $currentYear = (int)date('Y');
-                                $startYear = $currentYear - 5;
-                                $endYear = $currentYear + 5;
-                            @endphp
-                            @for($year = $startYear; $year <= $endYear; $year++)
-                                <option value="{{ $year }}" @if($year == $currentYear) selected @endif>
-                                    {{ $year }}
-                                </option>
-                            @endfor
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="exportBtn">Xuất Excel</button>
             </div>
         </div>
     </div>
@@ -155,17 +118,18 @@ $(document).ready(function() {
             { responsivePriority: 1, targets: -1 },
         ],
         ajax: {
-            url: "{{ route('admin.securities.dividend-record.index') }}",
+            url: "{{ route('admin.securities.dividend-record.unpaid') }}",
             type: 'GET'
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'payment_date_formatted', name: 'payment_date', orderable: true},
+            {data: 'investor_name', name: 'investor_name', orderable: true},
+            {data: 'investor_code', name: 'investor_code', orderable: true},
             {data: 'total_shares_formatted', name: 'total_shares', orderable: true, className: 'text-right'},
+            {data: 'record_count_formatted', name: 'record_count', orderable: true, className: 'text-center'},
             {data: 'dividend_percentage_formatted', name: 'dividend_percentage', orderable: true, className: 'text-center'},
             {data: 'tax_info', name: 'tax_info', orderable: false, searchable: false},
-            {data: 'total_amount_formatted', name: 'total_amount_before_tax', orderable: true, className: 'text-right'},
-            {data: 'investor_count_formatted', name: 'investor_count', orderable: true, className: 'text-center'},
+            {data: 'total_amount_after_tax_formatted', name: 'total_amount_after_tax', orderable: true, className: 'text-right'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
         order: [[1, 'desc']],
@@ -183,29 +147,51 @@ $(document).ready(function() {
                 next: "Tiếp",
                 previous: "Trước"
             }
-        },
-        rowCallback: function(row) {
-            // Ensure rawColumns is properly rendered
-            $('td', row).each(function() {
-                if ($(this).html().includes('amount-info-container') || $(this).html().includes('tax-info-container')) {
-                    // Already rendered
-                }
-            });
         }
     });
 });
 
-let deletePaymentDate = null;
+let deleteRecordId = null;
 
-function deleteRecord(paymentDate) {
-    deletePaymentDate = paymentDate;
+function markAsPaid(recordId) {
+    if (confirm('Bạn có chắc chắn muốn đánh dấu cổ đông này đã nhận tiền cổ tức?')) {
+        $.ajax({
+            url: "{{ route('admin.securities.dividend-record.paid') }}",
+            type: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                id: recordId
+            },
+            success: function(response) {
+                if (response.success) {
+                    toastr.success('Cập nhật trạng thái thành công');
+                    $('#dividend-records-table').DataTable().ajax.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function(xhr) {
+                var errorMsg = 'Không thể cập nhật trạng thái';
+                if (xhr.responseJSON?.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                toastr.error('Lỗi: ' + errorMsg);
+            }
+        });
+    }
+}
+
+function deleteRecord(recordId) {
+    deleteRecordId = recordId;
     $('#deleteModal').modal('show');
 }
 
 $('#confirmDelete').click(function() {
-    if (deletePaymentDate) {
+    if (deleteRecordId) {
         $.ajax({
-            url: "{{ route('admin.securities.dividend-record.destroy', '') }}/" + deletePaymentDate,
+            url: "{{ route('admin.securities.dividend-record.destroy', '') }}/" + deleteRecordId,
             type: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -233,16 +219,5 @@ $('#confirmDelete').click(function() {
 function exportRecords() {
     toastr.info('Chức năng xuất Excel sẽ được cập nhật');
 }
-
-$('#exportBtn').click(function() {
-    const year = $('#exportYear').val();
-    if (!year) {
-        toastr.error('Vui lòng chọn năm');
-        return;
-    }
-    
-    $('#exportForm').submit();
-    $('#exportModal').modal('hide');
-});
 </script>
 @endpush

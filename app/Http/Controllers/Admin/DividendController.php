@@ -434,5 +434,145 @@ class DividendController extends Controller
             return response()->json(['error' => 'Lỗi xử lý file: ' . $e->getMessage()], 400);
         }
     }
-}
 
+    /**
+     * Display dividend payment page
+     */
+    public function paymentPage()
+    {
+        return view('admin.securities.dividend.payment');
+    }
+
+    /**
+     * Search investors for payment
+     */
+    public function searchInvestors(Request $request)
+    {
+        try {
+            $searchTerm = $request->input('search', '');
+            $searchBy = $request->input('search_by', 'all');
+            $page = $request->input('page', 1);
+            $perPage = 10;
+
+            $query = SecuritiesManagement::query();
+
+            // Build search conditions
+            if (!empty($searchTerm)) {
+                if ($searchBy === 'all') {
+                    $query->where(function($q) use ($searchTerm) {
+                        $q->where('full_name', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('phone', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('sid', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('registration_number', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('investor_code', 'LIKE', "%{$searchTerm}%");
+                    });
+                } elseif ($searchBy === 'phone') {
+                    $query->where('phone', 'LIKE', "%{$searchTerm}%");
+                } elseif ($searchBy === 'full_name') {
+                    $query->where('full_name', 'LIKE', "%{$searchTerm}%");
+                } elseif ($searchBy === 'sid') {
+                    $query->where('sid', 'LIKE', "%{$searchTerm}%");
+                } elseif ($searchBy === 'registration_number') {
+                    $query->where('registration_number', 'LIKE', "%{$searchTerm}%");
+                }
+            }
+
+            $total = $query->count();
+            
+            $investors = $query->select([
+                'id',
+                'full_name',
+                'phone',
+                'sid',
+                'registration_number',
+                'investor_code',
+                'address',
+                'email',
+                'bank_account',
+                'bank_name',
+                'deposited_quantity',
+                'not_deposited_quantity'
+            ])
+            ->orderBy('full_name')
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get()
+            ->map(function($investor) {
+                // Get unpaid dividend amount
+                $unpaidDividend = DividendRecord::where('securities_management_id', $investor->id)
+                    ->where('payment_status', 'unpaid')
+                    ->selectRaw('SUM(COALESCE(non_deposited_amount_before_tax, 0) + COALESCE(deposited_amount_before_tax, 0)) as total_unpaid')
+                    ->value('total_unpaid') ?? 0;
+
+                $investor->unpaid_dividend = (float)$unpaidDividend;
+                $investor->total_shares = $investor->deposited_quantity + $investor->not_deposited_quantity;
+                return $investor;
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $investors,
+                'total' => $total,
+                'page' => $page,
+                'perPage' => $perPage,
+                'totalPages' => ceil($total / $perPage)
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Search investors error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi tìm kiếm: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Process dividend payment for selected investors
+     */
+    public function processPayment(Request $request)
+    {
+        try {
+            $investorIds = $request->input('investor_ids', []);
+            $paymentDate = $request->input('payment_date');
+            $transferDate = $request->input('transfer_date');
+            $notes = $request->input('notes', '');
+
+            if (empty($investorIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vui lòng chọn ít nhất một nhà đầu tư!'
+                ], 422);
+            }
+
+            if (empty($paymentDate)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vui lòng chọn ngày thanh toán!'
+                ], 422);
+            }
+
+            // Update dividend records to mark as paid
+            $updated = DividendRecord::whereIn('securities_management_id', $investorIds)
+                ->where('payment_status', 'unpaid')
+                ->update([
+                    'payment_status' => 'paid',
+                    'transfer_date' => $transferDate ? date('Y-m-d H:i:s', strtotime($transferDate)) : now(),
+                    'notes' => $notes
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Thanh toán cổ tức cho {$updated} hồ sơ thành công!",
+                'updated_count' => $updated
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Process payment error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xử lý thanh toán: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+}
