@@ -13,7 +13,7 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="info-box">
                             <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
                             <div class="info-box-content">
@@ -22,30 +22,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-6 col-md-6">
                         <div class="info-box">
                             <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Cổ đông hoạt động</span>
                                 <span class="info-box-number" id="active-investors">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="info-box">
-                            <span class="info-box-icon bg-warning"><i class="fas fa-box"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Chưa lưu ký</span>
-                                <span class="info-box-number" id="not-deposited">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="info-box">
-                            <span class="info-box-icon bg-success"><i class="fas fa-lock"></i></span>
-                            <div class="info-box-content">
-                                <span class="info-box-text">Đã lưu ký</span>
-                                <span class="info-box-number" id="deposited">0</span>
                             </div>
                         </div>
                     </div>
@@ -72,16 +54,31 @@
             </div>
             <!-- Bộ lọc -->
             <div class="card-header" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-primary filter-btn active" data-filter="all">
-                        <i class="fas fa-list"></i> Tất cả
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-primary filter-btn" data-filter="large">
-                        <i class="fas fa-star"></i> Cổ đông lớn (≥5%)
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-primary filter-btn" data-filter="small">
-                        <i class="fas fa-user"></i> Cổ đông nhỏ (<5%)
-                    </button>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Tình trạng lưu ký:</label>
+                        <select id="filter-signed" class="form-select form-select-sm filter-select">
+                            <option value="">-- Tất cả --</option>
+                            <option value="signed">Đã lưu ký</option>
+                            <option value="unsigned">Chưa lưu ký</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Tình trạng thanh toán:</label>
+                        <select id="filter-payment" class="form-select form-select-sm filter-select">
+                            <option value="">-- Tất cả --</option>
+                            <option value="unpaid">Chưa thanh toán</option>
+                            <option value="paid_not_deposited">Đã thanh toán (Chưa LK)</option>
+                            <option value="paid_deposited">Đã thanh toán (Đã LK)</option>
+                            <option value="paid_both">Đã thanh toán (Cả 2)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Tùy chọn:</label>
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" id="reset-filters">
+                            <i class="fas fa-redo"></i> Reset bộ lọc
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -93,9 +90,7 @@
                                 <th style="width: 50px;">STT</th>
                                 <th>Thông tin cá nhân</th>
                                 <th>Thông tin đầu tư</th>
-                                <th>Số lượng lưu ký</th>
                                 <th>Cổ tức chưa nhận</th>
-                                <th>Phân loại</th>
                                 <th>Ngân hàng</th>
                                 <th>Ghi chú</th>
                                 <th style="width: 120px;">Hành động</th>
@@ -322,11 +317,9 @@ $(document).ready(function() {
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
             {data: 'group1_personal', name: 'group1_personal', orderable: false, searchable: false},
             {data: 'group2_investor', name: 'group2_investor', orderable: false, searchable: false},
-            {data: 'group3_deposited', name: 'group3_deposited', orderable: false, searchable: false},
-            {data: 'group4_unpaid_dividend', name: 'group4_unpaid_dividend', orderable: false, searchable: false},
-            {data: 'group5_classification', name: 'group5_classification', orderable: false, searchable: false},
-            {data: 'group6_bank', name: 'group6_bank', orderable: false, searchable: false},
-            {data: 'group7_notes', name: 'group7_notes', orderable: false, searchable: false},
+            {data: 'group3_unpaid_dividend', name: 'group3_unpaid_dividend', orderable: false, searchable: false},
+            {data: 'group5_bank', name: 'group5_bank', orderable: false, searchable: false},
+            {data: 'group6_notes', name: 'group6_notes', orderable: false, searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
         language: {
@@ -346,15 +339,31 @@ $(document).ready(function() {
         }
     });
     
-    // Xử lý bộ lọc
-    $('.filter-btn').click(function() {
-        $('.filter-btn').removeClass('active').addClass('btn-outline-primary').removeClass('btn-primary');
-        $(this).addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+    // Xử lý bộ lọc từ dropdown
+    function updateFilters() {
+        var signedFilter = $('#filter-signed').val();
+        var paymentFilter = $('#filter-payment').val();
         
-        currentFilter = $(this).data('filter');
+        var filters = [];
+        if (signedFilter) filters.push(signedFilter);
+        if (paymentFilter) filters.push(paymentFilter);
+        
+        currentFilter = filters.length > 0 ? filters.join(',') : 'all';
         table.ajax.reload();
-        
         loadSummaryStats(currentFilter);
+    }
+    
+    $('.filter-select').change(function() {
+        updateFilters();
+    });
+    
+    // Reset bộ lọc
+    $('#reset-filters').click(function() {
+        $('#filter-signed').val('');
+        $('#filter-payment').val('');
+        currentFilter = 'all';
+        table.ajax.reload();
+        loadSummaryStats('all');
     });
     
     // Load initial stats

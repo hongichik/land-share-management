@@ -22,7 +22,7 @@ class DividendRecordController extends Controller
             // Lấy dữ liệu grouped by payment_date - TẤT CẢ
             $dividendRecords = DividendRecord::selectRaw('
                 payment_date,
-                COUNT(DISTINCT securities_management_id) as investor_count,
+                COUNT(DISTINCT dividend_id) as investor_count,
                 SUM(COALESCE(non_deposited_shares_quantity, 0) + COALESCE(deposited_shares_quantity, 0)) as total_shares,
                 dividend_percentage,
                 SUM(COALESCE(deposited_personal_income_tax, 0)) as total_deposited_tax,
@@ -103,7 +103,7 @@ class DividendRecordController extends Controller
             $dividendRecords = DividendRecord::selectRaw('
                 transfer_date,
                 MAX(payment_date) as payment_date,
-                COUNT(DISTINCT securities_management_id) as investor_count,
+                COUNT(DISTINCT dividend_id) as investor_count,
                 SUM(COALESCE(non_deposited_shares_quantity, 0) + COALESCE(deposited_shares_quantity, 0)) as total_shares,
                 dividend_percentage,
                 SUM(COALESCE(deposited_personal_income_tax, 0)) as total_deposited_tax,
@@ -114,7 +114,7 @@ class DividendRecordController extends Controller
                 MAX(created_at) as created_at
             ')
             ->whereNotNull('transfer_date')
-            ->where('payment_status', 'paid')
+            ->whereIn('payment_status', ['paid_not_deposited', 'paid_deposited', 'paid_both'])
             ->groupBy('transfer_date', 'dividend_percentage')
             ->orderBy('transfer_date', 'desc');
 
@@ -186,7 +186,7 @@ class DividendRecordController extends Controller
         if ($request->ajax()) {
             // Lấy danh sách grouped by investor - NHỮNG CÁI CHƯA TRẢ
             $records = DividendRecord::selectRaw('
-                securities_management_id,
+                dividend_id,
                 SUM(COALESCE(non_deposited_shares_quantity, 0) + COALESCE(deposited_shares_quantity, 0)) as total_shares,
                 COUNT(*) as record_count,
                 MAX(dividend_percentage) as dividend_percentage,
@@ -197,21 +197,18 @@ class DividendRecordController extends Controller
                 SUM(COALESCE(deposited_amount_before_tax, 0) + COALESCE(non_deposited_amount_before_tax, 0)) as total_amount_before_tax,
                 MAX(created_at) as created_at
             ')
-            ->with('securitiesManagement')
-            ->where(function ($query) {
-                $query->where('payment_status', 'unpaid')
-                      ->orWhereNull('payment_status');
-            })
-            ->groupBy('securities_management_id')
+            ->with('dividend')
+            ->where('payment_status', 'unpaid')
+            ->groupBy('dividend_id')
             ->orderBy('created_at', 'desc');
 
             return DataTables::of($records)
                 ->addIndexColumn()
                 ->addColumn('investor_name', function ($row) {
-                    return $row->securitiesManagement->full_name ?? 'N/A';
+                    return $row->dividend->full_name ?? 'N/A';
                 })
                 ->addColumn('investor_code', function ($row) {
-                    return $row->securitiesManagement->investor_code ?? 'N/A';
+                    return $row->dividend->investor_code ?? 'N/A';
                 })
                 ->addColumn('total_shares_formatted', function ($row) {
                     return number_format($row->total_shares ?? 0);
@@ -250,7 +247,7 @@ class DividendRecordController extends Controller
                 })
                 ->addColumn('action', function ($row) {
                     $btn = '<div class="btn-group" role="group">';
-                    $btn .= '<a href="' . route('admin.securities.dividend-record.unpaid.detail', ['investorId' => $row->securities_management_id]) . '" class="btn btn-info btn-sm" title="Xem chi tiết">';
+                    $btn .= '<a href="' . route('admin.securities.dividend-record.unpaid.detail', ['investorId' => $row->dividend_id]) . '" class="btn btn-info btn-sm" title="Xem chi tiết">';
                     $btn .= '<i class="fas fa-eye"></i></a>';
                     $btn .= '</div>';
                     return $btn;
@@ -268,18 +265,18 @@ class DividendRecordController extends Controller
     public function paidDetail(Request $request, $transferDate)
     {
         if ($request->ajax()) {
-            $records = DividendRecord::with('securitiesManagement')
+            $records = DividendRecord::with('dividend')
                 ->where('transfer_date', $transferDate)
-                ->where('payment_status', 'paid')
+                ->whereIn('payment_status', ['paid_not_deposited', 'paid_deposited', 'paid_both'])
                 ->orderBy('created_at', 'desc');
 
             return DataTables::of($records)
                 ->addIndexColumn()
                 ->addColumn('investor_name', function ($row) {
-                    return $row->securitiesManagement->full_name ?? 'N/A';
+                    return $row->dividend->full_name ?? 'N/A';
                 })
                 ->addColumn('investor_code', function ($row) {
-                    return $row->securitiesManagement->investor_code ?? 'N/A';
+                    return $row->dividend->investor_code ?? 'N/A';
                 })
                 ->addColumn('total_shares', function ($row) {
                     return number_format(($row->non_deposited_shares_quantity ?? 0) + ($row->deposited_shares_quantity ?? 0));
@@ -313,9 +310,14 @@ class DividendRecordController extends Controller
                 })
                 ->addColumn('payment_status', function ($row) {
                     $status = $row->payment_status ?? 'unpaid';
-                    $badge = $status === 'paid' ? 'badge-success' : 'badge-danger';
-                    $text = $status === 'paid' ? 'Đã trả' : 'Chưa trả';
-                    return '<span class="badge ' . $badge . '">' . $text . '</span>';
+                    $statusMap = [
+                        'unpaid' => ['badge' => 'badge-danger', 'text' => 'Chưa trả'],
+                        'paid_not_deposited' => ['badge' => 'badge-warning', 'text' => 'Đã trả (Chưa LK)'],
+                        'paid_deposited' => ['badge' => 'badge-info', 'text' => 'Đã trả (Đã LK)'],
+                        'paid_both' => ['badge' => 'badge-success', 'text' => 'Đã trả (Cả 2)']
+                    ];
+                    $statusInfo = $statusMap[$status] ?? ['badge' => 'badge-secondary', 'text' => 'Không xác định'];
+                    return '<span class="badge ' . $statusInfo['badge'] . '">' . $statusInfo['text'] . '</span>';
                 })
                 ->rawColumns(['payment_status'])
                 ->make(true);
@@ -334,12 +336,9 @@ class DividendRecordController extends Controller
     public function unpaidDetail(Request $request, $investorId)
     {
         if ($request->ajax()) {
-            $records = DividendRecord::with('securitiesManagement')
-                ->where('securities_management_id', $investorId)
-                ->where(function ($query) {
-                    $query->where('payment_status', 'unpaid')
-                          ->orWhereNull('payment_status');
-                })
+            $records = DividendRecord::with('dividend')
+                ->where('dividend_id', $investorId)
+                ->where('payment_status', 'unpaid')
                 ->orderBy('payment_date', 'desc')
                 ->orderBy('created_at', 'desc');
 
@@ -349,10 +348,10 @@ class DividendRecordController extends Controller
                     return $row->payment_date ? date('d/m/Y', strtotime($row->payment_date)) : 'N/A';
                 })
                 ->addColumn('investor_name', function ($row) {
-                    return $row->securitiesManagement->full_name ?? 'N/A';
+                    return $row->dividend->full_name ?? 'N/A';
                 })
                 ->addColumn('investor_code', function ($row) {
-                    return $row->securitiesManagement->investor_code ?? 'N/A';
+                    return $row->dividend->investor_code ?? 'N/A';
                 })
                 ->addColumn('total_shares', function ($row) {
                     return number_format(($row->non_deposited_shares_quantity ?? 0) + ($row->deposited_shares_quantity ?? 0));
@@ -386,15 +385,20 @@ class DividendRecordController extends Controller
                 })
                 ->addColumn('payment_status', function ($row) {
                     $status = $row->payment_status ?? 'unpaid';
-                    $badge = $status === 'paid' ? 'badge-success' : 'badge-danger';
-                    $text = $status === 'paid' ? 'Đã trả' : 'Chưa trả';
-                    return '<span class="badge ' . $badge . '">' . $text . '</span>';
+                    $statusMap = [
+                        'unpaid' => ['badge' => 'badge-danger', 'text' => 'Chưa trả'],
+                        'paid_not_deposited' => ['badge' => 'badge-warning', 'text' => 'Đã trả (Chưa LK)'],
+                        'paid_deposited' => ['badge' => 'badge-info', 'text' => 'Đã trả (Đã LK)'],
+                        'paid_both' => ['badge' => 'badge-success', 'text' => 'Đã trả (Cả 2)']
+                    ];
+                    $statusInfo = $statusMap[$status] ?? ['badge' => 'badge-secondary', 'text' => 'Không xác định'];
+                    return '<span class="badge ' . $statusInfo['badge'] . '">' . $statusInfo['text'] . '</span>';
                 })
                 ->rawColumns(['payment_status'])
                 ->make(true);
         }
 
-        $investor = \App\Models\SecuritiesManagement::find($investorId);
+        $investor = \App\Models\Dividend::find($investorId);
         return view('admin.securities.dividend-record.unpaid-detail', [
             'investorId' => $investorId,
             'investorName' => $investor->full_name ?? 'N/A'
@@ -407,17 +411,17 @@ class DividendRecordController extends Controller
     public function detail(Request $request, $paymentDate)
     {
         if ($request->ajax()) {
-            $records = DividendRecord::with('securitiesManagement')
+            $records = DividendRecord::with('dividend')
                 ->where('payment_date', $paymentDate)
                 ->orderBy('created_at', 'desc');
 
             return DataTables::of($records)
                 ->addIndexColumn()
                 ->addColumn('investor_name', function ($row) {
-                    return $row->securitiesManagement->full_name ?? 'N/A';
+                    return $row->dividend->full_name ?? 'N/A';
                 })
                 ->addColumn('investor_code', function ($row) {
-                    return $row->securitiesManagement->investor_code ?? 'N/A';
+                    return $row->dividend->investor_code ?? 'N/A';
                 })
                 ->addColumn('total_shares', function ($row) {
                     return number_format(($row->non_deposited_shares_quantity ?? 0) + ($row->deposited_shares_quantity ?? 0));
@@ -445,9 +449,14 @@ class DividendRecordController extends Controller
                 })
                 ->addColumn('payment_status', function ($row) {
                     $status = $row->payment_status ?? 'unpaid';
-                    $badge = $status === 'paid' ? 'badge-success' : 'badge-danger';
-                    $text = $status === 'paid' ? 'Đã trả' : 'Chưa trả';
-                    return '<span class="badge ' . $badge . '">' . $text . '</span>';
+                    $statusMap = [
+                        'unpaid' => ['badge' => 'badge-danger', 'text' => 'Chưa trả'],
+                        'paid_not_deposited' => ['badge' => 'badge-warning', 'text' => 'Đã trả (Chưa LK)'],
+                        'paid_deposited' => ['badge' => 'badge-info', 'text' => 'Đã trả (Đã LK)'],
+                        'paid_both' => ['badge' => 'badge-success', 'text' => 'Đã trả (Cả 2)']
+                    ];
+                    $statusInfo = $statusMap[$status] ?? ['badge' => 'badge-secondary', 'text' => 'Không xác định'];
+                    return '<span class="badge ' . $statusInfo['badge'] . '">' . $statusInfo['text'] . '</span>';
                 })
                 ->rawColumns(['payment_status'])
                 ->make(true);

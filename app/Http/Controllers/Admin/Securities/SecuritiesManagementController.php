@@ -413,4 +413,20 @@ class SecuritiesManagementController extends Controller
             return response()->json(['error' => 'Lỗi xử lý file: ' . $e->getMessage()], 400);
         }
     }
+
+    /**
+     * Export large shareholders (>= 5%)
+     */
+    public function exportLargeShareholders()
+    {
+        try {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\LargeShareholderExport(),
+                'Danh_sach_co_dong_lon_' . date('d_m_Y') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Export large shareholders error', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
+        }
+    }
 }

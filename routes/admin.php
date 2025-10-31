@@ -48,6 +48,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::post('import-confirm', [SecuritiesManagementController::class, 'importConfirm'])
                     ->name('import-confirm');
 
+                // Export routes
+                Route::get('export-large-shareholders', [SecuritiesManagementController::class, 'exportLargeShareholders'])
+                    ->name('export-large-shareholders');
+
                 // Individual resource routes
                 Route::get('summary-stats', [SecuritiesManagementController::class, 'getSummaryStats'])->name('summary-stats');
                 Route::get('/', [SecuritiesManagementController::class, 'index'])->name('index');

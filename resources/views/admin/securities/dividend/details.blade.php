@@ -125,10 +125,12 @@
                                         <td><strong>{{ $index + 1 }}</strong></td>
                                         <td><strong>{{ $formattedDate }}</strong></td>
                                         <td>
-                                            @if($record->payment_status === 'paid')
-                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã thanh toán</span>
+                                            @if($record->payment_status === 'paid_not_deposited')
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã trả (chưa LK)</span>
+                                            @elseif($record->payment_status === 'paid_deposited')
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Đã trả (đã LK)</span>
                                             @else
-                                                <span class="badge badge-warning"><i class="fas fa-hourglass-half"></i> Chưa thanh toán</span>
+                                                <span class="badge badge-warning"><i class="fas fa-hourglass-half"></i> Chưa trả</span>
                                             @endif
                                         </td>
                                         <td>{{ number_format($record->non_deposited_shares_quantity ?? 0) }}</td>
@@ -211,7 +213,7 @@ $(document).ready(function() {
             @endphp
             
             totalDividend += {{ $totalAfterTax }};
-            @if($record->payment_status === 'paid')
+            @if($record->payment_status === 'paid_not_deposited' || $record->payment_status === 'paid_deposited')
                 paidTotal += {{ $totalAfterTax }};
             @else
                 unpaidTotal += {{ $totalAfterTax }};

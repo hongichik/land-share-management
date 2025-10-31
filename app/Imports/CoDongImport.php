@@ -62,10 +62,10 @@ class CoDongImport implements ToModel, WithHeadingRow
         try {
             // Normalize header keys to lowercase
             $row = array_change_key_case($row, CASE_LOWER);
-            
+
             // Extract data from row based on mappings
             $data = $this->extractRowData($row);
-            
+
             // Validate required fields
             if (empty($data['full_name'])) {
                 $this->addError($this->processedRows + 2, "Họ tên không được để trống");
@@ -75,48 +75,17 @@ class CoDongImport implements ToModel, WithHeadingRow
             // Apply default values
             $data = $this->applyDefaults($data);
 
-            // Find existing record by full_name and sid (unique identifier)
-            $existingRecord = SecuritiesManagement::where('full_name', $data['full_name']);
+            // Xóa các bản ghi cũ dựa trên full_name và registration_number (nếu có)
+            $query = SecuritiesManagement::where('full_name', $data['full_name']);
 
             if (!empty($data['registration_number'])) {
-                $existingRecord = $existingRecord->orWhere(function ($query) use ($data) {
-                    $query->where('registration_number', $data['registration_number']);
-                });
+                $query = $query->orWhere('registration_number', $data['registration_number']);
             }
 
-            $existingRecord = $existingRecord->first();
+            $query->delete();
 
-            if ($existingRecord) {
-                // Update existing record
-                $changes = [];
-                foreach ($data as $key => $value) {
-                    $oldValue = $existingRecord->$key;
-                    if ($oldValue !== $value) {
-                        $changes[$key] = [
-                            'old' => $oldValue,
-                            'new' => $value
-                        ];
-                    }
-                }
-                
-                $existingRecord->update($data);
-                // Log::info("Updated securities management", [
-                //     'id' => $existingRecord->id,
-                //     'full_name' => $data['full_name'],
-                //     'changes' => $changes
-                // ]);
-                return $existingRecord;
-            } else {
-                // Create new record
-                // Log::info("Creating new securities management", [
-                //     'full_name' => $data['full_name'],
-                //     'registration_number' => $data['registration_number'] ?? null,
-                //     'not_deposited_quantity' => $data['not_deposited_quantity'] ?? null,
-                //     'deposited_quantity' => $data['deposited_quantity'] ?? null,
-                //     'all_data' => $data
-                // ]);
-                return new SecuritiesManagement($data);
-            }
+            // Tạo bản ghi mới
+            return new SecuritiesManagement($data);
 
         } catch (Throwable $e) {
             $this->addError($this->processedRows + 2, $e->getMessage());

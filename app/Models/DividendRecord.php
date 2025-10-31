@@ -23,7 +23,7 @@ class DividendRecord extends Model
      * @var array
      */
     protected $fillable = [
-        'securities_management_id',
+        'dividend_id',
         'deposited_shares_quantity',
         'non_deposited_shares_quantity',
         'deposited_amount_before_tax',
@@ -59,11 +59,19 @@ class DividendRecord extends Model
     ];
 
     /**
-     * Get the securities management record that owns the dividend record.
+     * Get the dividend that owns the dividend record.
      */
-    public function securitiesManagement(): BelongsTo
+    public function dividend()
     {
-        return $this->belongsTo(SecuritiesManagement::class, 'securities_management_id');
+        return $this->belongsTo(Dividend::class, 'dividend_id');
+    }
+
+    /**
+     * Alias for dividend() relationship - for backward compatibility
+     */
+    public function securitiesManagement()
+    {
+        return $this->dividend();
     }
 
     /**

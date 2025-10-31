@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Admin\Securities;
 
 use App\Http\Controllers\Controller;
 use App\Imports\InvestorsImport;
+use App\Models\Dividend;
 use App\Models\DividendRecord;
-use App\Models\SecuritiesManagement;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
@@ -19,32 +19,17 @@ class DividendController extends Controller
     {
         $filter = $request->input('filter', 'all');
         
-        // Tính tổng số cổ phần của tất cả cổ đông
-        $totalShares = SecuritiesManagement::selectRaw('SUM(COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) as total')
-            ->value('total') ?? 1;
-        
-        $query = SecuritiesManagement::query();
-        
-        // Áp dụng bộ lọc dựa trên tỷ lệ phần trăm
-        if ($filter === 'large') {
-            // Cổ đông lớn: tỷ lệ cổ phần >= 5%
-            $query->whereRaw('((COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) / ' . $totalShares . ' * 100) >= 5');
-        } elseif ($filter === 'small') {
-            // Cổ đông nhỏ: tỷ lệ cổ phần < 5%
-            $query->whereRaw('((COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) / ' . $totalShares . ' * 100) < 5');
-        }
+        $query = Dividend::query();
         
         $totalInvestors = $query->count();
-        $notDepositedTotal = $query->sum('not_deposited_quantity');
-        $depositedTotal = $query->sum('deposited_quantity');
 
         return response()->json([
             'total_investors' => number_format($totalInvestors),
             'active_investors' => number_format($totalInvestors),
-            'not_deposited' => number_format($notDepositedTotal),
-            'deposited' => number_format($depositedTotal),
+            'not_deposited' => '0',
+            'deposited' => '0',
             'active_percentage' => $totalInvestors > 0 ? round(($totalInvestors / $totalInvestors) * 100, 1) : 0,
-            'deposited_percentage' => ($notDepositedTotal + $depositedTotal) > 0 ? round(($depositedTotal / ($notDepositedTotal + $depositedTotal)) * 100, 1) : 0
+            'deposited_percentage' => 0
         ]);
     }
 
@@ -111,11 +96,7 @@ class DividendController extends Controller
                 $search = trim($searchParam ?? '');
             }
             
-            // Tính tổng số cổ phần của tất cả cổ đông
-            $totalShares = SecuritiesManagement::selectRaw('SUM(COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) as total')
-                ->value('total') ?? 1;
-            
-            $securities = SecuritiesManagement::select([
+            $securities = Dividend::select([
                 'id',
                 'full_name',
                 'address',
@@ -126,10 +107,6 @@ class DividendController extends Controller
                 'investor_code',
                 'registration_number',
                 'issue_date',
-                'not_deposited_quantity',
-                'deposited_quantity',
-                'slqmpb_chualk',
-                'slqmpb_dalk',
                 'cntc',
                 'txnum',
                 'bank_account',
@@ -138,13 +115,53 @@ class DividendController extends Controller
                 'created_at'
             ]);
 
-            // Áp dụng bộ lọc dựa trên tỷ lệ phần trăm
-            if ($filter === 'large') {
-                // Cổ đông lớn: tỷ lệ cổ phần >= 5%
-                $securities = $securities->whereRaw('((COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) / ' . $totalShares . ' * 100) >= 5');
-            } elseif ($filter === 'small') {
-                // Cổ đông nhỏ: tỷ lệ cổ phần < 5%
-                $securities = $securities->whereRaw('((COALESCE(not_deposited_quantity, 0) + COALESCE(deposited_quantity, 0)) / ' . $totalShares . ' * 100) < 5');
+            // Áp dụng bộ lọc
+            $filters = explode(',', $filter);
+            $filters = array_map('trim', $filters);
+            $filters = array_filter($filters); // Remove empty values
+            
+            foreach ($filters as $f) {
+                switch ($f) {
+                    case 'signed':
+                        // Hiển thị những người đã lưu ký: có deposited_shares_quantity > 0
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->where('deposited_shares_quantity', '>', 0);
+                        });
+                        break;
+                    case 'unsigned':
+                        // Hiển thị những người chưa lưu ký: có non_deposited_shares_quantity > 0
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->where('non_deposited_shares_quantity', '>', 0);
+                        });
+                        break;
+                    case 'unpaid':
+                        // Hiển thị những người chưa thanh toán
+                        $securities = $securities->where(function($query) {
+                            $query->doesntHave('dividendRecords')
+                                  ->orWhereDoesntHave('dividendRecords', function($subquery) {
+                                      $subquery->whereIn('payment_status', ['paid_not_deposited', 'paid_deposited', 'paid_both']);
+                                  });
+                        });
+                        break;
+                    case 'paid_not_deposited':
+                        // Hiển thị những người đã thanh toán cho chưa lưu ký
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->where('payment_status', 'paid_not_deposited');
+                        });
+                        break;
+                    case 'paid_deposited':
+                        // Hiển thị những người đã thanh toán cho đã lưu ký
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->where('payment_status', 'paid_deposited');
+                        });
+                        break;
+                    case 'paid_both':
+                        // Hiển thị những người đã thanh toán cho cả hai
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->where('payment_status', 'paid_both');
+                        });
+                        break;
+                }
             }
 
             // Áp dụng tìm kiếm
@@ -163,8 +180,7 @@ class DividendController extends Controller
                 ->addIndexColumn()
                 // Cột 1: Thông tin cá nhân
                 ->addColumn('group1_personal', function ($row) {
-                    return '<div class="group-header group-personal" style="margin-bottom: 5px;">👤 Thông tin cá nhân</div>' .
-                        '<div class="group-content">' .
+                    return '<div class="group-content">' .
                         '<strong>Tên:</strong> ' . $row->full_name . '<br>' .
                         '<strong>Địa chỉ:</strong> ' . $row->address . '<br>' .
                         '<strong>Điện thoại:</strong> ' . ($row->phone ?? 'N/A') . '<br>' .
@@ -174,59 +190,86 @@ class DividendController extends Controller
                 })
                 // Cột 2: Thông tin đầu tư
                 ->addColumn('group2_investor', function ($row) {
-                    return '<div class="group-header group-investor" style="margin-bottom: 5px;">📊 Thông tin đầu tư</div>' .
-                        '<div class="group-content">' .
+                    return '<div class="group-content">' .
                         '<strong>SID:</strong> ' . ($row->sid ?? 'N/A') . '<br>' .
                         '<strong>Mã NĐT:</strong> ' . ($row->investor_code ?? 'N/A') . '<br>' .
                         '<strong>Số ĐK:</strong> ' . ($row->registration_number ?? 'N/A') . '<br>' .
                         '<strong>Ngày PH:</strong> ' . ($row->issue_date ? $row->issue_date->format('d/m/Y') : 'N/A') . '<br>' .
                         '</div>';
                 })
-                // Cột 3: Số lượng lưu ký
-                ->addColumn('group3_deposited', function ($row) {
-                    $total = ($row->not_deposited_quantity ?? 0) + ($row->deposited_quantity ?? 0);
-                    return '<div class="group-header group-deposited" style="margin-bottom: 5px;">📦 Số lượng lưu ký</div>' .
-                        '<div class="group-content">' .
-                        '<strong>Chưa LK:</strong> ' . number_format($row->not_deposited_quantity ?? 0) . '<br>' .
-                        '<strong>Đã LK:</strong> ' . number_format($row->deposited_quantity ?? 0) . '<br>' .
-                        '<strong style="color: #28a745;">Tổng:</strong> ' . number_format($total) . 
-                        '</div>';
-                })
-                // Cột 4: Cổ tức chưa nhận
-                ->addColumn('group4_unpaid_dividend', function ($row) {
-                    // Tính tổng tiền cổ tức chưa nhận
-                    $unpaidDividend = DividendRecord::where('securities_management_id', $row->id)
-                        ->where('payment_status', 'unpaid')
-                        ->selectRaw('SUM(COALESCE(non_deposited_amount_before_tax, 0) + COALESCE(deposited_amount_before_tax, 0)) as total_unpaid')
-                        ->value('total_unpaid') ?? 0;
+                // Cột 3: Cổ tức chưa nhận
+                ->addColumn('group3_unpaid_dividend', function ($row) use ($filter, $request) {
+                    // Lấy tất cả bản ghi cổ tức
+                    $records = DividendRecord::where('dividend_id', $row->id)->get();
                     
-                    return '<div class="group-header group-dividend" style="margin-bottom: 5px;">💰 Cổ tức chưa nhận</div>' .
-                        '<div class="group-content">' .
-                        '<strong style="color: #dc3545; font-size: 14px;">' . number_format((float)$unpaidDividend, 0, ',', '.') . ' đ</strong>' .
-                        '</div>';
+                    // Kiểm tra filter hiện tại
+                    $showUndeposited = true;  // Mặc định hiển thị cả hai
+                    $showDeposited = true;
+                    
+                    $filters = explode(',', $filter);
+                    $filters = array_map('trim', $filters);
+                    $filters = array_filter($filters);
+                    
+                    if (in_array('signed', $filters)) {
+                        $showUndeposited = false;  // Chỉ hiển thị deposited
+                    } elseif (in_array('unsigned', $filters)) {
+                        $showDeposited = false;    // Chỉ hiển thị undeposited
+                    }
+                    
+                    // Tính tổng tiền đã nhận
+                    $totalPaidNotDeposited = 0;
+                    $totalPaidDeposited = 0;
+                    $totalUnpaidNotDeposited = 0;
+                    $totalUnpaidDeposited = 0;
+                    
+                    foreach ($records as $record) {
+                        // Tính tiền đã thanh toán dựa trên payment_status
+                        if (in_array($record->payment_status, ['paid_not_deposited', 'paid_both'])) {
+                            $totalPaidNotDeposited += (float)$record->non_deposited_amount_before_tax;
+                        } else {
+                            $totalUnpaidNotDeposited += (float)$record->non_deposited_amount_before_tax;
+                        }
+                        
+                        if (in_array($record->payment_status, ['paid_deposited', 'paid_both'])) {
+                            $totalPaidDeposited += (float)$record->deposited_amount_before_tax;
+                        } else {
+                            $totalUnpaidDeposited += (float)$record->deposited_amount_before_tax;
+                        }
+                    }
+                    
+                    $html = '<div class="group-content" style="font-size: 12px;">';
+                    
+                    // Hiển thị phần chưa lưu ký nếu cần
+                    if ($showUndeposited) {
+                        $totalPaidUndeposited = $totalPaidNotDeposited;
+                        $totalUnpaidUndeposited = $totalUnpaidNotDeposited;
+                        $html .= '<strong style="color: #28a745;">Đã nhận (Chưa LK):</strong> ' . number_format($totalPaidUndeposited, 0, ',', '.') . ' đ<br>';
+                        $html .= '<strong style="color: #dc3545;">Chưa nhận (Chưa LK):</strong> ' . number_format($totalUnpaidUndeposited, 0, ',', '.') . ' đ<br>';
+                    }
+                    
+                    // Hiển thị phần đã lưu ký nếu cần
+                    if ($showDeposited) {
+                        $totalPaidDep = $totalPaidDeposited;
+                        $totalUnpaidDep = $totalUnpaidDeposited;
+                        $html .= '<strong style="color: #28a745;">Đã nhận (Đã LK):</strong> ' . number_format($totalPaidDep, 0, ',', '.') . ' đ<br>';
+                        $html .= '<strong style="color: #dc3545;">Chưa nhận (Đã LK):</strong> ' . number_format($totalUnpaidDep, 0, ',', '.') . ' đ';
+                    }
+                    
+                    $html .= '</div>';
+                    return $html;
                 })
-                // Cột 5: Phân loại
-                ->addColumn('group5_classification', function ($row) {
-                    return '<div class="group-header group-classification" style="margin-bottom: 5px;">🏷️ Phân loại</div>' .
-                        '<div class="group-content">' .
-                        '<strong>CNTC:</strong> ' . ($row->cntc == '1' ? 'Cá nhân (CN)' : ($row->cntc == '2' ? 'Tổ chức (TC)' : ($row->cntc ?? 'N/A'))) . '<br>' .
-                        '<strong>TXNUM:</strong> ' . ($row->txnum ?? 'N/A') . 
-                        '</div>';
-                })
-                // Cột 6: Thông tin ngân hàng
-                ->addColumn('group6_bank', function ($row) {
-                    return '<div class="group-header group-bank" style="margin-bottom: 5px;">🏦 Ngân hàng</div>' .
-                        '<div class="group-content">' .
+                // Cột 4: Thông tin ngân hàng
+                ->addColumn('group5_bank', function ($row) {
+                    return '<div class="group-content">' .
                         '<strong>Tài khoản:</strong> ' . ($row->bank_account ?? 'N/A') . '<br>' .
                         '<strong>Ngân hàng:</strong> ' . ($row->bank_name ?? 'N/A') . '<br>' .
                         '</div>';
                 })
-                // Cột 7: Ghi chú
-                ->addColumn('group7_notes', function ($row) {
+                // Cột 5: Ghi chú
+                ->addColumn('group6_notes', function ($row) {
                     $notes = $row->notes ?? 'N/A';
                     $shortNotes = strlen($notes) > 50 ? substr($notes, 0, 50) . '...' : $notes;
-                    return '<div class="group-header group-notes" style="margin-bottom: 5px;">📝 Ghi chú</div>' .
-                        '<div class="group-content" title="' . htmlspecialchars($notes) . '">' . 
+                    return '<div class="group-content" title="' . htmlspecialchars($notes) . '">' . 
                         htmlspecialchars($shortNotes) . 
                         '</div>';
                 })
@@ -241,7 +284,7 @@ class DividendController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['group1_personal', 'group2_investor', 'group3_deposited', 'group4_unpaid_dividend', 'group5_classification', 'group6_bank', 'group7_notes', 'action'])
+                ->rawColumns(['group1_personal', 'group2_investor', 'group3_unpaid_dividend', 'group5_bank', 'group6_notes', 'action'])
                 ->make(true);
         }
 
@@ -252,14 +295,14 @@ class DividendController extends Controller
     /**
      * Get dividend details for a specific investor
      */
-    public function dividendDetails(SecuritiesManagement $securitiesManagement)
+    public function dividendDetails(Dividend $dividend)
     {
-        $dividendRecords = DividendRecord::where('securities_management_id', $securitiesManagement->id)
+        $dividendRecords = DividendRecord::where('dividend_id', $dividend->id)
             ->orderBy('payment_date', 'desc')
             ->get();
 
         return view('admin.securities.dividend.details', [
-            'investor' => $securitiesManagement,
+            'investor' => $dividend,
             'dividendRecords' => $dividendRecords
         ]);
     }
@@ -267,20 +310,20 @@ class DividendController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(SecuritiesManagement $securitiesManagement)
+    public function destroy(Dividend $dividend)
     {
-        $securitiesManagement->delete();
+        $dividend->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'Xóa thông tin quản lý chứng khoán thành công!'
+            'message' => 'Xóa thông tin cổ tức thành công!'
         ]);
     }
 
     /**
      * Update bank information for a securities record
      */
-    public function updateBank(Request $request, SecuritiesManagement $securitiesManagement)
+    public function updateBank(Request $request, Dividend $dividend)
     {
         $request->validate([
             'bank_name' => 'required|string|max:255',
@@ -288,7 +331,7 @@ class DividendController extends Controller
         ]);
 
         try {
-            $securitiesManagement->update([
+            $dividend->update([
                 'bank_name' => $request->input('bank_name'),
                 'bank_account' => $request->input('bank_account'),
             ]);
@@ -297,8 +340,8 @@ class DividendController extends Controller
                 'success' => true,
                 'message' => 'Cập nhật thông tin ngân hàng thành công!',
                 'data' => [
-                    'bank_name' => $securitiesManagement->bank_name,
-                    'bank_account' => $securitiesManagement->bank_account,
+                    'bank_name' => $dividend->bank_name,
+                    'bank_account' => $dividend->bank_account,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -322,7 +365,7 @@ class DividendController extends Controller
         $page = $request->input('page', 1);
         $perPage = 10;
         
-        $query = SecuritiesManagement::query();
+        $query = Dividend::query();
         
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
@@ -454,7 +497,7 @@ class DividendController extends Controller
             $page = $request->input('page', 1);
             $perPage = 10;
 
-            $query = SecuritiesManagement::query();
+            $query = Dividend::query();
 
             // Build search conditions
             if (!empty($searchTerm)) {
@@ -489,23 +532,37 @@ class DividendController extends Controller
                 'address',
                 'email',
                 'bank_account',
-                'bank_name',
-                'deposited_quantity',
-                'not_deposited_quantity'
+                'bank_name'
             ])
             ->orderBy('full_name')
             ->offset(($page - 1) * $perPage)
             ->limit($perPage)
             ->get()
             ->map(function($investor) {
-                // Get unpaid dividend amount
-                $unpaidDividend = DividendRecord::where('securities_management_id', $investor->id)
-                    ->where('payment_status', 'unpaid')
-                    ->selectRaw('SUM(COALESCE(non_deposited_amount_before_tax, 0) + COALESCE(deposited_amount_before_tax, 0)) as total_unpaid')
-                    ->value('total_unpaid') ?? 0;
+                // Get unpaid dividend amount - tính tổng tiền chưa nhận
+                $records = DividendRecord::where('dividend_id', $investor->id)->get();
+                
+                $totalUnpaidNotDeposited = 0;
+                $totalUnpaidDeposited = 0;
+                
+                foreach ($records as $record) {
+                    // Nếu chưa thanh toán cho chưa lưu ký
+                    if (!in_array($record->payment_status, ['paid_not_deposited', 'paid_both'])) {
+                        $totalUnpaidNotDeposited += (float)$record->non_deposited_amount_before_tax;
+                    }
+                    
+                    // Nếu chưa thanh toán cho đã lưu ký
+                    if (!in_array($record->payment_status, ['paid_deposited', 'paid_both'])) {
+                        $totalUnpaidDeposited += (float)$record->deposited_amount_before_tax;
+                    }
+                }
+                
+                $unpaidDividend = $totalUnpaidNotDeposited + $totalUnpaidDeposited;
 
-                $investor->unpaid_dividend = (float)$unpaidDividend;
-                $investor->total_shares = $investor->deposited_quantity + $investor->not_deposited_quantity;
+                $investor->unpaid_dividend = $unpaidDividend;
+                $investor->unpaid_not_deposited = $totalUnpaidNotDeposited;
+                $investor->unpaid_deposited = $totalUnpaidDeposited;
+                $investor->can_select = $unpaidDividend > 0; // Chỉ cho phép chọn nếu có tiền chưa nhận
                 return $investor;
             });
 
@@ -553,10 +610,10 @@ class DividendController extends Controller
             }
 
             // Update dividend records to mark as paid
-            $updated = DividendRecord::whereIn('securities_management_id', $investorIds)
-                ->where('payment_status', 'unpaid')
+            $updated = DividendRecord::whereIn('dividend_id', $investorIds)
+                ->whereIn('payment_status', ['unpaid', 'paid_not_deposited', 'paid_deposited'])
                 ->update([
-                    'payment_status' => 'paid',
+                    'payment_status' => 'paid_deposited', // Khi thanh toán từ giao diện -> đã trả đã lưu ký
                     'transfer_date' => $transferDate ? date('Y-m-d H:i:s', strtotime($transferDate)) : now(),
                     'notes' => $notes
                 ]);

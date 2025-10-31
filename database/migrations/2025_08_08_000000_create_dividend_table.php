@@ -13,39 +13,28 @@ return new class extends Migration
     {
         Schema::create('dividends', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('securities_management_id')->constrained('securities_management')->onDelete('cascade');
-            
-            // Securities quantity
-            $table->bigInteger('non_deposited_shares_quantity')->default(0)->comment('Số lượng chứng khoán chưa lưu ký');
-            $table->bigInteger('deposited_shares_quantity')->default(0)->comment('Số lượng chứng khoán đã lưu ký');
-            
-            // Amount before tax
-            $table->decimal('non_deposited_amount_before_tax', 15, 2)->default(0)->comment('Số tiền thanh toán trước thuế (chưa lưu ký)');
-            $table->decimal('deposited_amount_before_tax', 15, 2)->default(0)->comment('Số tiền thanh toán trước thuế (đã lưu ký)');
-            
-            // Personal income tax
-            $table->decimal('non_deposited_personal_income_tax', 15, 2)->default(0)->comment('Thuế thu nhập cá nhân (chưa lưu ký)');
-            $table->decimal('deposited_personal_income_tax', 15, 2)->default(0)->comment('Thuế thu nhập cá nhân (đã lưu ký)');
-            
-            
-            // Dividend price per share
-            $table->decimal('dividend_price_per_share', 15, 2)->default(10000)->comment('Giá của 1 cổ phiếu khi chia cổ tức');
-            $table->decimal('dividend_percentage', 5, 4)->default(0)->comment('Phần trăm cổ tức');
-            
-            // Payment information
-            $table->date('payment_date')->nullable()->comment('Ngày thanh toán cổ tức');
-
-            $table->string('account_number')->nullable()->comment('Số tài khoản ngân hàng');
-            $table->string('bank_name')->nullable()->comment('Tên ngân hàng');
-
+            $table->string('full_name')->comment('Họ và tên');
+            $table->string('sid')->nullable()->comment('Mã định dạng NĐT (SID)');
+            $table->string('investor_code')->nullable()->comment('Mã nhà đầu tư (Investor code)');
+            $table->string('registration_number')->comment('Số ĐKSH');
+            $table->date('issue_date')->comment('Ngày cấp');
+            $table->text('address')->comment('Địa chỉ');
+            $table->string('email')->nullable()->comment('Email');
+            $table->string('phone')->nullable()->comment('Điện thoại');
+            $table->string('nationality')->default('Việt Nam')->comment('Quốc tịch');
+            $table->string('cntc')->nullable()->comment('Phân loại Cá nhân hay Tổ chức (CNTC)');
+            $table->string('txnum')->nullable()->comment('Mã giao dịch (TXNUM)');
             $table->text('notes')->nullable()->comment('Ghi chú');
-            $table->timestamps();
-            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid')->comment('Trạng thái trả tiền cổ tức');
-            $table->datetime('transfer_date')->nullable()->comment('Thời gian chuyển tiền');
 
+            $table->string('bank_account')->nullable()->comment('Số tài khoản ngân hàng');
+            $table->string('bank_name')->nullable()->comment('Tên ngân hàng');
+            
+            $table->timestamps();
+            
             // Indexes
-            $table->index('securities_management_id');
-            $table->index('payment_date');
+            $table->index('full_name');
+            $table->index('cntc');
+            $table->index('txnum');
         });
     }
 
@@ -54,6 +43,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('dividend_records');
+        Schema::dropIfExists('dividends');
     }
 };

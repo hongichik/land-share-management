@@ -53,6 +53,17 @@
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
     }
 
+    .investor-card.disabled {
+        opacity: 0.6;
+        background-color: #f5f5f5;
+        cursor: not-allowed;
+    }
+
+    .investor-card.disabled:hover {
+        box-shadow: none;
+        border-color: #dee2e6;
+    }
+
     .investor-checkbox {
         width: 20px;
         height: 20px;
@@ -567,12 +578,13 @@
 
         investors.forEach(investor => {
             const isSelected = selectedInvestors.has(investor.id);
+            const canSelect = investor.can_select; // Kiểm tra có thể chọn hay không
             const card = document.createElement('div');
-            card.className = `investor-card ${isSelected ? 'selected' : ''}`;
+            card.className = `investor-card ${isSelected ? 'selected' : ''} ${!canSelect ? 'disabled' : ''}`;
             card.dataset.investorId = investor.id;
             card.innerHTML = `
                 <div class="investor-row">
-                    <input type="checkbox" class="investor-checkbox" data-investor-id="${investor.id}" ${isSelected ? 'checked' : ''}>
+                    <input type="checkbox" class="investor-checkbox" data-investor-id="${investor.id}" ${isSelected ? 'checked' : ''} ${!canSelect ? 'disabled' : ''}>
                     <div class="investor-info">
                         <div class="investor-name">
                             <i class="fas fa-user-circle"></i> ${escapeHtml(investor.full_name)}
@@ -594,12 +606,16 @@
                         </div>
                         <div class="investor-unpaid">
                             <i class="fas fa-wallet"></i> Cổ tức chưa nhận: ${formatCurrency(investor.unpaid_dividend)} đ
+                            <br><small>• Chưa LK: ${formatCurrency(investor.unpaid_not_deposited || 0)} đ</small>
+                            <br><small>• Đã LK: ${formatCurrency(investor.unpaid_deposited || 0)} đ</small>
+                            ${!canSelect ? '<br><small style="color: #999;"><i class="fas fa-lock"></i> Không có tiền chưa nhận</small>' : ''}
                         </div>
                     </div>
                 </div>
             `;
 
             card.addEventListener('click', function() {
+                if (!canSelect) return; // Không cho click nếu disabled
                 const checkbox = this.querySelector('.investor-checkbox');
                 checkbox.checked = !checkbox.checked;
                 toggleInvestorSelection(investor.id, checkbox.checked);
@@ -608,6 +624,10 @@
             const checkbox = card.querySelector('.investor-checkbox');
             checkbox.addEventListener('change', function(e) {
                 e.stopPropagation();
+                if (!canSelect) {
+                    this.checked = false;
+                    return;
+                }
                 toggleInvestorSelection(investor.id, this.checked);
             });
 
@@ -616,6 +636,20 @@
     }
 
     function toggleInvestorSelection(investorId, isSelected) {
+        // Tìm investor để kiểm tra can_select
+        const investor = allInvestorsData.find(inv => inv.id === investorId);
+        
+        // Nếu không có tiền chưa nhận, không cho phép chọn
+        if (investor && !investor.can_select) {
+            toastr.warning('Cổ đông này không có tiền chưa nhận!');
+            // Đặt lại checkbox về trạng thái chưa chọn
+            const checkbox = document.querySelector(`input[data-investor-id="${investorId}"]`);
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+            return;
+        }
+        
         if (isSelected) {
             selectedInvestors.add(investorId);
         } else {
@@ -627,7 +661,8 @@
 
     function selectAllOnPage(selectAll) {
         allInvestorsData.forEach(investor => {
-            if (selectAll) {
+            if (selectAll && investor.can_select) {
+                // Chỉ chọn nếu có tiền chưa nhận
                 selectedInvestors.add(investor.id);
             } else {
                 selectedInvestors.delete(investor.id);
@@ -635,7 +670,7 @@
 
             const checkbox = document.querySelector(`input[data-investor-id="${investor.id}"]`);
             if (checkbox) {
-                checkbox.checked = selectAll;
+                checkbox.checked = selectAll && investor.can_select; // Chỉ check nếu có thể chọn
             }
         });
 
@@ -734,6 +769,8 @@
                     </div>
                     <div class="selected-investor-dividend">
                         <i class="fas fa-wallet"></i> ${formatCurrency(investor.unpaid_dividend)} đ
+                        <br><small>• Chưa LK: ${formatCurrency(investor.unpaid_not_deposited || 0)} đ</small>
+                        <br><small>• Đã LK: ${formatCurrency(investor.unpaid_deposited || 0)} đ</small>
                     </div>
                 </div>
             `;

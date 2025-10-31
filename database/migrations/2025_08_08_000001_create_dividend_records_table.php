@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dividend_records', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('securities_management_id')->constrained('securities_management')->onDelete('cascade');
+            $table->foreignId('dividend_id')->constrained('dividends')->onDelete('cascade');
             
             // Securities quantity
             $table->bigInteger('non_deposited_shares_quantity')->default(0)->comment('Số lượng chứng khoán chưa lưu ký');
@@ -40,11 +40,11 @@ return new class extends Migration
 
             $table->text('notes')->nullable()->comment('Ghi chú');
             $table->timestamps();
-            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid')->comment('Trạng thái trả tiền cổ tức');
+            $table->enum('payment_status', ['unpaid', 'paid_not_deposited', 'paid_deposited', 'paid_both'])->default('unpaid')->comment('Trạng thái trả tiền cổ tức: unpaid (chưa trả), paid_not_deposited (đã trả cho cổ tức chưa lưu ký), paid_deposited (đã trả cho cổ tức đã lưu ký), paid_both (đã trả cả 2)');
             $table->datetime('transfer_date')->nullable()->comment('Thời gian chuyển tiền');
 
             // Indexes
-            $table->index('securities_management_id');
+            $table->index('dividend_id');
             $table->index('payment_date');
         });
     }

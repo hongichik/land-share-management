@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Concerns\OnEachRow;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithTitle;
-use App\Models\SecuritiesManagement;
+use App\Models\Dividend;
 use App\Models\DividendRecord;
 use Illuminate\Support\Facades\Log;
 
@@ -344,12 +344,12 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                 // Tìm record trong database theo SID hoặc registration_number
                 $existing = null;
                 if ($sid) {
-                    $existing = SecuritiesManagement::where('sid', $sid)->first();
+                    $existing = Dividend::where('sid', $sid)->first();
                 }
                 
                 // Nếu không tìm thấy theo SID, tìm theo registration_number
                 if (!$existing && $registrationNumber) {
-                    $existing = SecuritiesManagement::where('registration_number', $registrationNumber)->first();
+                    $existing = Dividend::where('registration_number', $registrationNumber)->first();
                 }
 
                 if ($existing) {
@@ -724,12 +724,12 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                     // Tìm record trong database theo SID hoặc registration_number
                     $existing = null;
                     if ($sid) {
-                        $existing = SecuritiesManagement::where('sid', $sid)->first();
+                        $existing = Dividend::where('sid', $sid)->first();
                     }
                     
                     // Nếu không tìm thấy theo SID, tìm theo registration_number
                     if (!$existing && $registrationNumber) {
-                        $existing = SecuritiesManagement::where('registration_number', $registrationNumber)->first();
+                        $existing = Dividend::where('registration_number', $registrationNumber)->first();
                     }
 
                     if ($existing) {
@@ -742,14 +742,14 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                         
                         $dataToUpdate = [];
                         $dividendData = [
-                            'securities_management_id' => $existing->id,
+                            'dividend_id' => $existing->id,
                             'non_deposited_shares_quantity' => 0,
                             'deposited_shares_quantity' => 0,
                             'non_deposited_amount_before_tax' => 0,
                             'deposited_amount_before_tax' => 0,
                             'non_deposited_personal_income_tax' => 0,
                             'deposited_personal_income_tax' => 0,
-                            'payment_status' => 'unpaid'
+                            'payment_status' => 'unpaid' // Mặc định là chưa thanh toán
                         ];
                         
                         foreach ($rowData as $field => $newValue) {
@@ -790,6 +790,9 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                             $dividendData['deposited_personal_income_tax'] = $rowData['pit_tax_deposited'];
                         }
                         
+                        $dividendData['payment_status'] = 'paid_deposited';
+                        // Nếu không có cả hai -> giữ mặc định 'unpaid'
+                        
                         // Add payment_date and dividend_price_per_share from parameters
                         if ($paymentDate) {
                             $dividendData['payment_date'] = $paymentDate;
@@ -805,6 +808,8 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                             $depositedShares = (float)($dividendData['deposited_shares_quantity'] ?? 0);
                             $pricePerShare = (float)$dividendPricePerShare;
                             
+                            Log::info("===== CẬP NHẬT DIVIDEND RECORD (UPDATE) =====");
+                            Log::info("SID: " . $sid . ", Trạng thái thanh toán: " . $dividendData['payment_status']);
                             Log::info("===== TÍNH DIVIDEND PERCENTAGE =====");
                             Log::info("Dữ liệu đầu vào:");
                             Log::info("  - Giá cổ tức (pricePerShare): " . $pricePerShare);
@@ -861,12 +866,12 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                         
                         $securitiesData = array_diff_key($rowData, array_flip($dividendFields));
                         
-                        $newSecurities = SecuritiesManagement::create($securitiesData);
-                        Log::info("Created new SecuritiesManagement: SID=$sid, Registration=$registrationNumber");
+                        $newSecurities = Dividend::create($securitiesData);
+                        Log::info("Created new Dividend: SID=$sid, Registration=$registrationNumber");
                         
                         // Tạo bản ghi DividendRecord cho investor mới
                         $dividendData = [
-                            'securities_management_id' => $newSecurities->id,
+                            'dividend_id' => $newSecurities->id,
                             'non_deposited_shares_quantity' => isset($rowData['not_deposited_quantity']) ? $rowData['not_deposited_quantity'] : 0,
                             'deposited_shares_quantity' => isset($rowData['deposited_quantity']) ? $rowData['deposited_quantity'] : 0,
                             'non_deposited_amount_before_tax' => isset($rowData['pre_tax_payment_not_deposited']) ? $rowData['pre_tax_payment_not_deposited'] : 0,
@@ -876,6 +881,21 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                             'payment_status' => 'unpaid'
                         ];
                         
+                        // Xác định trạng thái thanh toán dựa trên số lượng chưa/đã lưu ký
+                        $nonDepositedQuantity = (float)($dividendData['non_deposited_shares_quantity'] ?? 0);
+                        $depositedQuantity = (float)($dividendData['deposited_shares_quantity'] ?? 0);
+                        
+                        if ($nonDepositedQuantity > 0 && $depositedQuantity === 0) {
+                            // Chỉ có chưa lưu ký -> đã trả chưa lưu ký
+                        } elseif ($nonDepositedQuantity === 0 && $depositedQuantity > 0) {
+                            // Chỉ có đã lưu ký -> đã trả đã lưu ký
+                            $dividendData['payment_status'] = 'paid_deposited';
+                        } elseif ($nonDepositedQuantity > 0 && $depositedQuantity > 0) {
+                            // Cả hai đều có -> đã trả cả 2
+                            $dividendData['payment_status'] = 'paid_deposited';
+                        }
+                        // Nếu không có cả hai -> giữ mặc định 'unpaid'
+                        
                         Log::info("===== CHUẨN BỊ DỮ LIỆU DIVIDEND (INSERT MỚI) =====");
                         Log::info("SID: " . $sid . ", Dòng: " . ($rowIdx + 1));
                         Log::info("Dữ liệu dividend từ Excel:");
@@ -883,6 +903,7 @@ class InvestorsImport implements OnEachRow, WithEvents, WithMultipleSheets, With
                         Log::info("  - Số cổ phiếu đã lưu ký: " . $dividendData['deposited_shares_quantity']);
                         Log::info("  - Tiền chưa lưu ký: " . $dividendData['non_deposited_amount_before_tax']);
                         Log::info("  - Tiền đã lưu ký: " . $dividendData['deposited_amount_before_tax']);
+                        Log::info("  - Trạng thái thanh toán: " . $dividendData['payment_status']);
                         
                         // Add payment_date and dividend_price_per_share from parameters
                         if ($paymentDate) {
