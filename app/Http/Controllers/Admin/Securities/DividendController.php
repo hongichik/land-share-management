@@ -591,7 +591,6 @@ class DividendController extends Controller
     {
         try {
             $investorIds = $request->input('investor_ids', []);
-            $paymentDate = $request->input('payment_date');
             $transferDate = $request->input('transfer_date');
             $notes = $request->input('notes', '');
 
@@ -602,21 +601,15 @@ class DividendController extends Controller
                 ], 422);
             }
 
-            if (empty($paymentDate)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vui lòng chọn ngày thanh toán!'
-                ], 422);
-            }
-
             // Update dividend records to mark as paid
             $updated = DividendRecord::whereIn('dividend_id', $investorIds)
                 ->whereIn('payment_status', ['unpaid', 'paid_not_deposited', 'paid_deposited'])
                 ->update([
-                    'payment_status' => 'paid_deposited', // Khi thanh toán từ giao diện -> đã trả đã lưu ký
+                    'payment_status' => 'paid_both', // Khi thanh toán từ giao diện -> đã trả đã lưu ký
                     'transfer_date' => $transferDate ? date('Y-m-d H:i:s', strtotime($transferDate)) : now(),
                     'notes' => $notes
                 ]);
+
 
             return response()->json([
                 'success' => true,

@@ -40,11 +40,11 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
     private function generateDividendData()
     {
         $dividendData = [];
-        
         // Lấy tất cả bản ghi cổ tức của năm được chọn
         $records = DividendRecord::with('securitiesManagement')
-            ->whereYear('payment_date', $this->year)
-            ->orderBy('payment_date', 'asc')
+            ->whereIn('payment_status', ['paid_not_deposited','paid_both']) 
+            ->whereYear('transfer_date', $this->year)
+            ->orderBy('transfer_date', 'asc')
             ->orderBy('created_at', 'asc')
             ->get();
         
@@ -69,6 +69,7 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
                 $record->account_number ?? '', // I - Tài khoản
                 $record->bank_name ?? '', // J - Ngân hàng
                 $record->payment_date ? date('d/m/Y', strtotime($record->payment_date)) : '', // K - Thời gian trả cổ tức
+                $record->transfer_date ? date('d/m/Y', strtotime($record->transfer_date)) : '', // L - Thời gian thanh toán tiền mặt (chưa LK)
             ];
             
             $index++;
@@ -126,6 +127,7 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
             'I' => 20,     // Tài khoản
             'J' => 20,     // Ngân hàng
             'K' => 18,     // Thời gian trả cổ tức
+            'L' => 20,     // Thời gian thanh toán tiền mặt (chưa LK)
         ];
     }
 
@@ -157,9 +159,9 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
         // Dòng 3: Để trống
         $sheet->getRowDimension(3)->setRowHeight(15);
         
-        // Dòng 4: Tiêu đề danh sách (Hợp nhất A4:K4)
+        // Dòng 4: Tiêu đề danh sách (Hợp nhất A4:L4)
         $sheet->setCellValue('A4', 'DANH SÁCH CỔ ĐÔNG NHẬN CỔ TỨC NĂM ' . $this->year);
-        $sheet->mergeCells('A4:K4');
+        $sheet->mergeCells('A4:L4');
         
         // Định dạng dòng 4
         $sheet->getStyle('A4')->getFont()->setBold(true)->setSize(12);
@@ -182,9 +184,10 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
         $sheet->setCellValue('I6', 'Tài khoản');
         $sheet->setCellValue('J6', 'Ngân hàng');
         $sheet->setCellValue('K6', 'Thời gian trả cổ tức');
+        $sheet->setCellValue('L6', 'Thời gian thanh toán tiền mặt (chưa LK)');
         
         // Định dạng dòng 6 (tiêu đề)
-        $sheet->getStyle('A6:K6')->applyFromArray([
+        $sheet->getStyle('A6:L6')->applyFromArray([
             'font' => ['bold' => true, 'size' => 11],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -210,7 +213,7 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
         $lastRowWithData = 6 + count($this->data);
         
         // Áp dụng định dạng viền, căn chỉnh và font cho tất cả dòng dữ liệu (từ dòng 6 trở xuống)
-        $sheet->getStyle('A6:K' . $lastRowWithData)->applyFromArray([
+        $sheet->getStyle('A6:L' . $lastRowWithData)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -223,17 +226,26 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
             // Cột A (STT) - Căn giữa
             $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             
+            // Cột B (Họ và tên) - Tự động xuống dòng
+            $sheet->getStyle('B' . $row)->getAlignment()->setWrapText(true);
+            
+            // Cột E (Địa chỉ) - Tự động xuống dòng
+            $sheet->getStyle('E' . $row)->getAlignment()->setWrapText(true);
+            
             // Cột F (Số tiền) - Định dạng số, căn phải
-            $sheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('0');
             $sheet->getStyle('F' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             
             // Cột G (Thuế TNCN) - Định dạng số, căn phải
-            $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('0');
             $sheet->getStyle('G' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             
             // Cột H (Còn được lĩnh) - Định dạng số, căn phải
-            $sheet->getStyle('H' . $row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('H' . $row)->getNumberFormat()->setFormatCode('0');
             $sheet->getStyle('H' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            
+            // Cột J (Ngân hàng) - Tự động xuống dòng
+            $sheet->getStyle('J' . $row)->getAlignment()->setWrapText(true);
         }
         
         return $sheet;

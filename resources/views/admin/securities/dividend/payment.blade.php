@@ -452,13 +452,7 @@
             <h5 class="mb-4"><i class="fas fa-money-bill-wave"></i> Thông tin thanh toán</h5>
             <form id="paymentForm">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="payment-form-group">
-                            <label for="paymentDate">Ngày thanh toán <span class="text-danger">*</span></label>
-                            <input type="date" id="paymentDate" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="payment-form-group">
                             <label for="transferDate">Ngày chuyển khoản</label>
                             <input type="date" id="transferDate" class="form-control">
@@ -515,7 +509,6 @@
 
     function setTodayDate() {
         const today = new Date().toISOString().split('T')[0];
-        document.getElementById('paymentDate').value = today;
         document.getElementById('transferDate').value = today;
     }
 
@@ -860,7 +853,6 @@
             return;
         }
 
-        const paymentDate = document.getElementById('paymentDate').value;
         const transferDate = document.getElementById('transferDate').value;
         const notes = document.getElementById('paymentNotes').value;
 
@@ -876,7 +868,6 @@
             },
             body: JSON.stringify({
                 investor_ids: Array.from(selectedInvestors),
-                payment_date: paymentDate,
                 transfer_date: transferDate,
                 notes: notes
             })

@@ -49,7 +49,7 @@
                                         @continue
                                     @endif
                                     
-                                    <li class="nav-item">
+                                    <li class="nav-item {{ isset($submenu['submenu']) ? 'has-treeview' : '' }} {{ isset($submenu['active']) && request()->is($submenu['active']) ? 'menu-open' : '' }}">
                                         @if (isset($submenu['route']))
                                             <a href="{{ route($submenu['route']) }}" class="nav-link {{ Request::is($submenu['active']) ? 'active' : '' }}">
                                         @elseif (isset($submenu['url']))
@@ -58,8 +58,36 @@
                                             <a href="#" class="nav-link">
                                         @endif
                                             <i class="nav-icon {{ $submenu['icon'] ?? 'bi bi-circle' }}"></i>
-                                            <p>{{ $submenu['text'] }}</p>
+                                            <p>
+                                                {{ $submenu['text'] }}
+                                                @if(isset($submenu['submenu']))
+                                                    <i class="nav-arrow bi bi-chevron-right"></i>
+                                                @endif
+                                            </p>
                                         </a>
+                                        
+                                        @if(isset($submenu['submenu']))
+                                            <ul class="nav nav-treeview">
+                                                @foreach($submenu['submenu'] as $subsubmenu)
+                                                    @if(isset($subsubmenu['permission']) && !auth()->user()->can($subsubmenu['permission']))
+                                                        @continue
+                                                    @endif
+                                                    
+                                                    <li class="nav-item">
+                                                        @if (isset($subsubmenu['route']))
+                                                            <a href="{{ route($subsubmenu['route']) }}" class="nav-link {{ Request::is($subsubmenu['active']) ? 'active' : '' }}">
+                                                        @elseif (isset($subsubmenu['url']))
+                                                            <a href="{{ url($subsubmenu['url']) }}" class="nav-link {{ Request::is($subsubmenu['active']) ? 'active' : '' }}">
+                                                        @else
+                                                            <a href="#" class="nav-link">
+                                                        @endif
+                                                            <i class="nav-icon {{ $subsubmenu['icon'] ?? 'bi bi-circle' }}"></i>
+                                                            <p>{{ $subsubmenu['text'] }}</p>
+                                                        </a>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
                                     </li>
                                 @endforeach
                             </ul>

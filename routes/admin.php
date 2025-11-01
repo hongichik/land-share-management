@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\Securities\DividendController;
 use App\Http\Controllers\Admin\Securities\DividendRecordController;
+use App\Http\Controllers\Admin\Securities\DividendRecordPaymentController;
 use App\Http\Controllers\Admin\Securities\SecuritiesManagementController;
 use App\Http\Controllers\Admin\LandRental\LandRentalContractController;
 use App\Http\Controllers\Admin\LandRental\LandRentalPriceController;
@@ -94,13 +95,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
             Route::prefix('dividend-record')->name('dividend-record.')->group(function () {
                 Route::get('/', [DividendRecordController::class, 'index'])->name('index');
-                Route::get('/export', [DividendRecordController::class, 'export'])->name('export');
-                Route::get('/paid', [DividendRecordController::class, 'paid'])->name('paid');
-                Route::get('/paid/detail/{transferDate}', [DividendRecordController::class, 'paidDetail'])->name('paid.detail');
-                Route::get('/unpaid', [DividendRecordController::class, 'unpaid'])->name('unpaid');
-                Route::get('/unpaid/detail/{investorId}', [DividendRecordController::class, 'unpaidDetail'])->name('unpaid.detail');
                 Route::get('/detail/{paymentDate}', [DividendRecordController::class, 'detail'])->name('detail');
                 Route::delete('/{paymentDate}', [DividendRecordController::class, 'destroy'])->name('destroy');
+            });
+
+
+            Route::prefix('dividend-record-payment')->name('dividend-record-payment.')->group(function () {
+                Route::get('/', [DividendRecordPaymentController::class, 'index'])->name('index');
+                Route::get('/detail/{paymentDate}', [DividendRecordPaymentController::class, 'detail'])->name('detail');
+                Route::get('/export', [DividendRecordPaymentController::class, 'export'])->name('export');
+                Route::delete('/{paymentDate}', [DividendRecordPaymentController::class, 'destroy'])->name('destroy');
             });
         });
 

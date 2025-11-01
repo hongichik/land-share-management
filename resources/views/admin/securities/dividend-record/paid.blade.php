@@ -1,34 +1,37 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý Cổ tức - Danh sách Đã Trả')
-@section('page_title', 'Quản lý Cổ tức - Danh sách Đã Trả')
+@section('title', 'Quản lý Cổ tức - Đã trả')
+@section('page_title', 'Quản lý Cổ tức - Đã trả')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách các lần trả cổ tức - Đã Trả</h3>
+                <h3 class="card-title">Danh sách Cổ tức - Đã trả (Tất cả)</h3>
                 <div class="card-tools">
-                    <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-sm btn-secondary" title="Xem tất cả">
-                        <i class="fas fa-list"></i> Tất cả
+                    <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
                     </a>
-                    <a href="{{ route('admin.securities.dividend-record.unpaid') }}" class="btn btn-sm btn-warning" title="Xem chưa trả">
-                        <i class="fas fa-clock"></i> Chưa trả
+                    <a href="{{ route('admin.securities.dividend-record.paid-not-deposited') }}" class="btn btn-sm btn-info btn-sm" title="Chưa LK">
+                        <i class="fas fa-file-invoice-dollar"></i> Chưa LK
                     </a>
-                    <button type="button" class="btn btn-sm btn-primary" onclick="exportRecords()" title="Xuất Excel">
-                        <i class="fas fa-download"></i> Xuất Excel
-                    </button>
+                    <a href="{{ route('admin.securities.dividend-record.paid-deposited') }}" class="btn btn-sm btn-info" title="Đã LK">
+                        <i class="fas fa-university"></i> Đã LK
+                    </a>
+                    <a href="{{ route('admin.securities.dividend-record.paid-both') }}" class="btn btn-sm btn-info" title="Cả 2">
+                        <i class="fas fa-check-double"></i> Cả 2
+                    </a>
                 </div>
             </div>
 
             <div class="card-body">
-                <table id="dividend-records-table" class="table table-striped table-hover">
+                <table id="paid-table" class="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th style="width: 10px">#</th>
-                            <th>Thời gian trả tiền</th>
-                            <th>Thời gian tạo</th>
+                            <th>Thời gian chuyển tiền</th>
+                            <th>Thời gian lên lịch trả</th>
                             <th>Số lượng cổ phiếu</th>
                             <th>Tỷ lệ cổ tức</th>
                             <th>Tổng thuế TNCT</th>
@@ -37,40 +40,16 @@
                             <th style="width: 120px">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Delete Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Bạn có chắc chắn muốn xóa tất cả dữ liệu cổ tức cho lần trả này?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
-
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <style>
     .tax-info-container {
         min-width: 150px;
@@ -105,18 +84,12 @@
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
-let currentPaymentDate = null;
-
 $(document).ready(function() {
-    var table = $('#dividend-records-table').DataTable({
+    $('#paid-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
-        columnDefs: [
-            { responsivePriority: 1, targets: -1 },
-        ],
         ajax: {
             url: "{{ route('admin.securities.dividend-record.paid') }}",
             type: 'GET'
@@ -147,55 +120,8 @@ $(document).ready(function() {
                 next: "Tiếp",
                 previous: "Trước"
             }
-        },
-        rowCallback: function(row) {
-            // Ensure rawColumns is properly rendered
-            $('td', row).each(function() {
-                if ($(this).html().includes('amount-info-container') || $(this).html().includes('tax-info-container')) {
-                    // Already rendered
-                }
-            });
         }
     });
 });
-
-let deletePaymentDate = null;
-
-function deleteRecord(paymentDate) {
-    deletePaymentDate = paymentDate;
-    $('#deleteModal').modal('show');
-}
-
-$('#confirmDelete').click(function() {
-    if (deletePaymentDate) {
-        $.ajax({
-            url: "{{ route('admin.securities.dividend-record.destroy', '') }}/" + deletePaymentDate,
-            type: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    $('#dividend-records-table').DataTable().ajax.reload();
-                    $('#deleteModal').modal('hide');
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function(xhr) {
-                var errorMsg = 'Không thể xóa dữ liệu';
-                if (xhr.responseJSON?.message) {
-                    errorMsg = xhr.responseJSON.message;
-                }
-                toastr.error('Lỗi: ' + errorMsg);
-            }
-        });
-    }
-});
-
-function exportRecords() {
-    toastr.info('Chức năng xuất Excel sẽ được cập nhật');
-}
 </script>
 @endpush

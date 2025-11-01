@@ -1,14 +1,14 @@
 @extends('layouts.layout-master')
 
-@section('title', 'Quản lý Cổ tức - Chưa trả')
-@section('page_title', 'Quản lý Cổ tức - Chưa trả')
+@section('title', 'Quản lý Cổ tức - Đã trả (Đã lưu ký)')
+@section('page_title', 'Quản lý Cổ tức - Đã trả (Đã lưu ký)')
 
 @section('content')
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Danh sách Cổ tức - Chưa trả</h3>
+                <h3 class="card-title">Danh sách cổ tức - Đã trả (Đã lưu ký)</h3>
                 <div class="card-tools">
                     <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-sm btn-secondary">
                         <i class="fas fa-arrow-left"></i> Quay lại
@@ -17,18 +17,18 @@
             </div>
 
             <div class="card-body">
-                <table id="unpaid-table" class="table table-striped table-hover">
+                <table id="paid-deposited-table" class="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th style="width: 10px">#</th>
-                            <th>Tên nhà đầu tư</th>
-                            <th>Mã nhà đầu tư</th>
+                            <th>Thời gian chuyển tiền</th>
+                            <th>Thời gian lên lịch trả</th>
                             <th>Số lượng cổ phiếu</th>
-                            <th>Số bản ghi</th>
                             <th>Tỷ lệ cổ tức</th>
                             <th>Tổng thuế TNCT</th>
-                            <th>Tổng tiền (Sau thuế)</th>
-                            <th style="width: 80px">Hành động</th>
+                            <th>Tổng tiền (Trước thuế)</th>
+                            <th>Số nhà đầu tư</th>
+                            <th style="width: 120px">Hành động</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -78,26 +78,26 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
 $(document).ready(function() {
-    $('#unpaid-table').DataTable({
+    $('#paid-deposited-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
         ajax: {
-            url: "{{ route('admin.securities.dividend-record.unpaid') }}",
+            url: "{{ route('admin.securities.dividend-record.paid-deposited') }}",
             type: 'GET'
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
-            {data: 'investor_name', name: 'investor_name', orderable: false},
-            {data: 'investor_code', name: 'investor_code', orderable: false},
+            {data: 'transfer_date_formatted', name: 'transfer_date', orderable: true},
+            {data: 'payment_date_formatted', name: 'payment_date', orderable: true},
             {data: 'total_shares_formatted', name: 'total_shares', orderable: true, className: 'text-right'},
-            {data: 'record_count_formatted', name: 'record_count', orderable: true, className: 'text-center'},
             {data: 'dividend_percentage_formatted', name: 'dividend_percentage', orderable: true, className: 'text-center'},
             {data: 'tax_info', name: 'tax_info', orderable: false, searchable: false},
-            {data: 'total_amount_after_tax_formatted', name: 'total_amount_after_tax', orderable: false},
+            {data: 'total_amount_formatted', name: 'total_amount_before_tax', orderable: true, className: 'text-right'},
+            {data: 'investor_count_formatted', name: 'investor_count', orderable: true, className: 'text-center'},
             {data: 'action', name: 'action', orderable: false, searchable: false}
         ],
-        order: [[1, 'asc']],
+        order: [[1, 'desc']],
         language: {
             processing: "Đang xử lý...",
             lengthMenu: "Hiển thị _MENU_ mục",
