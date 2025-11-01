@@ -11,6 +11,24 @@
                 <h3 class="card-title">Danh sách Cổ tức</h3>
             </div>
 
+            <!-- Bộ lọc -->
+            <div class="card-header" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Chọn năm:</label>
+                        <select id="filter-year" class="form-select form-select-sm">
+                            <!-- Options sẽ được thêm bởi JavaScript -->
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Tùy chọn:</label>
+                        <button type="button" class="btn btn-sm btn-outline-secondary w-100" id="reset-filters">
+                            <i class="fas fa-redo"></i> Reset bộ lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="card-body">
                 <table id="dividend-records-table" class="table table-striped table-hover">
                     <thead>
@@ -98,13 +116,31 @@
 let currentPaymentDate = null;
 
 $(document).ready(function() {
+    var currentYear = new Date().getFullYear();
+    var selectedYear = currentYear;
+    
+    // Tạo danh sách năm (từ 5 năm trước đến 5 năm sau hiện tại)
+    function initializeYearFilter() {
+        var $yearSelect = $('#filter-year');
+        for (var i = currentYear - 5; i <= currentYear + 5; i++) {
+            $yearSelect.append($('<option></option>').val(i).text(i));
+        }
+        $yearSelect.val(currentYear); // Chọn năm hiện tại mặc định
+    }
+    
+    initializeYearFilter();
+    
     var table = $('#dividend-records-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
         ajax: {
             url: "{{ route('admin.securities.dividend-record.index') }}",
-            type: 'GET'
+            type: 'GET',
+            data: function(data) {
+                data.year = selectedYear;
+                return data;
+            }
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
@@ -132,6 +168,19 @@ $(document).ready(function() {
                 previous: "Trước"
             }
         }
+    });
+    
+    // Xử lý thay đổi bộ lọc năm
+    $('#filter-year').change(function() {
+        selectedYear = $(this).val();
+        table.ajax.reload();
+    });
+    
+    // Xử lý reset bộ lọc
+    $('#reset-filters').click(function() {
+        $('#filter-year').val(currentYear);
+        selectedYear = currentYear;
+        table.ajax.reload();
     });
 });
 

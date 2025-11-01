@@ -18,16 +18,50 @@ class DividendController extends Controller
     public function getSummaryStats(Request $request)
     {
         $filter = $request->input('filter', 'all');
+        $currentYear = date('Y');
         
-        $query = Dividend::query();
+        // Lấy dữ liệu dividend records của năm hiện tại
+        $query = DividendRecord::whereYear('payment_date', $currentYear);
         
-        $totalInvestors = $query->count();
+        // Tính thuế chưa lưu ký
+        $taxUnsigned = $query->sum('non_deposited_personal_income_tax');
+        
+        // Tính thuế đã lưu ký
+        $taxSigned = $query->sum('deposited_personal_income_tax');
+        
+        // Tính tiền chưa lưu ký chưa nhận (unpaid hoặc paid_not_deposited)
+        $amountUnsignedUnpaid = DividendRecord::whereYear('payment_date', $currentYear)
+            ->whereIn('payment_status', ['unpaid', 'paid_deposited'])
+            ->sum('non_deposited_amount_before_tax');
+        
+        // Tính tiền đã lưu ký chưa nhận
+        $amountSignedUnpaid = DividendRecord::whereYear('payment_date', $currentYear)
+            ->whereIn('payment_status', ['unpaid', 'paid_not_deposited'])
+            ->sum('deposited_amount_before_tax');
+        
+        // Tính tiền chưa lưu ký đã nhận
+        $amountUnsignedPaid = DividendRecord::whereYear('payment_date', $currentYear)
+            ->whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
+            ->sum('non_deposited_amount_before_tax');
+        
+        // Tính tiền đã lưu ký đã nhận
+        $amountSignedPaid = DividendRecord::whereYear('payment_date', $currentYear)
+            ->whereIn('payment_status', ['paid_deposited', 'paid_both'])
+            ->sum('deposited_amount_before_tax');
+        
+        // Đếm tổng cổ đông
+        $totalInvestors = Dividend::count();
 
         return response()->json([
             'total_investors' => number_format($totalInvestors),
             'active_investors' => number_format($totalInvestors),
-            'not_deposited' => '0',
-            'deposited' => '0',
+            'tax_unsigned' => number_format((int)$taxUnsigned),
+            'tax_signed' => number_format((int)$taxSigned),
+            'tax_total' => number_format((int)($taxUnsigned + $taxSigned)),
+            'amount_unsigned_unpaid' => number_format((int)$amountUnsignedUnpaid),
+            'amount_signed_unpaid' => number_format((int)$amountSignedUnpaid),
+            'amount_unsigned_paid' => number_format((int)$amountUnsignedPaid),
+            'amount_signed_paid' => number_format((int)$amountSignedPaid),
             'active_percentage' => $totalInvestors > 0 ? round(($totalInvestors / $totalInvestors) * 100, 1) : 0,
             'deposited_percentage' => 0
         ]);
@@ -136,11 +170,20 @@ class DividendController extends Controller
                         break;
                     case 'unpaid':
                         // Hiển thị những người chưa thanh toán
-                        $securities = $securities->where(function($query) {
-                            $query->doesntHave('dividendRecords')
-                                  ->orWhereDoesntHave('dividendRecords', function($subquery) {
-                                      $subquery->whereIn('payment_status', ['paid_not_deposited', 'paid_deposited', 'paid_both']);
-                                  });
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->whereIn('payment_status', ['unpaid']);
+                        });
+                        break;
+                    case 'unpaid_paid_not_deposited':
+                        // Hiển thị những người chưa thanh toán
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->whereIn('payment_status', ['paid_deposited','unpaid']);
+                        });
+                        break;
+                    case 'unpaid_paid_deposited':
+                        // Hiển thị những người chưa thanh toán
+                        $securities = $securities->whereHas('dividendRecords', function($query) {
+                            $query->whereIn('payment_status', ['paid_not_deposited','unpaid']);
                         });
                         break;
                     case 'paid_not_deposited':

@@ -9,11 +9,12 @@
     <div class="col-12">
         <div class="card card-primary card-outline">
             <div class="card-header">
-                <h3 class="card-title">Thống kê tổng quan</h3>
+                <h3 class="card-title">Thống kê tổng quan (Năm {{ date('Y') }})</h3>
             </div>
             <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-6 col-md-6">
+                <!-- Hàng 1: Thông tin cấp cao -->
+                <div class="row mb-3">
+                    <div class="col-lg-3 col-md-6">
                         <div class="info-box">
                             <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
                             <div class="info-box-content">
@@ -22,12 +23,85 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-6">
+                    <div class="col-lg-3 col-md-6">
                         <div class="info-box">
                             <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
                             <div class="info-box-content">
                                 <span class="info-box-text">Cổ đông hoạt động</span>
                                 <span class="info-box-number" id="active-investors">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-warning"><i class="fas fa-file-invoice-dollar"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Tổng thuế</span>
+                                <span class="info-box-number" id="tax-total" style="font-size: 18px;">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 2: Chi tiết thuế -->
+                <div class="row mb-3">
+                    <div class="col-lg-6">
+                        <div class="card card-sm">
+                            <div class="card-header">
+                                <h5 class="card-title"><i class="fas fa-coins"></i> Thuế theo loại lưu ký</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div style="text-align: center; padding: 10px; border: 1px solid #e3e6f0; border-radius: 4px; margin-bottom: 10px;">
+                                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Thuế (Chưa LK)</div>
+                                            <div style="font-size: 18px; font-weight: bold; color: #e74c3c;" id="tax-unsigned">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="text-align: center; padding: 10px; border: 1px solid #e3e6f0; border-radius: 4px; margin-bottom: 10px;">
+                                            <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Thuế (Đã LK)</div>
+                                            <div style="font-size: 18px; font-weight: bold; color: #3498db;" id="tax-signed">0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hàng 2 cột 2: Chi tiết tiền -->
+                    <div class="col-lg-6">
+                        <div class="card card-sm">
+                            <div class="card-header">
+                                <h5 class="card-title"><i class="fas fa-dollar-sign"></i> Tổng tiền theo trạng thái</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" style="font-size: 13px;">
+                                    <div class="col-6">
+                                        <div style="padding: 8px; border: 1px solid #e3e6f0; border-radius: 4px; margin-bottom: 8px;">
+                                            <div style="color: #666; margin-bottom: 3px;">Chưa LK - Chưa nhận</div>
+                                            <div style="font-weight: bold; color: #e74c3c;" id="amount-unsigned-unpaid">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="padding: 8px; border: 1px solid #e3e6f0; border-radius: 4px; margin-bottom: 8px;">
+                                            <div style="color: #666; margin-bottom: 3px;">Đã LK - Chưa nhận</div>
+                                            <div style="font-weight: bold; color: #3498db;" id="amount-signed-unpaid">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="padding: 8px; border: 1px solid #e3e6f0; border-radius: 4px;">
+                                            <div style="color: #666; margin-bottom: 3px;">Chưa LK - Đã nhận</div>
+                                            <div style="font-weight: bold; color: #27ae60;" id="amount-unsigned-paid">0</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div style="padding: 8px; border: 1px solid #e3e6f0; border-radius: 4px;">
+                                            <div style="color: #666; margin-bottom: 3px;">Đã LK - Đã nhận</div>
+                                            <div style="font-weight: bold; color: #f39c12;" id="amount-signed-paid">0</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -43,6 +117,12 @@
             <div class="card-header">
                 <h3 class="card-title">Danh sách Cổ đông</h3>
                 <div class="card-tools">
+                    <a href="{{ route('admin.securities.dividend-record.index') }}" class="btn btn-warning btn-sm" title="Xem danh sách đợt trả cổ tức">
+                        <i class="bi bi-calendar2-check"></i> Danh sách đợt trả cổ tức
+                    </a>
+                    <a href="{{ route('admin.securities.dividend-record-payment.index') }}" class="btn btn-success btn-sm" title="Xem nhận tiền cổ tức">
+                        <i class="bi bi-cash-coin"></i> Nhận tiền cổ tức
+                    </a>
                     <a href="{{ route('admin.securities.dividend.payment') }}" class="btn btn-info btn-sm" title="Thanh toán cổ tức cho cổ đông">
                         <i class="fas fa-money-bill-wave"></i> Thanh toán cổ tức
                     </a>
@@ -67,7 +147,9 @@
                         <label class="form-label mb-2" style="font-weight: 600; font-size: 14px;">Tình trạng thanh toán:</label>
                         <select id="filter-payment" class="form-select form-select-sm filter-select">
                             <option value="">-- Tất cả --</option>
-                            <option value="unpaid">Chưa thanh toán</option>
+                            <option value="unpaid">Chưa thanh toán cả 2</option>
+                            <option value="unpaid_paid_not_deposited">Chưa thanh toán (Chưa LK)</option>
+                            <option value="unpaid_paid_deposited">Chưa thanh toán (Đã LK)</option>
                             <option value="paid_not_deposited">Đã thanh toán (Chưa LK)</option>
                             <option value="paid_deposited">Đã thanh toán (Đã LK)</option>
                             <option value="paid_both">Đã thanh toán (Cả 2)</option>
@@ -344,6 +426,9 @@ $(document).ready(function() {
         var signedFilter = $('#filter-signed').val();
         var paymentFilter = $('#filter-payment').val();
         
+        // Cập nhật các option thanh toán dựa trên bộ lọc lưu ký
+        updatePaymentOptions(signedFilter);
+        
         var filters = [];
         if (signedFilter) filters.push(signedFilter);
         if (paymentFilter) filters.push(paymentFilter);
@@ -351,6 +436,59 @@ $(document).ready(function() {
         currentFilter = filters.length > 0 ? filters.join(',') : 'all';
         table.ajax.reload();
         loadSummaryStats(currentFilter);
+    }
+    
+    // Hàm cập nhật các option thanh toán
+    function updatePaymentOptions(signedFilter) {
+        var $paymentSelect = $('#filter-payment');
+        var paymentOptions = {
+            '': '-- Tất cả --',
+            'unpaid': 'Chưa thanh toán cả 2',
+            'unpaid_paid_not_deposited': 'Chưa thanh toán (Chưa LK)',
+            'unpaid_paid_deposited': 'Chưa thanh toán (Đã LK)',
+            'paid_not_deposited': 'Đã thanh toán (Chưa LK)',
+            'paid_deposited': 'Đã thanh toán (Đã LK)',
+            'paid_both': 'Đã thanh toán (Cả 2)'
+        };
+        
+        var filteredOptions = {};
+        
+        if (signedFilter === 'unsigned') {
+            // Chỉ hiển thị trạng thái thanh toán của "Chưa LK"
+            filteredOptions = {
+                '': '-- Tất cả --',
+                'unpaid_paid_not_deposited': 'Chưa thanh toán',
+                'paid_not_deposited': 'Đã thanh toán'
+            };
+        } else if (signedFilter === 'signed') {
+            // Chỉ hiển thị trạng thái thanh toán của "Đã LK"
+            filteredOptions = {
+                '': '-- Tất cả --',
+                'unpaid_paid_deposited': 'Chưa thanh toán',
+                'paid_deposited': 'Đã thanh toán'
+            };
+        } else {
+            // Hiển thị tất cả
+            filteredOptions = paymentOptions;
+        }
+        
+        // Lưu giá trị hiện tại
+        var currentValue = $paymentSelect.val();
+        
+        // Xóa tất cả option
+        $paymentSelect.empty();
+        
+        // Thêm các option mới
+        $.each(filteredOptions, function(value, text) {
+            $paymentSelect.append($('<option></option>').val(value).text(text));
+        });
+        
+        // Nếu giá trị cũ không tồn tại trong list mới, reset về ""
+        if (!filteredOptions.hasOwnProperty(currentValue)) {
+            $paymentSelect.val('');
+        } else {
+            $paymentSelect.val(currentValue);
+        }
     }
     
     $('.filter-select').change(function() {
@@ -361,6 +499,7 @@ $(document).ready(function() {
     $('#reset-filters').click(function() {
         $('#filter-signed').val('');
         $('#filter-payment').val('');
+        updatePaymentOptions(''); // Reset payment options về mặc định
         currentFilter = 'all';
         table.ajax.reload();
         loadSummaryStats('all');
@@ -545,8 +684,13 @@ function loadSummaryStats(filter) {
         success: function(data) {
             $('#total-investors').text(data.total_investors);
             $('#active-investors').text(data.active_investors);
-            $('#not-deposited').text(data.not_deposited);
-            $('#deposited').text(data.deposited);
+            $('#tax-unsigned').text(data.tax_unsigned + ' đ');
+            $('#tax-signed').text(data.tax_signed + ' đ');
+            $('#tax-total').text(data.tax_total + ' đ');
+            $('#amount-unsigned-unpaid').text(data.amount_unsigned_unpaid + ' đ');
+            $('#amount-signed-unpaid').text(data.amount_signed_unpaid + ' đ');
+            $('#amount-unsigned-paid').text(data.amount_unsigned_paid + ' đ');
+            $('#amount-signed-paid').text(data.amount_signed_paid + ' đ');
         }
     });
 }

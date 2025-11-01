@@ -65,13 +65,13 @@ return [
                     ],
                     [
                         'text' => 'Danh sách đợt trả cổ tức',
-                        'icon' => 'bi bi-list',
+                        'icon' => 'bi bi-calendar2-check',
                         'route' => 'admin.securities.dividend-record.index',
                         'active' => 'admin/securities/dividend-record',
                     ],
                     [
                         'text' => 'Nhận tiền cổ tức',
-                        'icon' => 'bi bi-list',
+                        'icon' => 'bi bi-cash-coin',
                         'route' => 'admin.securities.dividend-record-payment.index',
                         'active' => 'admin/securities/dividend-record-*',
                     ],

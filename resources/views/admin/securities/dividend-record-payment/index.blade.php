@@ -17,6 +17,45 @@
             </div>
 
             <div class="card-body">
+                <div class="card-header" style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 12px;">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Năm</label>
+                                <select id="filter-year" class="form-control">
+                                    <option value="">-- Tất cả --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Tháng</label>
+                                <select id="filter-month" class="form-control">
+                                    <option value="">-- Tất cả --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Ngày</label>
+                                <select id="filter-day" class="form-control">
+                                    <option value="">-- Tất cả --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn btn-secondary btn-block" id="reset-filters" title="Reset bộ lọc">
+                                    <i class="fas fa-redo"></i> Làm mới
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
                 <table id="dividend-records-table" class="table table-striped table-hover">
                     <thead>
                         <tr>
@@ -139,15 +178,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 <script>
 let currentPaymentDate = null;
+let selectedYear = '';
+let selectedMonth = '';
+let selectedDay = '';
 
 $(document).ready(function() {
+    initializeFilters();
+    
     var table = $('#dividend-records-table').DataTable({
         processing: true,
         serverSide: true,
         responsive: true,
         ajax: {
             url: "{{ route('admin.securities.dividend-record-payment.index') }}",
-            type: 'GET'
+            type: 'GET',
+            data: function(data) {
+                data.year = selectedYear;
+                data.month = selectedMonth;
+                data.day = selectedDay;
+                return data;
+            }
         },
         columns: [
             {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
@@ -184,6 +234,65 @@ $(document).ready(function() {
         }
     });
 });
+
+function initializeFilters() {
+    const currentYear = new Date().getFullYear();
+    const $yearSelect = $('#filter-year');
+    const $monthSelect = $('#filter-month');
+    const $daySelect = $('#filter-day');
+    
+    // Initialize year options
+    for (var i = currentYear - 5; i <= currentYear + 5; i++) {
+        $yearSelect.append($('<option></option>').val(i).text(i));
+    }
+    
+    // Initialize month options
+    const months = ['', 'Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 
+                    'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+    for (let i = 1; i <= 12; i++) {
+        $monthSelect.append($('<option></option>').val(i).text(months[i]));
+    }
+    
+    // Initialize day options
+    for (let i = 1; i <= 31; i++) {
+        $daySelect.append($('<option></option>').val(i).text('Ngày ' + i));
+    }
+    
+    // Handle year change
+    $yearSelect.change(function() {
+        selectedYear = $(this).val();
+        selectedMonth = '';
+        selectedDay = '';
+        $monthSelect.val('');
+        $daySelect.val('');
+        $('#dividend-records-table').DataTable().ajax.reload();
+    });
+    
+    // Handle month change
+    $monthSelect.change(function() {
+        selectedMonth = $(this).val();
+        selectedDay = '';
+        $daySelect.val('');
+        $('#dividend-records-table').DataTable().ajax.reload();
+    });
+    
+    // Handle day change
+    $daySelect.change(function() {
+        selectedDay = $(this).val();
+        $('#dividend-records-table').DataTable().ajax.reload();
+    });
+    
+    // Handle reset filters
+    $('#reset-filters').click(function() {
+        selectedYear = '';
+        selectedMonth = '';
+        selectedDay = '';
+        $yearSelect.val('');
+        $monthSelect.val('');
+        $daySelect.val('');
+        $('#dividend-records-table').DataTable().ajax.reload();
+    });
+}
 
 let deletePaymentDate = null;
 

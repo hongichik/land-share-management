@@ -104,6 +104,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 Route::get('/', [DividendRecordPaymentController::class, 'index'])->name('index');
                 Route::get('/detail/{paymentDate}', [DividendRecordPaymentController::class, 'detail'])->name('detail');
                 Route::get('/export', [DividendRecordPaymentController::class, 'export'])->name('export');
+                Route::get('/export-detail/{transferDate}', [DividendRecordPaymentController::class, 'exportDetail'])->name('export-detail');
                 Route::delete('/{paymentDate}', [DividendRecordPaymentController::class, 'destroy'])->name('destroy');
             });
         });

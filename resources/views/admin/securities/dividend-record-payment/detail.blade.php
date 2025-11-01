@@ -108,8 +108,25 @@ $(document).ready(function() {
 
 function exportDetail() {
     const transferDate = "{{ $paymentDate }}";
-    const url = "{{ route('admin.securities.dividend-record-payment.export') }}" + "?transferDate=" + transferDate;
-    window.location.href = url;
+    // Gửi AJAX request để kiểm tra dữ liệu trước khi export
+    $.ajax({
+        url: "{{ route('admin.securities.dividend-record-payment.export-detail', '') }}/" + transferDate,
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+            // Nếu thành công, tải file
+            window.location.href = "{{ route('admin.securities.dividend-record-payment.export-detail', '') }}/" + transferDate;
+        },
+        error: function(xhr) {
+            let errorMsg = 'Lỗi khi xuất file';
+            if (xhr.responseJSON?.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            toastr.error(errorMsg);
+        }
+    });
 }
 </script>
 @endpush

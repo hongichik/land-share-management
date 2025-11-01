@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Securities;
 use App\Http\Controllers\Controller;
 use App\Models\DividendRecord;
 use App\Exports\DividendRecordExport;
+use App\Exports\DividendRecordPaymentDetailExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
@@ -19,6 +20,11 @@ class DividendRecordPaymentController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            // Get filter parameters
+            $year = $request->input('year');
+            $month = $request->input('month');
+            $day = $request->input('day');
+            
             // Lấy dữ liệu grouped by transfer_date - hiển thị 1 dòng cho mỗi ngày
             $dividendRecords = DividendRecord::selectRaw('
                 transfer_date,
@@ -30,7 +36,24 @@ class DividendRecordPaymentController extends Controller
                 MAX(created_at) as created_at
             ')
                 ->whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
-                ->whereNotNull('transfer_date')
+                ->whereNotNull('transfer_date');
+            
+            // Apply year filter
+            if ($year) {
+                $dividendRecords->whereYear('transfer_date', $year);
+            }
+            
+            // Apply month filter
+            if ($month && $year) {
+                $dividendRecords->whereMonth('transfer_date', $month);
+            }
+            
+            // Apply day filter
+            if ($day && $month && $year) {
+                $dividendRecords->whereDay('transfer_date', $day);
+            }
+            
+            $dividendRecords = $dividendRecords
                 ->groupBy('transfer_date', 'dividend_percentage')
                 ->orderBy('transfer_date', 'desc')
                 ->get();
@@ -206,6 +229,39 @@ class DividendRecordPaymentController extends Controller
             );
         } catch (\Exception $e) {
             Log::error('Export dividend records error', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xuất file!'
+            ], 422);
+        }
+    }
+
+    /**
+     * Export dividend payment detail records to Excel by transfer date
+     */
+    public function exportDetail(Request $request, $transferDate)
+    {
+        try {
+            // Kiểm tra xem có dữ liệu không trước khi export
+            $recordCount = DividendRecord::where('transfer_date', $transferDate)
+                ->whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
+                ->count();
+            
+            if ($recordCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có dữ liệu thanh toán cổ tức cho ngày ' . date('d/m/Y', strtotime($transferDate)) . '!'
+                ], 422);
+            }
+            
+            $fileName = 'chi-tiet-thanh-toan-' . date('dmY', strtotime($transferDate)) . '-' . Carbon::now()->format('dmY') . '.xlsx';
+
+            return Excel::download(
+                new DividendRecordPaymentDetailExport($transferDate),
+                $fileName
+            );
+        } catch (\Exception $e) {
+            Log::error('Export dividend payment detail error', ['error' => $e->getMessage()]);
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi xuất file!'

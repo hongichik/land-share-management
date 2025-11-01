@@ -19,6 +19,8 @@ class DividendRecordController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            $year = $request->input('year', date('Y'));
+            
             // Lấy dữ liệu grouped by payment_date - TẤT CẢ
             $dividendRecords = DividendRecord::selectRaw('
                 payment_date,
@@ -33,6 +35,7 @@ class DividendRecordController extends Controller
                 MAX(created_at) as created_at
             ')
             ->whereNotNull('payment_date')
+            ->whereYear('payment_date', $year)
             ->groupBy('payment_date', 'dividend_percentage')
             ->orderBy('payment_date', 'desc');
 
