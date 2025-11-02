@@ -18,11 +18,10 @@ class DividendController extends Controller
     public function getSummaryStats(Request $request)
     {
         $filter = $request->input('filter', 'all');
-        $currentYear = date('Y');
         
         // Lấy dữ liệu dividend records của năm hiện tại
-        $query = DividendRecord::whereYear('payment_date', $currentYear);
-        
+        $query = DividendRecord::query();
+
         // Tính thuế chưa lưu ký
         $taxUnsigned = $query->sum('non_deposited_personal_income_tax');
         
@@ -30,23 +29,20 @@ class DividendController extends Controller
         $taxSigned = $query->sum('deposited_personal_income_tax');
         
         // Tính tiền chưa lưu ký chưa nhận (unpaid hoặc paid_not_deposited)
-        $amountUnsignedUnpaid = DividendRecord::whereYear('payment_date', $currentYear)
-            ->whereIn('payment_status', ['unpaid', 'paid_deposited'])
+        $amountUnsignedUnpaid = DividendRecord::
+            whereIn('payment_status', ['paid_deposited','unpaid'])
             ->sum('non_deposited_amount_before_tax');
         
         // Tính tiền đã lưu ký chưa nhận
-        $amountSignedUnpaid = DividendRecord::whereYear('payment_date', $currentYear)
-            ->whereIn('payment_status', ['unpaid', 'paid_not_deposited'])
+        $amountSignedUnpaid = DividendRecord::whereIn('payment_status', ['unpaid', 'paid_not_deposited'])
             ->sum('deposited_amount_before_tax');
         
         // Tính tiền chưa lưu ký đã nhận
-        $amountUnsignedPaid = DividendRecord::whereYear('payment_date', $currentYear)
-            ->whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
+        $amountUnsignedPaid = DividendRecord::whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
             ->sum('non_deposited_amount_before_tax');
         
         // Tính tiền đã lưu ký đã nhận
-        $amountSignedPaid = DividendRecord::whereYear('payment_date', $currentYear)
-            ->whereIn('payment_status', ['paid_deposited', 'paid_both'])
+        $amountSignedPaid = DividendRecord::whereIn('payment_status', ['paid_deposited', 'paid_both'])
             ->sum('deposited_amount_before_tax');
         
         // Đếm tổng cổ đông

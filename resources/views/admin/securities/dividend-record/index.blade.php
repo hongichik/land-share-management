@@ -122,6 +122,7 @@ $(document).ready(function() {
     // Tạo danh sách năm (từ 5 năm trước đến 5 năm sau hiện tại)
     function initializeYearFilter() {
         var $yearSelect = $('#filter-year');
+        $yearSelect.append($('<option></option>').val('').text('-- Tất cả --'));
         for (var i = currentYear - 5; i <= currentYear + 5; i++) {
             $yearSelect.append($('<option></option>').val(i).text(i));
         }
@@ -178,8 +179,8 @@ $(document).ready(function() {
     
     // Xử lý reset bộ lọc
     $('#reset-filters').click(function() {
-        $('#filter-year').val(currentYear);
-        selectedYear = currentYear;
+        $('#filter-year').val('');
+        selectedYear = '';
         table.ajax.reload();
     });
 });

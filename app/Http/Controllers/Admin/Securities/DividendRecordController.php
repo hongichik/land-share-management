@@ -19,7 +19,7 @@ class DividendRecordController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $year = $request->input('year', date('Y'));
+            $year = $request->input('year');
             
             // Lấy dữ liệu grouped by payment_date - TẤT CẢ
             $dividendRecords = DividendRecord::selectRaw('
@@ -34,10 +34,16 @@ class DividendRecordController extends Controller
                 SUM(COALESCE(deposited_amount_before_tax, 0) + COALESCE(non_deposited_amount_before_tax, 0)) as total_amount_before_tax,
                 MAX(created_at) as created_at
             ')
-            ->whereNotNull('payment_date')
-            ->whereYear('payment_date', $year)
-            ->groupBy('payment_date', 'dividend_percentage')
-            ->orderBy('payment_date', 'desc');
+            ->whereNotNull('payment_date');
+            
+            // Apply year filter if provided
+            if ($year) {
+                $dividendRecords->whereYear('payment_date', $year);
+            }
+            
+            $dividendRecords = $dividendRecords
+                ->groupBy('payment_date', 'dividend_percentage')
+                ->orderBy('payment_date', 'desc');
 
             return DataTables::of($dividendRecords)
                 ->addIndexColumn()
