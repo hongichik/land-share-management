@@ -15,7 +15,7 @@
                         </a>
                     </div>
                 </div>
-                <form action="{{ route('admin.land-rental.contracts.update', $landRentalContract) }}" method="POST"
+                <form action="{{ route('admin.land-rental.contracts.update', $landRentalContract->id) }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     @method('PUT')

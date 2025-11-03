@@ -121,7 +121,7 @@
                         <!-- Giá thuế đất -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="land_tax_price">Giá thuế đất (VND)</label>
+                                <label for="land_tax_price">Giá thuế đất (VND)<span class="text-danger">*</span></label>
                                 <input type="number" class="form-control @error('land_tax_price') is-invalid @enderror" 
                                        id="land_tax_price" name="land_tax_price" value="{{ old('land_tax_price') }}"
                                        min="0" placeholder="Nhập giá thuế đất">

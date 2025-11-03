@@ -88,9 +88,7 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
             $location = trim($contract->rental_zone . ' ' . $contract->rental_location);
             $location = $location ?: 'Chưa xác định';
             
-            // Tính tiền thuế = (diện tích × đơn giá × thuế suất × số tháng) / 12
-            $taxAmount = ($area * $taxPrice * ($taxRate) * $months)/12;
-
+            // (Trước đây tính tiền thuế ở PHP) Bỏ tính toán ở đây và để Excel tính công thức
             $taxData[] = [
                 'index' => $index + 1,
                 'location' => $location,
@@ -98,7 +96,7 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
                 'unit_price' => $taxPrice,
                 'tax_rate' => $taxRate,
                 'months' => $months,
-                'amount' => $taxAmount,
+                'amount' => null, // Để Excel tính công thức (=(C*D*E*F)/12)
                 'notes' => ''
             ];
         }
@@ -121,7 +119,7 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
                 (float)$row['unit_price'],
                 (float)$row['tax_rate'],
                 (float)$row['months'],
-                (float)$row['amount'],
+                null, // Để Excel tính công thức trong cột G
                 $row['notes']
             ];
         }
@@ -354,6 +352,11 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
         $dataEndRow = 8 + count($this->data);
         
         if ($dataEndRow >= $dataStartRow) {
+            // Ghi công thức Excel cho cột G: (1x2x3x4)/12
+            for ($r = $dataStartRow; $r <= $dataEndRow; $r++) {
+                $sheet->setCellValue('G'.$r, '=(C'.$r.'*D'.$r.'*E'.$r.'*F'.$r.')/12');
+            }
+
             // Định dạng tất cả các ô dữ liệu
             $sheet->getStyle('A'.$dataStartRow.':H'.$dataEndRow)->applyFromArray([
                 'font' => ['size' => 11],
@@ -409,18 +412,11 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
             $sheet->getStyle('G'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle('G'.$totalRow)->getNumberFormat()->setFormatCode('#,##0');
             
-            // Đảm bảo dòng tổng sử dụng giá trị số
-            $cellRef = 'G'.$totalRow;
-            $sheet->getCell($cellRef)->setValueExplicit(
-                $sheet->getCell($cellRef)->getCalculatedValue(),
-                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC
-            );
-
-            // Thêm dòng bằng chữ
+            // Thêm dòng bằng chữ (lấy giá trị tính toán của ô tổng)
             $wordsRow = $totalRow + 1;
             $totalAmount = $sheet->getCell('G'.$totalRow)->getCalculatedValue();
             $amountInWords = $this->convertNumberToWords((int)$totalAmount) . ' đồng';
-            
+
             $sheet->setCellValue('B'.$wordsRow, 'Bằng chữ:');
             $sheet->setCellValue('C'.$wordsRow, ucfirst($amountInWords));
             $sheet->mergeCells('C'.$wordsRow.':H'.$wordsRow);

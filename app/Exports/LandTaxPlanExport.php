@@ -86,9 +86,6 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
             
             // Xác định mục đích thuê đất
             $purpose = $contract->rental_purpose ?: 'Chưa xác định';
-            
-            // Tính tiền thuế = (diện tích × đơn giá × thuế suất × số tháng) / 12
-            $taxAmount = ($area * $taxPrice * $contract->export_tax * $months)/12;
 
             $planData[] = [
                 'index' => $index + 1,
@@ -98,7 +95,7 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
                 'unit_price' => $taxPrice,
                 'tax_rate' => $taxRate,
                 'months' => $months,
-                'amount' => $taxAmount,
+                'amount' => null, // Để Excel tính công thức
                 'notes' => ''
             ];
         }
@@ -122,7 +119,7 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
                 (float)$row['unit_price'],
                 (float)$row['tax_rate'],
                 (float)$row['months'],
-                (float)$row['amount'],
+                null, // Để Excel tính công thức
                 $row['notes']
             ];
         }
@@ -365,6 +362,11 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
         $dataEndRow = 7 + count($this->data);
         
         if ($dataEndRow >= $dataStartRow) {
+            // Ghi công thức Excel cho cột H: (1x2x3x4)/12
+            for ($r = $dataStartRow; $r <= $dataEndRow; $r++) {
+                $sheet->setCellValue('H'.$r, '=(D'.$r.'*E'.$r.'*F'.$r.'*G'.$r.')/12');
+            }
+
             // Định dạng tất cả các ô dữ liệu
             $sheet->getStyle('A'.$dataStartRow.':I'.$dataEndRow)->applyFromArray([
                 'font' => ['size' => 11],
@@ -420,18 +422,11 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
             $sheet->getStyle('H'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle('H'.$totalRow)->getNumberFormat()->setFormatCode('#,##0');
             
-            // Đảm bảo dòng tổng sử dụng giá trị số
-            $cellRef = 'H'.$totalRow;
-            $sheet->getCell($cellRef)->setValueExplicit(
-                $sheet->getCell($cellRef)->getCalculatedValue(),
-                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC
-            );
-
-            // Thêm dòng bằng chữ
+            // Thêm dòng bằng chữ (lấy giá trị đã tính của ô tổng)
             $wordsRow = $totalRow + 1;
             $totalAmount = $sheet->getCell('H'.$totalRow)->getCalculatedValue();
             $amountInWords = $this->convertNumberToWords((int)$totalAmount) . ' đồng';
-            
+
             $sheet->setCellValue('B'.$wordsRow, 'Bằng chữ:');
             $sheet->setCellValue('C'.$wordsRow, ucfirst($amountInWords));
             $sheet->mergeCells('C'.$wordsRow.':I'.$wordsRow);

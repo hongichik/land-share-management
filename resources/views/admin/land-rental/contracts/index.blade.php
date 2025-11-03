@@ -160,11 +160,18 @@
                             <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportTaxCalculationModal">
                                 <i class="fas fa-file-invoice-dollar mr-2"></i> Bảng tính tiền thuê đất
                             </a>
+                            
+                            <a href="#" class="dropdown-item" data-toggle="modal" data-target="#exportSupplementalPaymentModal">
+                                <i class="fas fa-receipt mr-2"></i> Bảng tính tiền nộp bổ sung
+                            </a>
                         </div>
                     </div>
                     <a href="{{ route('admin.land-rental.contracts.create') }}" class="btn btn-primary btn-sm ml-1">
                         <i class="bi bi-plus"></i> Thêm Hợp đồng
                     </a>
+                    <button type="button" class="btn btn-warning btn-sm ml-1" data-toggle="modal" data-target="#payAllModal">
+                        <i class="fas fa-money-bill-wave"></i> Thanh toán tất cả
+                    </button>
                 </div>
             </div>
             <div class="card-body">
@@ -439,6 +446,97 @@
     </div>
 </div>
 
+<!-- Export Supplemental Payment Modal -->
+<div class="modal fade" id="exportSupplementalPaymentModal" tabindex="-1" role="dialog" aria-labelledby="exportSupplementalPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-info">
+                <h5 class="modal-title" id="exportSupplementalPaymentModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Tiền Nộp Bổ Sung</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('admin.land-rental.contracts.export-supplemental-payment') }}" method="get">
+                    <div class="form-group">
+                        <label>Năm</label>
+                        <select name="year" class="form-control">
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info btn-block">
+                        <i class="fas fa-download mr-1"></i> Xuất bảng tính
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pay All Modal -->
+<div class="modal fade" id="payAllModal" tabindex="-1" role="dialog" aria-labelledby="payAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="payAllModalLabel"><i class="fas fa-money-bill-wave mr-2"></i>Thanh toán tất cả</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="payAllForm" action="{{ route('admin.land-rental.contracts.pay-all') }}" method="POST">
+                    @csrf
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> <strong>Chú ý:</strong> Hành động này sẽ cập nhật trạng thái thanh toán cho tất cả hợp đồng trong kỳ và năm được chọn.
+                    </div>
+                    <div class="form-group">
+                        <label for="payPeriod">Kỳ thanh toán <span class="text-danger">*</span></label>
+                        <select id="payPeriod" name="period" class="form-control" required>
+                            <option value="">-- Chọn kỳ --</option>
+                            <option value="1">Kỳ I (Tháng 1-6)</option>
+                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="payYear">Năm <span class="text-danger">*</span></label>
+                        <select id="payYear" name="year" class="form-control" required>
+                            <option value="">-- Chọn năm --</option>
+                            @php
+                                $currentYear = (int)date('Y');
+                                $startYear = $currentYear - 2;
+                                $endYear = $currentYear + 2;
+                            @endphp
+                            @for($year = $startYear; $year <= $endYear; $year++)
+                                <option value="{{ $year }}" {{ $year == $currentYear ? 'selected' : '' }}>{{ $year }}</option>
+                            @endfor
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentDate">Ngày thanh toán <span class="text-danger">*</span></label>
+                        <input type="date" id="paymentDate" name="payment_date" class="form-control" required value="{{ date('Y-m-d') }}">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning" onclick="confirmPayAll()">
+                    <i class="fas fa-check mr-1"></i> Xác nhận thanh toán
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
@@ -463,6 +561,78 @@
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap4.min.js"></script>
 <script>
+// Function to update payment status dashboard
+function updatePaymentStatusDashboard() {
+    let paidCount = 0;
+    let warningCount = 0;
+    let urgentCount = 0;
+    let overdueCount = 0;
+    
+    // Analyze payment column data in the table
+    $('#contracts-table tbody tr').each(function() {
+        const paymentCell = $(this).find('td:nth-child(7)'); // Payment column (now column 7 instead of 9)
+        const paymentHtml = paymentCell.html();
+        
+        if (paymentHtml) {
+            if (paymentHtml.includes('payment-status paid')) {
+                paidCount++;
+            } else if (paymentHtml.includes('deadline-warning critical')) {
+                urgentCount++;
+            } else if (paymentHtml.includes('deadline-warning danger')) {
+                overdueCount++;
+            } else if (paymentHtml.includes('deadline-warning warning')) {
+                warningCount++;
+            }
+        }
+    });
+    
+    // Update dashboard counters
+    $('#paid-count').text(paidCount);
+    $('#warning-count').text(warningCount);
+    $('#urgent-count').text(urgentCount);
+    $('#overdue-count').text(overdueCount);
+    
+    // Calculate and update percentages
+    const totalContracts = paidCount + warningCount + urgentCount + overdueCount;
+    if (totalContracts > 0) {
+        const paymentPercentage = Math.round((paidCount / totalContracts) * 100);
+        const urgentPercentage = Math.round(((urgentCount + overdueCount) / totalContracts) * 100);
+        
+        $('#payment-percentage').text(paymentPercentage + '%');
+        $('#urgent-percentage').text(urgentPercentage + '%');
+        $('#payment-progress').css('width', paymentPercentage + '%');
+        $('#urgent-progress').css('width', urgentPercentage + '%');
+    }
+}
+
+// Function to confirm pay all
+function confirmPayAll() {
+    const period = $('#payPeriod').val();
+    const year = $('#payYear').val();
+    const paymentDate = $('#paymentDate').val();
+    
+    if (!period || !year || !paymentDate) {
+        Swal.fire('Lỗi', 'Vui lòng chọn kỳ, năm và ngày thanh toán', 'error');
+        return;
+    }
+    
+    Swal.fire({
+        title: 'Xác nhận thanh toán',
+        html: `Bạn có chắc chắn muốn thanh toán tất cả hợp đồng trong:<br>
+               <strong>Kỳ ${period === '1' ? 'I (Tháng 1-6)' : 'II (Tháng 7-12)'} năm ${year}</strong>?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Xác nhận',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('payAllForm').submit();
+        }
+    });
+}
+
 $(document).ready(function() {
     $('#contracts-table').DataTable({
         processing: true,
@@ -502,50 +672,6 @@ $(document).ready(function() {
             }
         }
     });
-    
-    // Function to update payment status dashboard
-    function updatePaymentStatusDashboard() {
-        let paidCount = 0;
-        let warningCount = 0;
-        let urgentCount = 0;
-        let overdueCount = 0;
-        
-        // Analyze payment column data in the table
-        $('#contracts-table tbody tr').each(function() {
-            const paymentCell = $(this).find('td:nth-child(7)'); // Payment column (now column 7 instead of 9)
-            const paymentHtml = paymentCell.html();
-            
-            if (paymentHtml) {
-                if (paymentHtml.includes('payment-status paid')) {
-                    paidCount++;
-                } else if (paymentHtml.includes('deadline-warning critical')) {
-                    urgentCount++;
-                } else if (paymentHtml.includes('deadline-warning danger')) {
-                    overdueCount++;
-                } else if (paymentHtml.includes('deadline-warning warning')) {
-                    warningCount++;
-                }
-            }
-        });
-        
-        // Update dashboard counters
-        $('#paid-count').text(paidCount);
-        $('#warning-count').text(warningCount);
-        $('#urgent-count').text(urgentCount);
-        $('#overdue-count').text(overdueCount);
-        
-        // Calculate and update percentages
-        const totalContracts = paidCount + warningCount + urgentCount + overdueCount;
-        if (totalContracts > 0) {
-            const paymentPercentage = Math.round((paidCount / totalContracts) * 100);
-            const urgentPercentage = Math.round(((urgentCount + overdueCount) / totalContracts) * 100);
-            
-            $('#payment-percentage').text(paymentPercentage + '%');
-            $('#urgent-percentage').text(urgentPercentage + '%');
-            $('#payment-progress').css('width', paymentPercentage + '%');
-            $('#urgent-progress').css('width', urgentPercentage + '%');
-        }
-    }
 });
 </script>
 @endpush

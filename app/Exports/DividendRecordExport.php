@@ -55,7 +55,6 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
             // Tính số tiền còn được lĩnh (tổng tiền - thuế)
             $totalBeforeTax = ($record->deposited_amount_before_tax ?? 0) + ($record->non_deposited_amount_before_tax ?? 0);
             $totalTax = ($record->deposited_personal_income_tax ?? 0) + ($record->non_deposited_personal_income_tax ?? 0);
-            $totalAfterTax = $totalBeforeTax - $totalTax;
             
             $dividendData[] = [
                 $index, // A - STT
@@ -65,7 +64,7 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
                 $investor->address ?? '', // E - Địa chỉ
                 $totalBeforeTax, // F - Số tiền
                 $totalTax, // G - Thuế TNCN
-                $totalAfterTax, // H - Còn được lĩnh
+                '=F' . ($index + 6) . '-G' . ($index + 6), // H - Còn được lĩnh (công thức)
                 $record->account_number ?? '', // I - Tài khoản
                 $record->bank_name ?? '', // J - Ngân hàng
                 $record->payment_date ? date('d/m/Y', strtotime($record->payment_date)) : '', // K - Thời gian trả cổ tức
@@ -248,6 +247,190 @@ class DividendRecordExport implements FromCollection, WithHeadings, WithTitle, W
             $sheet->getStyle('J' . $row)->getAlignment()->setWrapText(true);
         }
         
+        // Dòng tổng (dòng sau dữ liệu cuối cùng)
+        $totalRow = $lastRowWithData + 1;
+        $sheet->setCellValue('B' . $totalRow, 'Tổng');
+        $sheet->getStyle('B' . $totalRow)->getFont()->setBold(true);
+        $sheet->getStyle('B' . $totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
+        // Công thức SUM cho cột F (Số tiền)
+        $sheet->setCellValue('F' . $totalRow, '=SUM(F7:F' . $lastRowWithData . ')');
+        $sheet->getStyle('F' . $totalRow)->getFont()->setBold(true);
+        $sheet->getStyle('F' . $totalRow)->getNumberFormat()->setFormatCode('0');
+        $sheet->getStyle('F' . $totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        
+        // Công thức SUM cho cột G (Thuế TNCN)
+        $sheet->setCellValue('G' . $totalRow, '=SUM(G7:G' . $lastRowWithData . ')');
+        $sheet->getStyle('G' . $totalRow)->getFont()->setBold(true);
+        $sheet->getStyle('G' . $totalRow)->getNumberFormat()->setFormatCode('0');
+        $sheet->getStyle('G' . $totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        
+        // Công thức SUM cho cột H (Còn được lĩnh)
+        $sheet->setCellValue('H' . $totalRow, '=SUM(H7:H' . $lastRowWithData . ')');
+        $sheet->getStyle('H' . $totalRow)->getFont()->setBold(true);
+        $sheet->getStyle('H' . $totalRow)->getNumberFormat()->setFormatCode('0');
+        $sheet->getStyle('H' . $totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        
+        // Định dạng viền cho dòng tổng
+        $sheet->getStyle('A' . $totalRow . ':L' . $totalRow)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ]);
+        
+        // Dòng "Bằng chữ"
+        $baEngChuRow = $totalRow + 1;
+        $totalValue = $this->getTotalAmount();
+        $sheet->setCellValue('B' . $baEngChuRow, 'Bằng chữ: ' . $this->convertNumberToWords($totalValue));
+        $sheet->getStyle('B' . $baEngChuRow)->getFont()->setBold(true);
+        
+        // Dòng ngày tháng năm
+        $dateRow = $baEngChuRow + 1;
+        $sheet->setCellValue('H' . $dateRow, 'Quảng Ninh, Ngày     tháng     năm');
+        $sheet->getStyle('H' . $dateRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        
+        // Dòng chữ ký
+        $signatureRow = $dateRow + 1;
+        $sheet->setCellValue('B' . $signatureRow, 'Người lập');
+        $sheet->setCellValue('D' . $signatureRow, 'Kế toán trưởng');
+        $sheet->setCellValue('F' . $signatureRow, 'Kế toán trưởng');
+        $sheet->setCellValue('H' . $signatureRow, 'Tổng giám đốc');
+        
+        // Định dạng dòng chữ ký
+        $sheet->getStyle('B' . $signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('D' . $signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('F' . $signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('H' . $signatureRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+        
         return $sheet;
+    }
+    
+    /**
+     * Tính tổng tiền từ dữ liệu
+     * 
+     * @return float
+     */
+    private function getTotalAmount()
+    {
+        $total = 0;
+        foreach ($this->data as $row) {
+            // Cột F (index 5) là tổng tiền
+            $total += $row[5] ?? 0;
+        }
+        $total_ = 0;
+        foreach ($this->data as $row) {
+            // Cột F (index 5) là tổng tiền
+            $total_ += $row[6] ?? 0;
+        }
+        $total= $total - $total_;
+        return $total;
+    }
+    
+    /**
+     * Chuyển đổi số thành chữ
+     * 
+     * @param float $number
+     * @return string
+     */
+    private function convertNumberToWords($number)
+    {
+        if ($number == 0) {
+            return 'không';
+        }
+        
+        $units = ['', 'nghìn', 'triệu', 'tỷ', 'nghìn tỷ', 'triệu tỷ'];
+        $words = [];
+        
+        // Đổi số thành chuỗi và xóa các ký tự không phải số
+        $number = (string)$number;
+        $number = preg_replace('/[^0-9]/', '', $number);
+        
+        // Chia thành các nhóm 3 chữ số từ phải sang trái
+        $groups = str_split(strrev($number), 3);
+        
+        foreach ($groups as $i => $group) {
+            $group = strrev($group);
+            $groupValue = (int)$group;
+            
+            if ($groupValue > 0) {
+                $groupText = $this->readThreeDigits($groupValue);
+                if ($i > 0) {
+                    $groupText .= ' ' . $units[$i];
+                }
+                $words[] = $groupText;
+            }
+        }
+        
+        // Đảo ngược mảng để có thứ tự đúng
+        $words = array_reverse($words);
+        $result = implode(' ', $words);
+        
+        // Chuẩn hóa kết quả
+        $result = $this->normalizeResult($result);
+        
+        return $result;
+    }
+    
+    /**
+     * Đọc ba chữ số
+     * 
+     * @param int $number
+     * @return string
+     */
+    private function readThreeDigits($number)
+    {
+        $ones = ['', 'một', 'hai', 'ba', 'bốn', 'năm', 'sáu', 'bảy', 'tám', 'chín'];
+        $teens = ['mười', 'mười một', 'mười hai', 'mười ba', 'mười bốn', 'mười năm', 'mười sáu', 'mười bảy', 'mười tám', 'mười chín'];
+        $tens = ['', '', 'hai mươi', 'ba mươi', 'bốn mươi', 'năm mươi', 'sáu mươi', 'bảy mươi', 'tám mươi', 'chín mươi'];
+        
+        $result = '';
+        
+        // Hàng trăm
+        $hundreds = intdiv($number, 100);
+        if ($hundreds > 0) {
+            $result .= $ones[$hundreds] . ' trăm';
+        }
+        
+        // Hàng chục và hàng đơn vị
+        $remainder = $number % 100;
+        if ($remainder >= 20) {
+            if ($result) {
+                $result .= ' ';
+            }
+            $tens_digit = intdiv($remainder, 10);
+            $ones_digit = $remainder % 10;
+            $result .= $tens[$tens_digit];
+            if ($ones_digit > 0) {
+                $result .= ' ' . $ones[$ones_digit];
+            }
+        } elseif ($remainder >= 10) {
+            if ($result) {
+                $result .= ' ';
+            }
+            $result .= $teens[$remainder - 10];
+        } elseif ($remainder > 0) {
+            if ($result) {
+                $result .= ' ';
+            }
+            $result .= $ones[$remainder];
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * Chuẩn hóa kết quả chuyển đổi số sang chữ
+     * 
+     * @param string $text
+     * @return string
+     */
+    private function normalizeResult($text)
+    {
+        // Xóa khoảng trắng thừa
+        $text = trim(preg_replace('/\s+/', ' ', $text));
+        
+        return $text;
     }
 }

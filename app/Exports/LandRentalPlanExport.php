@@ -78,9 +78,6 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                 
                 // Tính số tháng cho mức giá này trong năm
                 $months = $this->calculateMonthsForPricePeriod($price, $startOfYear, $endOfYear);
-                
-                // Tính tiền thuê
-                $amount = ($area * $rentalPrice / 12) * $months;
 
                 $planData[] = [
                     'index' => $contractIndex,
@@ -89,7 +86,7 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                     'area' => $area,
                     'unit_price' => $rentalPrice,
                     'months' => $months,
-                    'amount' => $amount,
+                    'amount' => null, // Để Excel tính công thức
                     'notes' => $this->formatPricePeriod($price, $startOfYear, $endOfYear)
                 ];
             } else {
@@ -103,9 +100,6 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                     $months = $this->calculateMonthsForPricePeriod($price, $startOfYear, $endOfYear);
                     
                     if ($months > 0) {
-                        // Tính tiền thuê
-                        $amount = ($area * $rentalPrice / 12) * $months;
-                        
                         // Tạo index với sub-index
                         $displayIndex = $subIndex == 0 ? $contractIndex : $contractIndex . '.' . $subIndex.' ';
                         
@@ -113,10 +107,10 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                             'index' => $displayIndex,
                             'purpose' => $subIndex == 0 ? $purpose : '', // Chỉ hiển thị mục đích ở dòng đầu
                             'contract' => $subIndex == 0 ? $contract->contract_number : '', // Chỉ hiển thị số HĐ ở dòng đầu
-                            'area' => $subIndex == 0 ? $area : '', // Chỉ hiển thị diện tích ở dòng đầu
+                            'area' => $area, // Hiển thị diện tích ở tất cả các dòng để công thức hoạt động
                             'unit_price' => $rentalPrice,
                             'months' => $months,
-                            'amount' => $amount,
+                            'amount' => null, // Để Excel tính công thức
                             'notes' => $this->formatPricePeriod($price, $startOfYear, $endOfYear)
                         ];
                         
@@ -220,7 +214,7 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
                 $row['area'] !== '' ? (float)$row['area'] : '',
                 (float)$row['unit_price'],
                 (float)$row['months'],
-                (float)$row['amount'],
+                null, // Để Excel tính công thức
                 $row['notes']
             ];
         }
@@ -459,6 +453,11 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
         $dataEndRow = 7 + count($this->data);
         
         if ($dataEndRow >= $dataStartRow) {
+            // Thêm công thức Excel cho cột G (Số tiền)
+            for ($row = $dataStartRow; $row <= $dataEndRow; $row++) {
+                $sheet->setCellValue('G'.$row, '=(D'.$row.' * E'.$row.' * F'.$row.') / 12');
+            }
+            
             // Định dạng tất cả các ô dữ liệu
             $sheet->getStyle('A'.$dataStartRow.':H'.$dataEndRow)->applyFromArray([
                 'font' => ['size' => 11],
@@ -491,6 +490,7 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
             // Thêm dòng tổng cộng
             $totalRow = $dataEndRow + 1;
             $sheet->setCellValue('B'.$totalRow, 'Tổng cộng');
+            // Công thức tổng tất cả các giá trị từ cột G
             $sheet->setCellValue('G'.$totalRow, '=SUM(G'.$dataStartRow.':G'.$dataEndRow.')');
             
             // Định dạng dòng tổng
@@ -512,18 +512,13 @@ class LandRentalPlanExport implements FromCollection, WithHeadings, WithTitle, W
             $sheet->getStyle('B'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
             $sheet->getStyle('G'.$totalRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             $sheet->getStyle('G'.$totalRow)->getNumberFormat()->setFormatCode('#,##0');
-            
-            // Đảm bảo dòng tổng sử dụng giá trị số
-            $cellRef = 'G'.$totalRow;
-            $sheet->getCell($cellRef)->setValueExplicit(
-                $sheet->getCell($cellRef)->getCalculatedValue(),
-                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_NUMERIC
-            );
 
             // Thêm dòng bằng chữ
             $wordsRow = $totalRow + 1;
-            $totalAmount = $sheet->getCell('G'.$totalRow)->getCalculatedValue();
-            $amountInWords = $this->convertNumberToWords((int)$totalAmount) . ' đồng';
+            // Lấy công thức từ ô tổng để tính giá trị
+            $totalFormula = $sheet->getCell('G'.$totalRow)->getValue();
+            $calculatedTotal = $sheet->getCell('G'.$totalRow)->getCalculatedValue();
+            $amountInWords = $this->convertNumberToWords((int)$calculatedTotal) . ' đồng';
             
             $sheet->setCellValue('B'.$wordsRow, 'Bằng chữ:');
             $sheet->setCellValue('C'.$wordsRow, ucfirst($amountInWords));

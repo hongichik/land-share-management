@@ -116,6 +116,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('contracts/export-rental-plan', [LandRentalContractController::class, 'exportRentalPlan'])->name('contracts.export-rental-plan');
             Route::get('contracts/export-tax-plan', [LandRentalContractController::class, 'exportTaxPlan'])->name('contracts.export-tax-plan');
             Route::get('contracts/export-non-agri-tax', [LandRentalContractController::class, 'exportNonAgriTax'])->name('contracts.export-non-agri-tax');
+            Route::get('contracts/export-supplemental-payment', [LandRentalContractController::class, 'exportSupplementalPayment'])->name('contracts.export-supplemental-payment');
+            Route::post('contracts/pay-all', [LandRentalContractController::class, 'payAll'])->name('contracts.pay-all');
             Route::resource('contracts', LandRentalContractController::class);
 
             // Land Rental Prices routes

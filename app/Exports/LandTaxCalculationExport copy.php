@@ -15,7 +15,6 @@ use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Carbon\Carbon;
 use App\Models\LandRentalContract;
-use App\Models\LandRentalPrice;
 
 class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitle, WithColumnWidths, WithStyles, WithCustomStartCell
 {
@@ -36,6 +35,100 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         $this->data = $this->generateTaxCalculationData();
     }
 
+    /**
+     * Calculate months using simplified logic
+     */
+    private function calculateSimpleMonths($segmentStart, $segmentEnd)
+    {
+        $startMonth = $segmentStart->month;
+        $startYear = $segmentStart->year;
+        $endMonth = $segmentEnd->month;
+        $endYear = $segmentEnd->year;
+        
+        // If start day >= 15, don't count start month
+        if ($segmentStart->day >= 15) {
+            if ($startMonth == 12) {
+                $startMonth = 1;
+                $startYear++;
+            } else {
+                $startMonth++;
+            }
+        }
+        
+        // If end day < 15, don't count end month
+        if ($segmentEnd->day < 15) {
+            if ($endMonth == 1) {
+                $endMonth = 12;
+                $endYear--;
+            } else {
+                $endMonth--;
+            }
+        }
+        
+        // Calculate months
+        $months = 0;
+        if ($startYear < $endYear || ($startYear == $endYear && $startMonth <= $endMonth)) {
+            $months = ($endYear - $startYear) * 12 + ($endMonth - $startMonth) + 1;
+        }
+        
+        return $months;
+    }
+
+    /**
+     * Calculate period months for a contract's prices in a given year
+     */
+    private function calculatePeriodMonths($contract, $currentYear)
+    {
+        $period1Months = 0; // January - June
+        $period2Months = 0; // July - December
+
+        $period1Start = Carbon::create($currentYear, 1, 1);
+        $period1End = Carbon::create($currentYear, 6, 30);
+        $period2Start = Carbon::create($currentYear, 7, 1);
+        $period2End = Carbon::create($currentYear, 12, 31);
+
+        // Get prices for the current year
+        $prices = $contract->landRentalPrices
+            ->filter(function ($price) use ($currentYear) {
+                $start = Carbon::parse($price->price_period['start']);
+                $end = Carbon::parse($price->price_period['end']);
+                $yearStart = Carbon::create($currentYear, 1, 1);
+                $yearEnd = Carbon::create($currentYear, 12, 31);
+                
+                return $start->lessThanOrEqualTo($yearEnd) && $end->greaterThanOrEqualTo($yearStart);
+            })
+            ->sortBy('price_period.start');
+
+        foreach ($prices as $price) {
+            $priceStart = Carbon::parse($price->price_period['start']);
+            $priceEnd = Carbon::parse($price->price_period['end']);
+
+            // Kỳ 1 (January - June)
+            $segmentStart1 = $priceStart->copy()->max($period1Start);
+            $segmentEnd1 = $priceEnd->copy()->min($period1End);
+            if ($segmentStart1 <= $segmentEnd1) {
+                $months = $this->calculateSimpleMonths($segmentStart1, $segmentEnd1);
+                $period1Months += $months;
+            }
+
+            // Kỳ 2 (July - December)
+            $segmentStart2 = $priceStart->copy()->max($period2Start);
+            $segmentEnd2 = $priceEnd->copy()->min($period2End);
+            if ($segmentStart2 <= $segmentEnd2) {
+                $months = $this->calculateSimpleMonths($segmentStart2, $segmentEnd2);
+                $period2Months += $months;
+            }
+        }
+
+        $currentMonths = $period1Months + $period2Months;
+
+        return [
+            'current_months' => $currentMonths,
+            'period1_months' => $period1Months,
+            'period2_months' => $period2Months,
+            'prices' => $prices
+        ];
+    }
 
     /**
      * Generate data for tax calculation
@@ -44,68 +137,85 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
      */
     private function generateTaxCalculationData()
     {
-        // Lấy tất cả hợp đồng với landRentalPrices và paymentHistories
         $contracts = LandRentalContract::with(['landRentalPrices', 'paymentHistories'])->get();
-        
         $taxCalculationData = [];
-        $index = 1;
+        $mainIndex = 1;
         
         foreach ($contracts as $contract) {
-            // Kiểm tra hợp đồng còn hạn theo năm hiện tại
-            if ($contract->rental_period && isset($contract->rental_period['end_date'])) {
-                $endDate = Carbon::parse($contract->rental_period['end_date']);
+            $periods = $this->calculatePeriodMonths($contract, $this->year);
+            $prices = $periods['prices'];
+            
+            if (!$contract->area || !isset($contract->area['value']) || $prices->isEmpty()) {
+                continue;
+            }
+            
+            $area = (float)$contract->area['value'];
+            
+            // Define period info based on selection
+            $periodInfo = [
+                'start' => $this->period == 1 ? Carbon::create($this->year, 1, 1) : Carbon::create($this->year, 7, 1),
+                'end' => $this->period == 1 ? Carbon::create($this->year, 6, 30) : Carbon::create($this->year, 12, 31),
+            ];
+            
+            $contractHasData = false;
+            $subIndex = 1;
+            
+            foreach ($prices as $price) {
+                $priceStart = Carbon::parse($price->price_period['start']);
+                $priceEnd = Carbon::parse($price->price_period['end']);
                 
-                // Chỉ lấy những hợp đồng có ngày kết thúc >= 1/1 của năm hiện tại
-                if ($endDate->year >= $this->year) {
-                                        // Lấy đơn giá từ landRentalPrices nằm trong khoảng của năm hiện tại
-                    $unitPrice = 0;
-                    if ($contract->landRentalPrices->isNotEmpty()) {
-                        // Tìm giá có khoảng price_period chứa $this->year
-                        $latestPrice = $contract->landRentalPrices
-                            ->filter(function ($price) {
-                                $pricePeriod = $price->price_period;
-                                if (!isset($pricePeriod['start']) || !isset($pricePeriod['end'])) {
-                                    return false;
-                                }
-                                $startDate = Carbon::parse($pricePeriod['start']);
-                                $endDate = Carbon::parse($pricePeriod['end']);
-                                $yearStart = Carbon::create($this->year, 1, 1);
-                                $yearEnd = Carbon::create($this->year, 12, 31);
-                                
-                                // Kiểm tra năm có nằm trong khoảng price_period không
-                                return $startDate->lte($yearEnd) && $endDate->gte($yearStart);
-                            })
-                            ->sortBy('updated_at')
-                            ->first();
-                        
-                        if ($latestPrice) {
-                            $unitPrice = (float)$latestPrice->rental_price;
-                        }
-                    }
+                // Calculate intersection between price period and selected period
+                $segmentStart = max($priceStart, $periodInfo['start']);
+                $segmentEnd = min($priceEnd, $periodInfo['end']);
+                
+                $months = 0;
+                if ($segmentStart <= $segmentEnd) {
+                    $months = $this->calculateSimpleMonths($segmentStart, $segmentEnd);
+                }
+                
+                if ($months > 0 && $price->rental_price) {
+                    // Calculate amounts for this price segment (moved to Excel formulas)
+                    $totalAmount = $area * $price->rental_price; // kept for reference but not exported
+                    $periodAmount = ($totalAmount / 12) * $months; // kept for reference
                     
-                    // Lấy tổng discount từ paymentHistories với payment_type = EXEMPTION (3) theo kỳ và năm
-                    $discount = $contract->paymentHistories
+                    // Get paid amount for this contract and period
+                    $paidAmount = $contract->paymentHistories
                         ->filter(function ($payment) {
-                            return $payment->period == $this->period 
-                                // && $payment->payment_type == 3 // PAYMENT_TYPE_EXEMPTION
-                                && Carbon::parse($payment->payment_date)->year == $this->year;
+                            return Carbon::parse($payment->payment_date)->year == $this->year 
+                                && $payment->period == $this->period;
                         })
                         ->sum('amount');
                     
+                    // For multiple prices in same contract, only show paid amount for first entry
+                    $displayPaidAmount = $subIndex == 1 ? $paidAmount : 0;
+                    $remainingAmount = $periodAmount - $displayPaidAmount; // kept for reference
+                    
+                    // Determine index display
+                    $indexDisplay = $subIndex == 1 ? $mainIndex : $mainIndex . '.' . $subIndex;
+                    
                     $taxCalculationData[] = [
-                        'index' => $index,
+                        'index' => $indexDisplay,
                         'location' => $contract->rental_location,
-                        'contract_number' => $contract->contract_number,
-                        'area' => isset($contract->area['value']) ? (float)$contract->area['value'] : 0,
-                        'unit_price' => $unitPrice,
-                        'discount' => (float)$discount,
-                        'notes' => $contract->notes
+                        'area' => $area,
+                        'unit_price' => (float)$price->rental_price,
+                        // Export nulls for these so Excel formulas compute values
+                        'total_amount' => null,
+                        'months' => $months,
+                        'period_amount' => null,
+                        'paid_amount' => $displayPaidAmount,
+                        'remaining_amount' => null,
+                        'notes' => $price->price_decision ?? ''
                     ];
-                    $index++;
+                    
+                    $contractHasData = true;
+                    $subIndex++;
                 }
             }
+            
+            if ($contractHasData) {
+                $mainIndex++;
+            }
         }
-
         
         return $taxCalculationData;
     }
@@ -119,16 +229,16 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         
         foreach ($this->data as $row) {
             $formattedData[] = [
-                $row['index'],                  // A: STT
-                $row['location'],               // B: Hạng mục
-                $row['contract_number'],        // C: Hợp đồng số
-                (float)$row['area'],            // D: Diện tích
-                (float)$row['unit_price'],      // E: Đơn giá
-                null,                           // F: Thành tiền (Excel tính)
-                (float)$row['discount'],        // G: Số tiền được giảm
-                null,                           // H: Số phải nộp kỳ (Excel tính)
-                null,                           // I: Số tiền còn phải nộp (Excel tính)
-                $row['notes']                   // J: Ghi chú
+                $row['index'],
+                $row['location'],
+                (float)$row['area'],
+                (float)$row['unit_price'],
+                null, // total_amount - let Excel compute (E)
+                (int)$row['months'], // New column
+                null, // period_amount - let Excel compute (G)
+                (float)$row['paid_amount'],
+                null, // remaining_amount - let Excel compute (I)
+                $row['notes']
             ];
         }
         
@@ -167,13 +277,13 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
     {
         return [
             'A' => 6,
-            'B' => 20,
-            'C' => 20,
+            'B' => 30,
+            'C' => 15,
             'D' => 15,
-            'E' => 15,
-            'F' => 20,
-            'G' => 20,
-            'H' => 20,
+            'E' => 20,
+            'F' => 10, // New column: months
+            'G' => 25,
+            'H' => 25,
             'I' => 20,
             'J' => 20,
         ];
@@ -320,29 +430,29 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
 
         // Set the first header row - row 7
         $firstHeaderRow = 7;
-        $sheet->setCellValue('A'.$firstHeaderRow, 'STT');
-        $sheet->setCellValue('B'.$firstHeaderRow, 'Hạng mục');
-        $sheet->setCellValue('C'.$firstHeaderRow, 'Hợp đồng số');
-        $sheet->setCellValue('D'.$firstHeaderRow, 'Diện tích (m2)');
-        $sheet->setCellValue('E'.$firstHeaderRow, 'Đơn giá (đ/m2/năm)');
-        $sheet->setCellValue('F'.$firstHeaderRow, 'Thành tiền (đồng)');
-        $sheet->setCellValue('G'.$firstHeaderRow, 'Số tiền được giảm');
-        $sheet->setCellValue('H'.$firstHeaderRow, 'Số phải nộp kỳ ' . $this->period . '/' . $this->year . ' (đồng)');
-        $sheet->setCellValue('I'.$firstHeaderRow, 'Số tiền còn phải nộp kỳ ' . $this->period . '/' . $this->year . ' (đồng)');
+        $sheet->setCellValue('A'.$firstHeaderRow, 'Stt');
+        $sheet->setCellValue('B'.$firstHeaderRow, 'Vị trí đất thuê');
+        $sheet->setCellValue('C'.$firstHeaderRow, 'Diện tích (m2)');
+        $sheet->setCellValue('D'.$firstHeaderRow, 'Đơn giá (đ/m2/năm)');
+        $sheet->setCellValue('E'.$firstHeaderRow, 'Thành tiền (đồng)');
+        $sheet->setCellValue('F'.$firstHeaderRow, 'Số tháng tính tiền');
+        $sheet->setCellValue('G'.$firstHeaderRow, 'Số phải nộp kỳ ' . $this->period . '/' . $this->year . ' (đồng)');
+        $sheet->setCellValue('H'.$firstHeaderRow, 'Số đã nộp/được miễn, giảm (đồng)');
+        $sheet->setCellValue('I'.$firstHeaderRow, 'Số còn phải nộp (đồng)');
         $sheet->setCellValue('J'.$firstHeaderRow, 'Ghi chú');
 
         // Set column labels (A, B, (1), etc) - row 8
         $secondHeaderRow = 8;
         $sheet->setCellValue('A'.$secondHeaderRow, 'A');
         $sheet->setCellValue('B'.$secondHeaderRow, 'B');
-        $sheet->setCellValue('C'.$secondHeaderRow, 'C');
-        $sheet->setCellValue('D'.$secondHeaderRow, '(1)');
-        $sheet->setCellValue('E'.$secondHeaderRow, '(2)');
-        $sheet->setCellValue('F'.$secondHeaderRow, '(3)=(1)x(2)');
-        $sheet->setCellValue('G'.$secondHeaderRow, '(4)');
-        $sheet->setCellValue('H'.$secondHeaderRow, '(5)=(3)/2');
-        $sheet->setCellValue('I'.$secondHeaderRow, '(6)=(5)-(4)');
-        $sheet->setCellValue('J'.$secondHeaderRow, '(7)');
+        $sheet->setCellValue('C'.$secondHeaderRow, '(1)');
+        $sheet->setCellValue('D'.$secondHeaderRow, '(2)');
+        $sheet->setCellValue('E'.$secondHeaderRow, '(3)=(1)x(2)');
+        $sheet->setCellValue('F'.$secondHeaderRow, '(4)');
+        $sheet->setCellValue('G'.$secondHeaderRow, '(5)=((3)/12)x(4)');
+        $sheet->setCellValue('H'.$secondHeaderRow, '(6)');
+        $sheet->setCellValue('I'.$secondHeaderRow, '(7)=(5-6)');
+        $sheet->setCellValue('J'.$secondHeaderRow, '(8)');
 
         // Style both header rows
         $sheet->getStyle('A'.$firstHeaderRow.':J'.$secondHeaderRow)->applyFromArray([
@@ -375,13 +485,13 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
         
         if ($dataEndRow >= $dataStartRow) {
             // Ghi công thức Excel cho các cột tính toán:
-            // F (Thành tiền) = D * E
-            // H (Số phải nộp kỳ) = F / 2
-            // I (Số tiền còn phải nộp) = H - G
+            // E (Thành tiền) = C * D
+            // G (Số phải nộp kỳ) = (E / 12) * F  -> =(E{row}/12)*F{row} or =(E{row}*F{row})/12
+            // I (Số còn phải nộp) = G - H
             for ($r = $dataStartRow; $r <= $dataEndRow; $r++) {
-                $sheet->setCellValue('F'.$r, '=D'.$r.'*E'.$r);
-                $sheet->setCellValue('H'.$r, '=F'.$r.'/2');
-                $sheet->setCellValue('I'.$r, '=H'.$r.'-G'.$r);
+                $sheet->setCellValue('E'.$r, '=C'.$r.'*D'.$r);
+                $sheet->setCellValue('G'.$r, '=(E'.$r.'/12)*F'.$r);
+                $sheet->setCellValue('I'.$r, '=G'.$r.'-H'.$r);
             }
             // Style all data cells
             $sheet->getStyle('A'.$dataStartRow.':J'.$dataEndRow)->applyFromArray([
@@ -398,13 +508,14 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
             
             // Center align specific columns
             $sheet->getStyle('A'.$dataStartRow.':A'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
-            $sheet->getStyle('D'.$dataStartRow.':D'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C'.$dataStartRow.':C'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('F'.$dataStartRow.':F'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             
             // Right align number columns
-            $sheet->getStyle('E'.$dataStartRow.':I'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+            $sheet->getStyle('D'.$dataStartRow.':I'.$dataEndRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
             
             // Format currency cells
-            $sheet->getStyle('E'.$dataStartRow.':I'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('C'.$dataStartRow.':I'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
             
             // Add total row
             $totalRow = $dataEndRow + 1;

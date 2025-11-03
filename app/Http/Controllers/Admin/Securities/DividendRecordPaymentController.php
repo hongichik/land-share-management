@@ -211,7 +211,7 @@ class DividendRecordPaymentController extends Controller
             
             // Kiểm tra xem có dữ liệu không trước khi export
             $recordCount = DividendRecord::whereIn('payment_status', ['paid_not_deposited', 'paid_both'])
-                ->whereYear('payment_date', $year)
+                ->whereYear('transfer_date', $year)
                 ->count();
             
             if ($recordCount === 0) {

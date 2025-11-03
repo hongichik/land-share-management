@@ -10,7 +10,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Chi tiết Hợp đồng thuê đất: {{ $landRentalContract->contract_number }}</h3>
                     <div class="card-tools">
-                        <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract) }}"
+                        <a href="{{ route('admin.land-rental.payment-histories.index', $landRentalContract->id) }}"
                             class="btn btn-info btn-sm">
                             <i class="fas fa-money-bill-wave"></i> Lịch sử thanh toán
                         </a>

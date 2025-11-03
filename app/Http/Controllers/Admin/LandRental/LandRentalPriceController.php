@@ -74,10 +74,10 @@ class LandRentalPriceController extends Controller
                     $actions = '';
                     
                     if ($isLatest) {
-                        $actions .= '<a href="' . route('admin.land-rental-prices.edit', [$landRentalContract, $item]) . '" class="btn btn-warning btn-sm" title="Sửa">
+                        $actions .= '<a href="' . route('admin.land-rental.prices.edit', [$landRentalContract, $item]) . '" class="btn btn-warning btn-sm" title="Sửa">
                             <i class="fas fa-edit"></i>
                         </a> ';
-                        $actions .= '<form action="' . route('admin.land-rental-prices.destroy', [$landRentalContract, $item]) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa giá thuê này?\')">
+                        $actions .= '<form action="' . route('admin.land-rental.prices.destroy', [$landRentalContract, $item]) . '" method="POST" class="d-inline" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa giá thuê này?\')">
                             ' . csrf_field() . method_field('DELETE') . '
                             <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
                                 <i class="fas fa-trash"></i>
@@ -95,7 +95,7 @@ class LandRentalPriceController extends Controller
                 ->make(true);
         }
 
-        return view('admin.land-rental.prices.index', compact('landRentalContract'));
+        return view('admin.land-rental.land-rental-prices.index', compact('landRentalContract'));
     }
 
     /**
@@ -115,7 +115,7 @@ class LandRentalPriceController extends Controller
             $defaultStartDate = $landRentalContract->rental_period['start_date'];
         }
         
-        return view('admin.land-rental.prices.create', compact('landRentalContract', 'defaultStartDate'));
+        return view('admin.land-rental.land-rental-prices.create', compact('landRentalContract', 'defaultStartDate'));
     }
 
     /**
@@ -167,7 +167,7 @@ class LandRentalPriceController extends Controller
             'note' => $request->note,
         ]);
 
-        return redirect()->route('admin.land-rental-prices.index', $landRentalContract)->with('success', 'Thêm giá thuê đất thành công!');
+        return redirect()->route('admin.land-rental.prices.index', $landRentalContract)->with('success', 'Thêm giá thuê đất thành công!');
     }
 
     /**
@@ -181,11 +181,11 @@ class LandRentalPriceController extends Controller
             ->first();
             
         if (!$latestPrice || $landRentalPrice->id !== $latestPrice->id) {
-            return redirect()->route('admin.land-rental-prices.index', $landRentalContract)
+            return redirect()->route('admin.land-rental.prices.index', $landRentalContract)
                 ->with('error', 'Chỉ được phép sửa giá thuê mới nhất để tránh thay đổi lịch sử!');
         }
         
-        return view('admin.land-rental.prices.edit', compact('landRentalContract', 'landRentalPrice'));
+        return view('admin.land-rental.land-rental-prices.edit', compact('landRentalContract', 'landRentalPrice'));
     }
 
     /**
@@ -221,7 +221,7 @@ class LandRentalPriceController extends Controller
             'note' => $request->note,
         ]);
 
-        return redirect()->route('admin.land-rental-prices.index', $landRentalContract)->with('success', 'Cập nhật giá thuê đất thành công!');
+        return redirect()->route('admin.land-rental.prices.index', $landRentalContract)->with('success', 'Cập nhật giá thuê đất thành công!');
     }
 
     /**
@@ -235,7 +235,7 @@ class LandRentalPriceController extends Controller
             ->first();
             
         if (!$latestPrice || $landRentalPrice->id !== $latestPrice->id) {
-            return redirect()->route('admin.land-rental-prices.index', $landRentalContract)
+            return redirect()->route('admin.land-rental.prices.index', $landRentalContract)
                 ->with('error', 'Chỉ được phép xóa giá thuê mới nhất để tránh thay đổi lịch sử!');
         }
 
@@ -245,6 +245,6 @@ class LandRentalPriceController extends Controller
 
         $landRentalPrice->delete();
 
-        return redirect()->route('admin.land-rental-prices.index', $landRentalContract)->with('success', 'Xóa giá thuê đất thành công!');
+        return redirect()->route('admin.land-rental.prices.index', $landRentalContract)->with('success', 'Xóa giá thuê đất thành công!');
     }
 }

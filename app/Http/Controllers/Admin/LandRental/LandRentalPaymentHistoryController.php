@@ -70,7 +70,7 @@ class LandRentalPaymentHistoryController extends Controller
                     return $item->notes ? Str::limit($item->notes, 50) : 'Không có ghi chú';
                 })
                 ->addColumn('action', function ($item) use ($landRentalContract, $latestPaymentId) {
-                    $showBtn = '<a href="' . route('admin.land-rental-payment-histories.show', [$landRentalContract, $item]) . '" class="btn btn-info btn-sm" title="Xem chi tiết">
+                    $showBtn = '<a href="' . route('admin.land-rental.payment-histories.show', [$landRentalContract, $item]) . '" class="btn btn-info btn-sm" title="Xem chi tiết">
                         <i class="fas fa-eye"></i>
                     </a>';
                     
@@ -79,11 +79,11 @@ class LandRentalPaymentHistoryController extends Controller
                     
                     // Chỉ cho phép sửa và xóa thanh toán mới nhất
                     if ($item->id == $latestPaymentId) {
-                        $editBtn = '<a href="' . route('admin.land-rental-payment-histories.edit', [$landRentalContract, $item]) . '" class="btn btn-warning btn-sm" title="Sửa">
+                        $editBtn = '<a href="' . route('admin.land-rental.payment-histories.edit', [$landRentalContract, $item]) . '" class="btn btn-warning btn-sm" title="Sửa">
                             <i class="fas fa-edit"></i>
                         </a>';
                         
-                        $deleteBtn = '<form method="POST" action="' . route('admin.land-rental-payment-histories.destroy', [$landRentalContract, $item]) . '" style="display:inline-block;" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa lịch sử thanh toán này?\')">
+                        $deleteBtn = '<form method="POST" action="' . route('admin.land-rental.payment-histories.destroy', [$landRentalContract, $item]) . '" style="display:inline-block;" onsubmit="return confirm(\'Bạn có chắc chắn muốn xóa lịch sử thanh toán này?\')">
                             ' . csrf_field() . '
                             ' . method_field('DELETE') . '
                             <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
@@ -107,7 +107,7 @@ class LandRentalPaymentHistoryController extends Controller
                 ->make(true);
         }
 
-        return view('admin.land-rental.payment-histories.index', compact('landRentalContract'));
+        return view('admin.land-rental.histories.index', compact('landRentalContract'));
     }
 
     /**
@@ -115,7 +115,7 @@ class LandRentalPaymentHistoryController extends Controller
      */
     public function create(LandRentalContract $landRentalContract)
     {
-        return view('admin.land-rental.payment-histories.create', compact('landRentalContract'));
+        return view('admin.land-rental.histories.create', compact('landRentalContract'));
     }
 
     /**
@@ -140,7 +140,7 @@ class LandRentalPaymentHistoryController extends Controller
             'notes' => $request->notes,
         ]);
 
-        return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+        return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
             ->with('success', 'Thêm lịch sử thanh toán thành công!');
     }
 
@@ -149,7 +149,7 @@ class LandRentalPaymentHistoryController extends Controller
      */
     public function show(LandRentalContract $landRentalContract, LandRentalPaymentHistory $landRentalPaymentHistory)
     {
-        return view('admin.land-rental.payment-histories.show', compact('landRentalContract', 'landRentalPaymentHistory'));
+        return view('admin.land-rental.histories.show', compact('landRentalContract', 'landRentalPaymentHistory'));
     }
 
     /**
@@ -162,11 +162,11 @@ class LandRentalPaymentHistoryController extends Controller
             ->max('id');
             
         if ($landRentalPaymentHistory->id != $latestPaymentId) {
-            return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+            return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
                 ->with('error', 'Chỉ được phép sửa thanh toán mới nhất!');
         }
         
-        return view('admin.land-rental.payment-histories.edit', compact('landRentalContract', 'landRentalPaymentHistory'));
+        return view('admin.land-rental.histories.edit', compact('landRentalContract', 'landRentalPaymentHistory'));
     }
 
     /**
@@ -179,7 +179,7 @@ class LandRentalPaymentHistoryController extends Controller
             ->max('id');
             
         if ($landRentalPaymentHistory->id != $latestPaymentId) {
-            return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+            return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
                 ->with('error', 'Chỉ được phép sửa thanh toán mới nhất!');
         }
         
@@ -199,7 +199,7 @@ class LandRentalPaymentHistoryController extends Controller
             'notes' => $request->notes,
         ]);
 
-        return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+        return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
             ->with('success', 'Cập nhật lịch sử thanh toán thành công!');
     }
 
@@ -213,13 +213,13 @@ class LandRentalPaymentHistoryController extends Controller
             ->max('id');
             
         if ($landRentalPaymentHistory->id != $latestPaymentId) {
-            return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+            return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
                 ->with('error', 'Chỉ được phép xóa thanh toán mới nhất!');
         }
         
         $landRentalPaymentHistory->delete();
 
-        return redirect()->route('admin.land-rental-payment-histories.index', $landRentalContract)
+        return redirect()->route('admin.land-rental.payment-histories.index', $landRentalContract)
             ->with('success', 'Xóa lịch sử thanh toán thành công!');
     }
 }

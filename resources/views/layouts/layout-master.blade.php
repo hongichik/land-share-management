@@ -25,6 +25,8 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="{{ asset('vendor/master-admin/assets/css/adminlte.css') }}">
     <!-- Custom Admin CSS -->
     <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
@@ -101,6 +103,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
     <script src="{{ asset('vendor/master-admin/assets/js/adminlte.js') }}"></script>
 
     {{-- OverlayScrollbars Config --}}

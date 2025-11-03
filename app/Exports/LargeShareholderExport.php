@@ -68,6 +68,8 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
                     $shareholder->not_deposited_quantity ?? 0, // E - Chưa lưu ký
                     $shareholder->deposited_quantity ?? 0, // F - Đã lưu ký
                     $shareholder->issue_date ? date('d/m/Y', strtotime($shareholder->issue_date)) : '', // G - Ngày cấp
+                    $shareholder->email ?? '', // H - Gmail
+                    $shareholder->phone ?? '', // I - Số điện thoại
                 ];
                 
                 $index++;
@@ -98,6 +100,8 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
             'Chưa LK',
             'Đã LK',
             'Ngày cấp',
+            'Gmail',
+            'Số điện thoại',
         ];
     }
 
@@ -130,6 +134,8 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
             'E' => 12,
             'F' => 12,
             'G' => 12,
+            'H' => 25,
+            'I' => 15,
         ];
     }
 
@@ -164,7 +170,7 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
 
         // Dòng 4: Tiêu đề của bảng
         $sheet->setCellValue('A4', 'DANH SÁCH CỔ ĐÔNG LỚN');
-        $sheet->mergeCells('A4:G4');
+        $sheet->mergeCells('A4:I4');
         
         // Định dạng dòng 4
         $sheet->getStyle('A4')->getFont()->setBold(true)->setSize(11);
@@ -173,7 +179,7 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
         $sheet->getRowDimension(4)->setRowHeight(20);
 
         // Định dạng header row (dòng 5)
-        $headerRange = 'A5:G5';
+        $headerRange = 'A5:I5';
         $sheet->getStyle($headerRange)->getFont()->setBold(true)->setSize(11)->setColor(
             new \PhpOffice\PhpSpreadsheet\Style\Color('FFFFFF')
         );
@@ -200,7 +206,7 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
         // Định dạng dữ liệu
         $highestRow = $sheet->getHighestRow();
         if ($highestRow > 5) {
-            $dataRange = 'A6:G' . $highestRow;
+            $dataRange = 'A6:I' . $highestRow;
             $sheet->getStyle($dataRange)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
             $sheet->getStyle($dataRange)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
             $sheet->getStyle($dataRange)->applyFromArray($borderStyle);
@@ -218,6 +224,8 @@ class LargeShareholderExport implements FromCollection, WithHeadings, WithTitle,
         $sheet->getStyle('E')->getAlignment()->setWrapText(true);
         $sheet->getStyle('F')->getAlignment()->setWrapText(true);
         $sheet->getStyle('G')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('H')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('I')->getAlignment()->setWrapText(true);
 
         return [];
     }
