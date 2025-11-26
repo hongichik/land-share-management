@@ -258,8 +258,8 @@
                                     <div class="form-group">
                                         <label>Kỳ thanh toán</label>
                                         <select name="period" class="form-control">
-                                            <option value="1">Kỳ I (Tháng 1-6)</option>
-                                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                                            <option value="1">Kỳ I </option>
+                                            <option value="2">Kỳ II </option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -417,8 +417,8 @@
                     <div class="form-group">
                         <label>Kỳ thanh toán</label>
                         <select name="period" class="form-control">
-                            <option value="1">Kỳ I (Tháng 1-6)</option>
-                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                            <option value="1">Kỳ I </option>
+                            <option value="2">Kỳ II </option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -503,8 +503,8 @@
                         <label for="payPeriod">Kỳ thanh toán <span class="text-danger">*</span></label>
                         <select id="payPeriod" name="period" class="form-control" required>
                             <option value="">-- Chọn kỳ --</option>
-                            <option value="1">Kỳ I (Tháng 1-6)</option>
-                            <option value="2">Kỳ II (Tháng 7-12)</option>
+                            <option value="1">Kỳ I </option>
+                            <option value="2">Kỳ II </option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -619,7 +619,7 @@ function confirmPayAll() {
     Swal.fire({
         title: 'Xác nhận thanh toán',
         html: `Bạn có chắc chắn muốn thanh toán tất cả hợp đồng trong:<br>
-               <strong>Kỳ ${period === '1' ? 'I (Tháng 1-6)' : 'II (Tháng 7-12)'} năm ${year}</strong>?`,
+               <strong>Kỳ ${period === '1' ? 'I ' : 'II '} năm ${year}</strong>?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#ffc107',

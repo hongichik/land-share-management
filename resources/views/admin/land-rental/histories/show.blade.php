@@ -59,9 +59,9 @@
                                     <td>
                                         <span class="badge bg-info badge-info">{{ $landRentalPaymentHistory->period_name }}</span>
                                         @if($landRentalPaymentHistory->period == 1)
-                                            <small class="text-muted">(Tháng 1-6)</small>
+                                            <small class="text-muted">Kỳ I</small>
                                         @else
-                                            <small class="text-muted">(Tháng 7-12)</small>
+                                            <small class="text-muted">Kỳ II</small>
                                         @endif
                                     </td>
                                 </tr>

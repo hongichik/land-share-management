@@ -157,7 +157,7 @@
                                     <div class="info-box">
                                         <span class="info-box-icon bg-success"><i class="fas fa-calendar-alt"></i></span>
                                         <div class="info-box-content">
-                                            <span class="info-box-text">Kỳ 1 (Tháng 1-6)</span>
+                                            <span class="info-box-text">Kỳ 1 </span>
                                             <span class="info-box-number">{{ number_format($period1Payments->sum('amount'), 0, ',', '.') }} VND</span>
                                             <span class="progress-description">{{ $period1Payments->count() }} lần thanh toán</span>
                                         </div>
@@ -167,7 +167,7 @@
                                     <div class="info-box">
                                         <span class="info-box-icon bg-warning"><i class="fas fa-calendar-alt"></i></span>
                                         <div class="info-box-content">
-                                            <span class="info-box-text">Kỳ 2 (Tháng 7-12)</span>
+                                            <span class="info-box-text">Kỳ 2 </span>
                                             <span class="info-box-number">{{ number_format($period2Payments->sum('amount'), 0, ',', '.') }} VND</span>
                                             <span class="progress-description">{{ $period2Payments->count() }} lần thanh toán</span>
                                         </div>

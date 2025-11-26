@@ -56,8 +56,8 @@
                                 <label for="period">Kỳ nộp <span class="text-danger">*</span></label>
                                 <select class="form-control @error('period') is-invalid @enderror" id="period" name="period" required>
                                     <option value="">Chọn kỳ nộp</option>
-                                    <option value="1" {{ old('period', $landRentalPaymentHistory->period) == '1' ? 'selected' : '' }}>Kỳ 1 (Tháng 1-6)</option>
-                                    <option value="2" {{ old('period', $landRentalPaymentHistory->period) == '2' ? 'selected' : '' }}>Kỳ 2 (Tháng 7-12)</option>
+                                    <option value="1" {{ old('period', $landRentalPaymentHistory->period) == '1' ? 'selected' : '' }}>Kỳ 1 </option>
+                                    <option value="2" {{ old('period', $landRentalPaymentHistory->period) == '2' ? 'selected' : '' }}>Kỳ 2 </option>
                                 </select>
                                 @error('period')
                                     <span class="invalid-feedback">{{ $message }}</span>
