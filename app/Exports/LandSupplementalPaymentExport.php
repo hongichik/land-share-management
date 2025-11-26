@@ -58,6 +58,29 @@ class LandSupplementalPaymentExport implements FromCollection, WithHeadings, Wit
     }
 
     /**
+     * Calculate months within the current year for a price period
+     */
+    private function calculateMonthsInYear($pricePeriod, $year)
+    {
+        $yearStart = Carbon::create($year, 1, 1);
+        $yearEnd = Carbon::create($year, 12, 31);
+        
+        $priceStart = Carbon::parse($pricePeriod['start']);
+        $priceEnd = Carbon::parse($pricePeriod['end']);
+        
+        // Calculate overlap with the current year
+        $segmentStart = $priceStart->copy()->max($yearStart);
+        $segmentEnd = $priceEnd->copy()->min($yearEnd);
+        
+        if ($segmentStart > $segmentEnd) {
+            return 0;
+        }
+        
+        // Calculate months with proper day handling
+        return $this->calculateMonths($segmentStart, $segmentEnd);
+    }
+
+    /**
      * Generate data for supplemental payment calculation
      * 
      * @return array
@@ -114,19 +137,9 @@ class LandSupplementalPaymentExport implements FromCollection, WithHeadings, Wit
                             $oldPricePeriod = $oldPrice->price_period;
                             $newPricePeriod = $newPrice->price_period;
                             
-                            // Xác định số tháng dựa trên tháng kết thúc của giá cũ
-                            $oldEndDate = Carbon::parse($oldPricePeriod['end']);
-                            $endMonth = $oldEndDate->month;
-                            
-                            if ($endMonth >= 1 && $endMonth <= 6) {
-                                // Tháng 1-6: số tháng = 12
-                                $oldMonths = 12;
-                                $newMonths = 12;
-                            } else {
-                                // Tháng 7-12: số tháng = 6
-                                $oldMonths = 6;
-                                $newMonths = 6;
-                            }
+                            // Tính số tháng dựa trên thời gian thực tế của từng kỳ giá trong năm hiện tại
+                            $oldMonths = $this->calculateMonthsInYear($oldPricePeriod, $this->year);
+                            $newMonths = $this->calculateMonthsInYear($newPricePeriod, $this->year);
 
                             $this->oldPriceDate = Carbon::parse($oldPricePeriod['end'])->format('d/m/Y');
                             $this->newPriceDate = Carbon::parse($newPricePeriod['start'])->format('d/m/Y');
@@ -158,7 +171,7 @@ class LandSupplementalPaymentExport implements FromCollection, WithHeadings, Wit
                             'contract_number' => $contract->contract_number,
                             'area' => $area,
                             'old_unit_price' => $oldUnitPrice,
-                            'old_months' => $oldMonths,
+                            'old_months' => $newMonths,
                             'old_annual_rental' => $oldAnnualRental,
                             'new_unit_price' => $newUnitPrice,
                             'new_months' => $newMonths,
@@ -390,8 +403,8 @@ class LandSupplementalPaymentExport implements FromCollection, WithHeadings, Wit
         $sheet->setCellValue('B'.$firstHeaderRow, 'Hạng mục');
         $sheet->setCellValue('C'.$firstHeaderRow, 'Hợp đồng số');
         $sheet->setCellValue('D'.$firstHeaderRow, 'Diện tích (m2)');
-        $sheet->setCellValue('E'.$firstHeaderRow, 'Theo đơn giá thuê đất cũ '.$this->old_price_decision.' '.$this->oldPriceDate);
-        $sheet->setCellValue('H'.$firstHeaderRow, 'Theo đơn giá thuê đất mới '.$this->new_price_decision.' '.$this->newPriceDate);
+        $sheet->setCellValue('E'.$firstHeaderRow, 'Theo đơn giá thuê đất cũ '.$this->old_price_decision);
+        $sheet->setCellValue('H'.$firstHeaderRow, 'Theo đơn giá thuê đất mới '.$this->new_price_decision);
         $sheet->setCellValue('K'.$firstHeaderRow, 'Số tiền phải nộp bổ sung');
         $sheet->setCellValue('L'.$firstHeaderRow, 'Ghi chú');
 

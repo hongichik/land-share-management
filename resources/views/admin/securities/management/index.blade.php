@@ -164,7 +164,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -172,7 +172,7 @@
                     Bạn có chắc chắn muốn xóa thông tin nhà đầu tư này không?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
                 </div>
             </div>
@@ -188,7 +188,7 @@
                     <h5 class="modal-title" id="importPreviewModalLabel">
                         <i class="fas fa-eye"></i> Xem trước dữ liệu import
                     </h5>
-                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -203,7 +203,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                     <button type="button" class="btn btn-primary" id="confirmImport">
                         <i class="fas fa-check"></i> Xác nhận import
                     </button>
@@ -219,6 +219,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
     <style>
+        /* Modal header close button fix */
+        .modal-header .close {
+            color: #000;
+            opacity: 1;
+            text-shadow: none;
+        }
+        .modal-header .close:hover {
+            opacity: 0.8;
+        }
+        
         .import-item {
             padding: 10px;
             margin-bottom: 10px;

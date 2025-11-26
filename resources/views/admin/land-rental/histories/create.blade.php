@@ -73,6 +73,7 @@
                                     <option value="1" {{ old('payment_type') == '1' ? 'selected' : '' }}>Nộp trước</option>
                                     <option value="2" {{ old('payment_type') == '2' ? 'selected' : '' }}>Nộp đúng hạn</option>
                                     <option value="3" {{ old('payment_type') == '3' ? 'selected' : '' }}>Miễn giảm</option>
+                                    <option value="3" {{ old('payment_type') == '4' ? 'selected' : '' }}>Nộp bổ sung</option>
                                 </select>
                                 @error('payment_type')
                                     <span class="invalid-feedback">{{ $message }}</span>

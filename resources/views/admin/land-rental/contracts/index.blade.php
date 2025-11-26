@@ -230,7 +230,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success">
                 <h5 class="modal-title" id="exportExcelModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất báo cáo Excel</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -285,7 +285,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -297,7 +297,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success">
                 <h5 class="modal-title" id="exportRentalPlanModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Kế Hoạch Nộp Tiền Thuê Đất</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -322,7 +322,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -334,7 +334,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success">
                 <h5 class="modal-title" id="exportTaxPlanModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Kế Hoạch Nộp Thuế PNN</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -359,7 +359,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -371,7 +371,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success">
                 <h5 class="modal-title" id="exportNonAgriTaxModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Thuế SDD PNN</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -396,7 +396,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -408,7 +408,7 @@
         <div class="modal-content">
             <div class="modal-header bg-success">
                 <h5 class="modal-title" id="exportTaxCalculationModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Tiền Thuê Đất</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -440,7 +440,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -452,7 +452,7 @@
         <div class="modal-content">
             <div class="modal-header bg-info">
                 <h5 class="modal-title" id="exportSupplementalPaymentModalLabel"><i class="fas fa-file-excel mr-2"></i>Xuất Bảng Tính Tiền Nộp Bổ Sung</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -477,7 +477,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -542,8 +542,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 <style>
-    .modal-header.bg-success {
+    .modal-header.bg-success,
+    .modal-header.bg-info,
+    .modal-header.bg-warning {
         color: white;
+    }
+    .modal-header .close {
+        color: white;
+        opacity: 1;
+        text-shadow: none;
+    }
+    .modal-header .close:hover {
+        opacity: 0.8;
     }
     #exportExcelModal .card {
         box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);

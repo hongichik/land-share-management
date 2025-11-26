@@ -192,7 +192,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -200,7 +200,7 @@
                 Bạn có chắc chắn muốn xóa dữ liệu này?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
             </div>
         </div>
@@ -213,7 +213,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="importPreviewModalLabel">Xem trước dữ liệu Import</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -237,7 +237,7 @@
                 <div id="preview-content"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="confirmImport">Xác nhận Import</button>
             </div>
         </div>
@@ -250,7 +250,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="bankEditModalLabel">Sửa thông tin ngân hàng</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -271,7 +271,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="saveBankInfo">Lưu</button>
             </div>
         </div>
@@ -287,6 +287,16 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
 <link rel="stylesheet" href="{{ asset('css/custom-admin.css') }}">
 <style>
+    /* Modal header close button fix */
+    .modal-header .close {
+        color: #000;
+        opacity: 1;
+        text-shadow: none;
+    }
+    .modal-header .close:hover {
+        opacity: 0.8;
+    }
+    
     .import-item {
         padding: 12px;
         margin-bottom: 12px;

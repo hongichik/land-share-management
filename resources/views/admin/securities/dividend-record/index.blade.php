@@ -56,7 +56,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -64,7 +64,7 @@
                 Bạn có chắc chắn muốn xóa tất cả dữ liệu cổ tức cho lần trả này?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
             </div>
         </div>
@@ -78,6 +78,16 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 <style>
+    /* Modal header close button fix */
+    .modal-header .close {
+        color: #000;
+        opacity: 1;
+        text-shadow: none;
+    }
+    .modal-header .close:hover {
+        opacity: 0.8;
+    }
+    
     .tax-info-container {
         min-width: 150px;
     }

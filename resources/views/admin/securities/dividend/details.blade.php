@@ -162,7 +162,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detailModalLabel">Chi tiết cổ tức</h5>
-                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -170,7 +170,7 @@
                 <!-- Nội dung chi tiết sẽ được load vào đây -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -179,6 +179,16 @@
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap4.min.css">
 <style>
+    /* Modal header close button fix */
+    .modal-header .close {
+        color: #000;
+        opacity: 1;
+        text-shadow: none;
+    }
+    .modal-header .close:hover {
+        opacity: 0.8;
+    }
+    
     .table-hover tbody tr:hover {
         background-color: #f5f5f5;
     }
