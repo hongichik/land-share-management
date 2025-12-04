@@ -364,7 +364,7 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
         if ($dataEndRow >= $dataStartRow) {
             // Ghi công thức Excel cho cột H: (1x2x3x4)/12
             for ($r = $dataStartRow; $r <= $dataEndRow; $r++) {
-                $sheet->setCellValue('H'.$r, '=(D'.$r.'*E'.$r.'*F'.$r.'*G'.$r.')/12');
+                $sheet->setCellValue('H'.$r, '=(D'.$r.'*E'.$r.'*(F'.$r.'/100)*G'.$r.')/12');
             }
 
             // Định dạng tất cả các ô dữ liệu
@@ -392,8 +392,8 @@ class LandTaxPlanExport implements FromCollection, WithHeadings, WithTitle, With
             
             // Định dạng số cho các cột số
             $sheet->getStyle('D'.$dataStartRow.':D'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('E'.$dataStartRow.':E'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('F'.$dataStartRow.':F'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0.00');
+            $sheet->getStyle('E'.$dataStartRow.':E'.$dataEndRow)->getNumberFormat()->setFormatCode('#,####0');
+            $sheet->getStyle('F'.$dataStartRow.':F'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0.0000');
             $sheet->getStyle('G'.$dataStartRow.':G'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0.0');
             $sheet->getStyle('H'.$dataStartRow.':H'.$dataEndRow)->getNumberFormat()->setFormatCode('#,##0');
             

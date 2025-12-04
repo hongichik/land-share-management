@@ -94,7 +94,7 @@ class LandTaxCalculationExport implements FromCollection, WithHeadings, WithTitl
                     
                     $taxCalculationData[] = [
                         'index' => $index,
-                        'location' => $contract->rental_location,
+                        'location' => $contract->rental_purpose,
                         'contract_number' => $contract->contract_number,
                         'area' => isset($contract->area['value']) ? (float)$contract->area['value'] : 0,
                         'unit_price' => $unitPrice,

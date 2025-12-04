@@ -354,7 +354,7 @@ class LandNonAgriTaxCalculationExport implements FromCollection, WithHeadings, W
         if ($dataEndRow >= $dataStartRow) {
             // Ghi công thức Excel cho cột G: (1x2x3x4)/12
             for ($r = $dataStartRow; $r <= $dataEndRow; $r++) {
-                $sheet->setCellValue('G'.$r, '=(C'.$r.'*D'.$r.'*E'.$r.'*F'.$r.')/12');
+                $sheet->setCellValue('G'.$r, '=(C'.$r.'*D'.$r.'*(E'.$r.'/100)*F'.$r.')/12');
             }
 
             // Định dạng tất cả các ô dữ liệu

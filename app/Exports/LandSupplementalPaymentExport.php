@@ -167,7 +167,7 @@ class LandSupplementalPaymentExport implements FromCollection, WithHeadings, Wit
                     if ($supplementalPayment > 0 || $newAnnualRental > 0) {
                         $supplementalPaymentData[] = [
                             'index' => $index,
-                            'location' => $contract->rental_location,
+                            'location' => $contract->rental_purpose,
                             'contract_number' => $contract->contract_number,
                             'area' => $area,
                             'old_unit_price' => $oldUnitPrice,
