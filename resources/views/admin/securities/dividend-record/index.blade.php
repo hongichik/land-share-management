@@ -127,7 +127,7 @@ let currentPaymentDate = null;
 
 $(document).ready(function() {
     var currentYear = new Date().getFullYear();
-    var selectedYear = currentYear;
+    var selectedYear = ''; // Mặc định hiển thị tất cả năm
     
     // Tạo danh sách năm (từ 5 năm trước đến 5 năm sau hiện tại)
     function initializeYearFilter() {
@@ -136,7 +136,7 @@ $(document).ready(function() {
         for (var i = currentYear - 5; i <= currentYear + 5; i++) {
             $yearSelect.append($('<option></option>').val(i).text(i));
         }
-        $yearSelect.val(currentYear); // Chọn năm hiện tại mặc định
+        $yearSelect.val(''); // Chọn tất cả mặc định
     }
     
     initializeYearFilter();
