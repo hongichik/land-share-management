@@ -52,6 +52,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 // Export routes
                 Route::get('export-large-shareholders', [SecuritiesManagementController::class, 'exportLargeShareholders'])
                     ->name('export-large-shareholders');
+                Route::get('export-all-shareholders', [SecuritiesManagementController::class, 'exportAllShareholders'])
+                    ->name('export-all-shareholders');
 
                 // Individual resource routes
                 Route::get('summary-stats', [SecuritiesManagementController::class, 'getSummaryStats'])->name('summary-stats');

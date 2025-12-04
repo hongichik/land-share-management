@@ -83,13 +83,16 @@
                 <div class="card-header">
                     <h3 class="card-title">Danh sách cổ đông</h3>
                     <div class="card-tools">
+                        <a href="{{ route('admin.securities.management.export-all-shareholders') }}" class="btn btn-info btn-sm" title="Xuất toàn bộ danh sách cổ đông">
+                            <i class="fas fa-file-excel"></i> Xuất tất cả
+                        </a>
                         <a href="{{ route('admin.securities.management.export-large-shareholders') }}" class="btn btn-success btn-sm" title="Xuất danh sách cổ đông lớn (>= 5%)">
                             <i class="fas fa-file-download"></i> Xuất cổ đông lớn
                         </a>
                         <form id="import-form" enctype="multipart/form-data"
                             style="display:inline-block; margin-right:8px;">
                             @csrf
-                            <label for="import-investors" class="btn btn-info btn-sm mb-0">
+                            <label for="import-investors" class="btn btn-warning btn-sm mb-0">
                                 <i class="fas fa-file-import"></i> Import cổ đông
                             </label>
                             <input type="file" id="import-investors" name="file" accept=".xlsx,.xls,.csv"

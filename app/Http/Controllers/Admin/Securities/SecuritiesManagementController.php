@@ -429,4 +429,20 @@ class SecuritiesManagementController extends Controller
             return redirect()->back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export all shareholders
+     */
+    public function exportAllShareholders()
+    {
+        try {
+            return \Maatwebsite\Excel\Facades\Excel::download(
+                new \App\Exports\ShareholderExport(),
+                'Danh_sach_tat_ca_co_dong_' . date('d_m_Y') . '.xlsx'
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Export all shareholders error', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
+        }
+    }
 }
